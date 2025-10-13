@@ -13,6 +13,9 @@ export default {
       },
     },
     extend: {
+      fontFamily: {
+        outfit: ['Outfit', 'sans-serif'],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -47,6 +50,11 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        "navy-dark": "hsl(var(--navy-dark))",
+        "blue-ocean": "hsl(var(--blue-primary))",
+        "blue-medium": "hsl(var(--blue-medium))",
+        "cyan-ocean": "hsl(var(--cyan-accent))",
+        "gray-ocean": "hsl(var(--gray-light))",
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",
