@@ -50,11 +50,15 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        "navy-dark": "hsl(var(--navy-dark))",
-        "blue-ocean": "hsl(var(--blue-primary))",
-        "blue-medium": "hsl(var(--blue-medium))",
-        "cyan-ocean": "hsl(var(--cyan-accent))",
-        "gray-ocean": "hsl(var(--gray-light))",
+        "navy-ultra-dark": "hsl(var(--navy-ultra-dark))",
+        "navy-card": "hsl(var(--navy-card))",
+        "blue-vibrant": "hsl(var(--blue-vibrant))",
+        "cyan-modern": "hsl(var(--cyan-modern))",
+        "gray-light": "hsl(var(--gray-light))",
+        "gray-medium": "hsl(var(--gray-medium))",
+        "gray-muted": "hsl(var(--gray-muted))",
+        "red-alert": "hsl(var(--red-alert))",
+        "yellow-warning": "hsl(var(--yellow-warning))",
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",
@@ -70,6 +74,12 @@ export default {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+      },
+      boxShadow: {
+        'sm': 'var(--shadow-sm)',
+        'md': 'var(--shadow-md)',
+        'lg': 'var(--shadow-lg)',
+        'xl': 'var(--shadow-xl)',
       },
       keyframes: {
         "accordion-down": {

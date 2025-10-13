@@ -8,105 +8,99 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Blue Ocean Brand Colors */
-    --background: 220 50% 96%;
-    --foreground: 217 91% 4%;
+    /* Ultra Professional Blue Ocean Colors */
+    --background: 210 25% 98%;
+    --foreground: 220 40% 7%;
 
     --card: 0 0% 100%;
-    --card-foreground: 217 91% 4%;
+    --card-foreground: 220 40% 7%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 217 91% 4%;
+    --popover-foreground: 220 40% 7%;
 
-    /* Primary: Blue Ocean Blue (#003BFF) */
-    --primary: 222 100% 50%;
+    /* Primary: Vibrant Blue (#0066FF) */
+    --primary: 216 100% 50%;
     --primary-foreground: 0 0% 100%;
 
-    /* Secondary: Navy Dark (#08090D) */
-    --secondary: 220 30% 5%;
+    /* Secondary: Navy Ultra Dark (#0B1120) */
+    --secondary: 220 50% 8%;
     --secondary-foreground: 0 0% 100%;
 
-    /* Muted: Light Gray (#EEF6F6) */
-    --muted: 180 33% 96%;
-    --muted-foreground: 217 20% 40%;
+    /* Muted: Light Gray (#F8FAFC) */
+    --muted: 210 20% 98%;
+    --muted-foreground: 215 16% 47%;
 
-    /* Accent: Cyan Ocean (#00DEB9) */
-    --accent: 167 100% 44%;
-    --accent-foreground: 217 91% 4%;
+    /* Accent: Cyan Modern (#00E5CC) */
+    --accent: 173 100% 45%;
+    --accent-foreground: 220 40% 7%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 217 32% 85%;
-    --input: 217 32% 85%;
-    --ring: 222 100% 50%;
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 216 100% 50%;
 
-    --radius: 1.5rem;
+    --radius: 1rem;
 
-    /* Blue Ocean Custom Design Tokens */
-    --navy-dark: 220 30% 5%;
-    --blue-primary: 222 100% 50%;
-    --blue-medium: 230 95% 26%;
-    --cyan-accent: 167 100% 44%;
-    --gray-light: 180 33% 96%;
+    /* Professional Design Tokens */
+    --navy-ultra-dark: 220 50% 8%;
+    --navy-card: 220 40% 13%;
+    --blue-vibrant: 216 100% 50%;
+    --cyan-modern: 173 100% 45%;
+    --gray-light: 210 20% 98%;
+    --gray-medium: 215 16% 47%;
+    --gray-muted: 215 20% 65%;
+    --red-alert: 354 70% 54%;
+    --yellow-warning: 43 100% 50%;
     
-    /* Gradients */
-    --gradient-blue: linear-gradient(135deg, hsl(222 100% 50%) 0%, hsl(230 95% 26%) 100%);
-    --gradient-cyan: linear-gradient(135deg, hsl(167 100% 44%) 0%, hsl(222 100% 50%) 100%);
-    --gradient-dark: linear-gradient(135deg, hsl(220 30% 5%) 0%, hsl(230 95% 26%) 100%);
-    
-    /* Shadows */
-    --shadow-blue: 0 20px 60px -15px hsl(222 100% 50% / 0.4);
-    --shadow-cyan: 0 20px 60px -15px hsl(167 100% 44% / 0.4);
+    /* Minimal Shadows */
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
     
     /* Animations */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
     --sidebar-background: 0 0% 98%;
-
     --sidebar-foreground: 240 5.3% 26.1%;
-
     --sidebar-primary: 240 5.9% 10%;
-
     --sidebar-primary-foreground: 0 0% 98%;
-
     --sidebar-accent: 240 4.8% 95.9%;
-
     --sidebar-accent-foreground: 240 5.9% 10%;
-
     --sidebar-border: 220 13% 91%;
-
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 
   .dark {
-    --background: 220 30% 5%;
+    --background: 220 50% 8%;
     --foreground: 0 0% 100%;
 
-    --card: 220 30% 5%;
+    --card: 220 40% 13%;
     --card-foreground: 0 0% 100%;
 
-    --popover: 220 30% 5%;
+    --popover: 220 40% 13%;
     --popover-foreground: 0 0% 100%;
 
-    --primary: 222 100% 50%;
+    --primary: 216 100% 50%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 230 95% 26%;
+    --secondary: 220 40% 20%;
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 230 95% 26%;
-    --muted-foreground: 217 20% 70%;
+    --muted: 220 40% 20%;
+    --muted-foreground: 215 20% 65%;
 
-    --accent: 167 100% 44%;
-    --accent-foreground: 220 30% 5%;
+    --accent: 173 100% 45%;
+    --accent-foreground: 220 50% 8%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 230 95% 26%;
-    --input: 230 95% 26%;
-    --ring: 167 100% 44%;
+    --border: 220 40% 20%;
+    --input: 220 40% 20%;
+    --ring: 173 100% 45%;
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
