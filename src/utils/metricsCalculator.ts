@@ -129,6 +129,28 @@ export const calcularMetricas = (data: any[]): Metricas => {
     console.log('🔍 Primeiros 5 valores de VALOR:', data.slice(0, 5).map(row => getColumnValue(row, ['VALOR'])));
   }
   
+  // Função para verificar se um closer pertence a um squad (matching flexível)
+  const closerPertenceAoSquad = (closerNome: string, closersDoSquad: string[]): boolean => {
+    if (!closerNome) return false;
+    const nomeNormalizado = closerNome.trim().toLowerCase();
+    
+    return closersDoSquad.some(closerSquad => {
+      const squadNormalizado = closerSquad.trim().toLowerCase();
+      
+      // Match exato
+      if (nomeNormalizado === squadNormalizado) return true;
+      
+      // Match parcial (nome contém o nome do squad ou vice-versa)
+      if (nomeNormalizado.includes(squadNormalizado) || squadNormalizado.includes(nomeNormalizado)) return true;
+      
+      // Match por abreviação (ex: "G. Fernandes" contém "Fernandes")
+      const partes = nomeNormalizado.split(' ');
+      if (partes.some(parte => squadNormalizado.includes(parte) && parte.length > 2)) return true;
+      
+      return false;
+    });
+  };
+  
   // Metas fixas
   const metaMensal = 650000;
   const metaSemanal = 148000;
@@ -221,31 +243,59 @@ export const calcularMetricas = (data: any[]): Metricas => {
   const progressoMetaSemanal = (receitaSemanal / metaSemanal) * 100;
   const progressoMetaDiaria = (receitaDiaria / metaDiaria) * 100;
   
-  // Análise de Squads
+  // Análise de Squads - APENAS pelos Closers que fecharam
   const membrosHotDogs = {
-    sdrs: ['Marcos'],
     closers: ['Bruno', 'Cauã']
   };
   
   const membrosCorvoAzul = {
-    sdrs: ['Vinícius'],
-    closers: ['Gabriel Fernandes', 'Gabriel Franklin']
+    closers: ['Gabriel Fernandes', 'Gabriel Franklin', 'G. Fernandes', 'G. Franklin']
   };
   
+  // Filtrar vendas APENAS pelo Closer que fechou (ignora SDR)
   const vendasHotDogs = vendasGanhas.filter(row => {
-    const sdr = String(getColumnValue(row, ['SDR FECHOU', 'SDR']) || '').trim();
     const closer = String(getColumnValue(row, ['CLOSER FECHOU', 'CLOSER']) || '').trim();
-    return membrosHotDogs.sdrs.includes(sdr) || membrosHotDogs.closers.includes(closer);
+    return closerPertenceAoSquad(closer, membrosHotDogs.closers);
   });
   
   const vendasCorvoAzul = vendasGanhas.filter(row => {
-    const sdr = String(getColumnValue(row, ['SDR FECHOU', 'SDR']) || '').trim();
     const closer = String(getColumnValue(row, ['CLOSER FECHOU', 'CLOSER']) || '').trim();
-    return membrosCorvoAzul.sdrs.includes(sdr) || membrosCorvoAzul.closers.includes(closer);
+    return closerPertenceAoSquad(closer, membrosCorvoAzul.closers);
   });
   
   const receitaHotDogs = vendasHotDogs.reduce((acc, row) => acc + parseValor(getColumnValue(row, ['VALOR', 'PREÇO'])), 0);
   const receitaCorvoAzul = vendasCorvoAzul.reduce((acc, row) => acc + parseValor(getColumnValue(row, ['VALOR', 'PREÇO'])), 0);
+  
+  // Logging detalhado da Guerra de Squads
+  console.log('🏆 GUERRA DE SQUADS - DEBUG:');
+  console.log('Hot Dogs (Bruno, Cauã):', {
+    vendas: vendasHotDogs.length,
+    receita: receitaHotDogs,
+    closers: vendasHotDogs.map(v => getColumnValue(v, ['CLOSER FECHOU', 'CLOSER']))
+  });
+  console.log('Corvo Azul (G. Fernandes, G. Franklin):', {
+    vendas: vendasCorvoAzul.length,
+    receita: receitaCorvoAzul,
+    closers: vendasCorvoAzul.map(v => getColumnValue(v, ['CLOSER FECHOU', 'CLOSER']))
+  });
+  
+  // Verificar vendas não atribuídas
+  const vendasAtribuidas = vendasHotDogs.length + vendasCorvoAzul.length;
+  const vendasNaoAtribuidas = vendasGanhas.length - vendasAtribuidas;
+  
+  if (vendasNaoAtribuidas > 0) {
+    console.warn('⚠️ ATENÇÃO: Existem', vendasNaoAtribuidas, 'vendas não atribuídas a nenhum squad');
+    const vendaSemSquad = vendasGanhas.filter(row => {
+      const closer = String(getColumnValue(row, ['CLOSER FECHOU', 'CLOSER']) || '').trim();
+      return !closerPertenceAoSquad(closer, membrosHotDogs.closers) && 
+             !closerPertenceAoSquad(closer, membrosCorvoAzul.closers);
+    });
+    console.warn('Vendas sem squad:', vendaSemSquad.map(v => ({
+      call: getColumnValue(v, ['NOME DA CALL']),
+      closer: getColumnValue(v, ['CLOSER FECHOU', 'CLOSER']),
+      valor: getColumnValue(v, ['VALOR'])
+    })));
+  }
   
   const lider = receitaHotDogs > receitaCorvoAzul ? 'hotDogs' : 'corvoAzul';
   const vantagem = Math.abs(receitaHotDogs - receitaCorvoAzul);
@@ -281,12 +331,12 @@ export const calcularMetricas = (data: any[]): Metricas => {
       hotDogs: {
         receita: receitaHotDogs,
         contratos: vendasHotDogs.length,
-        membros: [...membrosHotDogs.sdrs, ...membrosHotDogs.closers]
+        membros: membrosHotDogs.closers
       },
       corvoAzul: {
         receita: receitaCorvoAzul,
         contratos: vendasCorvoAzul.length,
-        membros: [...membrosCorvoAzul.sdrs, ...membrosCorvoAzul.closers]
+        membros: membrosCorvoAzul.closers
       },
       lider,
       vantagem,
