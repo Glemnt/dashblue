@@ -34,6 +34,18 @@ export const useGoogleSheets = (): UseGoogleSheetsReturn => {
         skipEmptyLines: true,
         transformHeader: (header: string) => header.trim(),
         complete: (results) => {
+          console.log('📊 FETCH GOOGLE SHEETS:');
+          console.log('✅ Total de linhas:', results.data.length);
+          console.log('✅ CSV bruto (preview):', csvText.substring(0, 500));
+          
+          if (results.data.length > 0) {
+            console.log('📋 Headers exatos:', Object.keys(results.data[0]));
+            console.log('📋 Primeira linha completa:', results.data[0]);
+            if (results.data[1]) {
+              console.log('📋 Segunda linha completa:', results.data[1]);
+            }
+          }
+          
           console.log('📊 Dados brutos do CSV:', results.data);
           setData(results.data);
           setLastUpdate(new Date());

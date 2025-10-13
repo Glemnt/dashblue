@@ -1,7 +1,19 @@
-export const parseValor = (valor: string): number => {
-  if (!valor || typeof valor !== 'string') return 0;
+export const parseValor = (valor: any): number => {
+  // Se não existe, retorna 0
+  if (valor === null || valor === undefined || valor === '') return 0;
   
-  // Remove R$, espaços, e pontos de milhar
+  // Se já é número, retorna direto
+  if (typeof valor === 'number') {
+    return isNaN(valor) ? 0 : valor;
+  }
+  
+  // Se não é string, tenta converter
+  if (typeof valor !== 'string') {
+    const converted = String(valor);
+    return parseValor(converted);
+  }
+  
+  // Remove R$, espaços e pontos de milhar
   const cleanValue = valor
     .replace(/R\$/g, '')
     .replace(/\s/g, '')
@@ -26,6 +38,22 @@ export const formatarReal = (valor: number): string => {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2
   });
+};
+
+// Função auxiliar para comparar valores ignorando case e espaços
+const matchValue = (value: any, target: string): boolean => {
+  if (!value) return false;
+  return String(value).trim().toLowerCase() === target.toLowerCase();
+};
+
+// Função auxiliar para buscar valor de coluna com múltiplos nomes possíveis
+const getColumnValue = (row: any, possibleNames: string[]): any => {
+  for (const name of possibleNames) {
+    if (row[name] !== undefined && row[name] !== null && row[name] !== '') {
+      return row[name];
+    }
+  }
+  return null;
 };
 
 interface Squad {
@@ -93,23 +121,59 @@ interface Metricas {
 export const calcularMetricas = (data: any[]): Metricas => {
   console.log('🔄 Calculando métricas com', data.length, 'linhas');
   
+  // Logging dos headers
+  if (data.length > 0) {
+    console.log('📋 Headers disponíveis:', Object.keys(data[0]));
+    console.log('🔍 Valores únicos de FECHAMENTO:', [...new Set(data.map(row => getColumnValue(row, ['FECHAMENTO', 'STATUS'])))]);
+    console.log('🔍 Valores únicos de QUALIFICADA (SQL):', [...new Set(data.map(row => getColumnValue(row, ['QUALIFICADA (SQL)', 'QUALIFICADA'])))]);
+    console.log('🔍 Primeiros 5 valores de VALOR:', data.slice(0, 5).map(row => getColumnValue(row, ['VALOR'])));
+  }
+  
   // Metas fixas
   const metaMensal = 650000;
   const metaSemanal = 148000;
   const metaDiaria = 30000;
   
   // Filtros básicos
-  const vendasGanhas = data.filter(row => row['FECHAMENTO']?.trim() === 'Ganho');
-  const callsQualificadasList = data.filter(row => row['QUALIFICADA (SQL)']?.trim() === 'Sim');
+  const vendasGanhas = data.filter(row => {
+    const fechamento = getColumnValue(row, ['FECHAMENTO', 'STATUS']);
+    return matchValue(fechamento, 'SIM');
+  });
+  
+  console.log('💰 Vendas com FECHAMENTO = "SIM":', vendasGanhas.length);
+  if (vendasGanhas.length > 0) {
+    console.log('💰 Exemplo de venda ganha:', vendasGanhas[0]);
+  }
+  
+  const callsQualificadasList = data.filter(row => {
+    const qualificada = getColumnValue(row, ['QUALIFICADA (SQL)', 'QUALIFICADA', 'SQL']);
+    return matchValue(qualificada, 'SIM');
+  });
   
   // Receitas
-  const receitaTotal = vendasGanhas.reduce((acc, row) => acc + parseValor(row['VALOR']), 0);
+  const receitaTotal = vendasGanhas.reduce((acc, row) => {
+    const valor = parseValor(getColumnValue(row, ['VALOR', 'PREÇO']));
+    if (valor > 0) {
+      console.log('💵 Valor parseado:', valor, 'de', getColumnValue(row, ['VALOR', 'PREÇO']));
+    }
+    return acc + valor;
+  }, 0);
+  
+  console.log('💰 Receita Total calculada:', receitaTotal);
+  
   const receitaPaga = data
-    .filter(row => row['PAGAMENTO']?.trim() === 'Pago')
-    .reduce((acc, row) => acc + parseValor(row['VALOR']), 0);
+    .filter(row => {
+      const pagamento = getColumnValue(row, ['PAGAMENTO', 'STATUS PAGAMENTO']);
+      return matchValue(pagamento, 'PAGOU');
+    })
+    .reduce((acc, row) => acc + parseValor(getColumnValue(row, ['VALOR', 'PREÇO'])), 0);
+  
   const receitaAssinada = data
-    .filter(row => row['ASSINATURA']?.trim() === 'Assinado')
-    .reduce((acc, row) => acc + parseValor(row['VALOR']), 0);
+    .filter(row => {
+      const assinatura = getColumnValue(row, ['ASSINATURA', 'STATUS ASSINATURA']);
+      return matchValue(assinatura, 'ASSINOU');
+    })
+    .reduce((acc, row) => acc + parseValor(getColumnValue(row, ['VALOR', 'PREÇO'])), 0);
   
   // Receita semanal e diária (últimos 7 dias e hoje)
   const hoje = new Date();
@@ -169,25 +233,27 @@ export const calcularMetricas = (data: any[]): Metricas => {
   };
   
   const vendasHotDogs = vendasGanhas.filter(row => {
-    const sdr = row['SDR FECHOU']?.trim() || '';
-    const closer = row['CLOSER FECHOU']?.trim() || '';
+    const sdr = String(getColumnValue(row, ['SDR FECHOU', 'SDR']) || '').trim();
+    const closer = String(getColumnValue(row, ['CLOSER FECHOU', 'CLOSER']) || '').trim();
     return membrosHotDogs.sdrs.includes(sdr) || membrosHotDogs.closers.includes(closer);
   });
   
   const vendasCorvoAzul = vendasGanhas.filter(row => {
-    const sdr = row['SDR FECHOU']?.trim() || '';
-    const closer = row['CLOSER FECHOU']?.trim() || '';
+    const sdr = String(getColumnValue(row, ['SDR FECHOU', 'SDR']) || '').trim();
+    const closer = String(getColumnValue(row, ['CLOSER FECHOU', 'CLOSER']) || '').trim();
     return membrosCorvoAzul.sdrs.includes(sdr) || membrosCorvoAzul.closers.includes(closer);
   });
   
-  const receitaHotDogs = vendasHotDogs.reduce((acc, row) => acc + parseValor(row['VALOR']), 0);
-  const receitaCorvoAzul = vendasCorvoAzul.reduce((acc, row) => acc + parseValor(row['VALOR']), 0);
+  const receitaHotDogs = vendasHotDogs.reduce((acc, row) => acc + parseValor(getColumnValue(row, ['VALOR', 'PREÇO'])), 0);
+  const receitaCorvoAzul = vendasCorvoAzul.reduce((acc, row) => acc + parseValor(getColumnValue(row, ['VALOR', 'PREÇO'])), 0);
   
   const lider = receitaHotDogs > receitaCorvoAzul ? 'hotDogs' : 'corvoAzul';
   const vantagem = Math.abs(receitaHotDogs - receitaCorvoAzul);
-  const vantagemPercentual = receitaHotDogs > receitaCorvoAzul 
-    ? ((receitaHotDogs - receitaCorvoAzul) / receitaCorvoAzul) * 100
-    : ((receitaCorvoAzul - receitaHotDogs) / receitaHotDogs) * 100;
+  const vantagemPercentual = receitaHotDogs === 0 && receitaCorvoAzul === 0
+    ? 0
+    : receitaHotDogs > receitaCorvoAzul 
+      ? receitaCorvoAzul > 0 ? ((receitaHotDogs - receitaCorvoAzul) / receitaCorvoAzul) * 100 : 100
+      : receitaHotDogs > 0 ? ((receitaCorvoAzul - receitaHotDogs) / receitaHotDogs) * 100 : 100;
   
   const metricas: Metricas = {
     metaMensal,
