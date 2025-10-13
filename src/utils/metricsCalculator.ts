@@ -151,10 +151,60 @@ export const calcularMetricas = (data: any[]): Metricas => {
     });
   };
   
+  // Função para parsear datas no formato brasileiro (dd/mm/yyyy ou dd/mm/yyyy HH:MM)
+  const parseDataBrasileira = (dataStr: any): Date | null => {
+    if (!dataStr) return null;
+    
+    const str = String(dataStr).trim();
+    
+    // Formato: dd/mm/yyyy ou dd/mm/yyyy HH:MM
+    const match = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+    
+    if (!match) return null;
+    
+    const dia = parseInt(match[1], 10);
+    const mes = parseInt(match[2], 10) - 1; // JS Date usa mês base 0
+    const ano = parseInt(match[3], 10);
+    
+    const data = new Date(ano, mes, dia);
+    
+    // Validar se a data é válida
+    if (isNaN(data.getTime())) return null;
+    
+    return data;
+  };
+  
+  // Verifica se uma data está na semana atual (segunda a domingo)
+  const estaSemanAtual = (data: Date): boolean => {
+    const hoje = new Date();
+    
+    // Início da semana (última segunda-feira)
+    const inicioSemana = new Date(hoje);
+    const diaDaSemana = hoje.getDay(); // 0 = domingo, 1 = segunda, ...
+    const diasParaSegunda = diaDaSemana === 0 ? -6 : 1 - diaDaSemana;
+    inicioSemana.setDate(hoje.getDate() + diasParaSegunda);
+    inicioSemana.setHours(0, 0, 0, 0);
+    
+    // Fim da semana (próximo domingo)
+    const fimSemana = new Date(inicioSemana);
+    fimSemana.setDate(inicioSemana.getDate() + 6);
+    fimSemana.setHours(23, 59, 59, 999);
+    
+    return data >= inicioSemana && data <= fimSemana;
+  };
+  
+  // Verifica se uma data é hoje
+  const eHoje = (data: Date): boolean => {
+    const hoje = new Date();
+    return data.getDate() === hoje.getDate() &&
+           data.getMonth() === hoje.getMonth() &&
+           data.getFullYear() === hoje.getFullYear();
+  };
+  
   // Metas fixas
   const metaMensal = 650000;
-  const metaSemanal = 148000;
-  const metaDiaria = 30000;
+  const metaSemanal = 162500;
+  const metaDiaria = 22000;
   
   // Filtros básicos
   const vendasGanhas = data.filter(row => {
@@ -197,28 +247,55 @@ export const calcularMetricas = (data: any[]): Metricas => {
     })
     .reduce((acc, row) => acc + parseValor(getColumnValue(row, ['VALOR', 'PREÇO'])), 0);
   
-  // Receita semanal e diária (últimos 7 dias e hoje)
-  const hoje = new Date();
-  const seteDiasAtras = new Date(hoje);
-  seteDiasAtras.setDate(hoje.getDate() - 7);
-  
+  // Receita semanal (semana atual: segunda a domingo)
   const receitaSemanal = vendasGanhas
     .filter(row => {
-      const dataEntrada = row['DATA DE ENTRADA'];
-      if (!dataEntrada) return false;
-      const data = new Date(dataEntrada);
-      return data >= seteDiasAtras && data <= hoje;
+      const dataStr = getColumnValue(row, ['DATA DE ENTRADA', 'DATA', 'DATAHORA']);
+      const data = parseDataBrasileira(dataStr);
+      return data && estaSemanAtual(data);
     })
-    .reduce((acc, row) => acc + parseValor(row['VALOR']), 0);
+    .reduce((acc, row) => acc + parseValor(getColumnValue(row, ['VALOR', 'PREÇO'])), 0);
   
+  // Receita diária (apenas hoje)
   const receitaDiaria = vendasGanhas
     .filter(row => {
-      const dataEntrada = row['DATA DE ENTRADA'];
-      if (!dataEntrada) return false;
-      const data = new Date(dataEntrada);
-      return data.toDateString() === hoje.toDateString();
+      const dataStr = getColumnValue(row, ['DATA DE ENTRADA', 'DATA', 'DATAHORA']);
+      const data = parseDataBrasileira(dataStr);
+      return data && eHoje(data);
     })
-    .reduce((acc, row) => acc + parseValor(row['VALOR']), 0);
+    .reduce((acc, row) => acc + parseValor(getColumnValue(row, ['VALOR', 'PREÇO'])), 0);
+  
+  // Listar vendas da semana para debug
+  const vendasDaSemana = vendasGanhas.filter(row => {
+    const dataStr = getColumnValue(row, ['DATA DE ENTRADA', 'DATA', 'DATAHORA']);
+    const data = parseDataBrasileira(dataStr);
+    return data && estaSemanAtual(data);
+  });
+  
+  // Listar vendas de hoje para debug
+  const vendasDeHoje = vendasGanhas.filter(row => {
+    const dataStr = getColumnValue(row, ['DATA DE ENTRADA', 'DATA', 'DATAHORA']);
+    const data = parseDataBrasileira(dataStr);
+    return data && eHoje(data);
+  });
+  
+  console.log('📅 Receita Semanal calculada:', receitaSemanal);
+  console.log('📅 Receita Diária calculada:', receitaDiaria);
+  console.log('📊 Vendas da semana:', vendasDaSemana.length, 'contratos');
+  if (vendasDaSemana.length > 0) {
+    console.log('Primeiras vendas da semana:', vendasDaSemana.slice(0, 3).map(v => ({
+      call: getColumnValue(v, ['NOME DA CALL']),
+      data: getColumnValue(v, ['DATA DE ENTRADA', 'DATA']),
+      valor: getColumnValue(v, ['VALOR'])
+    })));
+  }
+  console.log('📊 Vendas de hoje:', vendasDeHoje.length, 'contratos');
+  if (vendasDeHoje.length > 0) {
+    console.log('Vendas de hoje:', vendasDeHoje.map(v => ({
+      call: getColumnValue(v, ['NOME DA CALL']),
+      valor: getColumnValue(v, ['VALOR'])
+    })));
+  }
   
   // Contratos
   const totalContratos = vendasGanhas.length;
@@ -242,6 +319,12 @@ export const calcularMetricas = (data: any[]): Metricas => {
   const progressoMetaMensal = (receitaTotal / metaMensal) * 100;
   const progressoMetaSemanal = (receitaSemanal / metaSemanal) * 100;
   const progressoMetaDiaria = (receitaDiaria / metaDiaria) * 100;
+  
+  // Debug das metas
+  console.log('🎯 METAS E PROGRESSOS:');
+  console.log('Meta Mensal:', metaMensal, '| Receita:', receitaTotal, '| Progresso:', progressoMetaMensal.toFixed(1) + '%');
+  console.log('Meta Semanal:', metaSemanal, '| Receita:', receitaSemanal, '| Progresso:', progressoMetaSemanal.toFixed(1) + '%');
+  console.log('Meta Diária:', metaDiaria, '| Receita:', receitaDiaria, '| Progresso:', progressoMetaDiaria.toFixed(1) + '%');
   
   // Análise de Squads - APENAS pelos Closers que fecharam
   const membrosHotDogs = {
