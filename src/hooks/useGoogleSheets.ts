@@ -67,10 +67,10 @@ export const useGoogleSheets = (): UseGoogleSheetsReturn => {
   useEffect(() => {
     fetchData();
     
-    // Auto-refresh a cada 60 segundos
+    // Auto-refresh a cada 10 segundos para atualização em tempo real
     const interval = setInterval(() => {
       fetchData();
-    }, 60000);
+    }, 10000);
     
     return () => clearInterval(interval);
   }, [fetchData]);
