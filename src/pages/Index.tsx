@@ -6,6 +6,7 @@ import { useGoogleSheetsCampanhas } from "@/hooks/useGoogleSheetsCampanhas";
 import { useGoogleSheetsLeads } from "@/hooks/useGoogleSheetsLeads";
 import { calcularMetricas, formatarValor, formatarReal } from "@/utils/metricsCalculator";
 import { Button } from "@/components/ui/button";
+import Navigation from "@/components/Navigation";
 
 const Index = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -109,6 +110,9 @@ const Index = () => {
           </div>
         </div>
       </header>
+
+      {/* NAVEGAÇÃO */}
+      <Navigation />
 
       {/* SEÇÃO 1: BARRAS DE META */}
       <section className="bg-navy-ultra-dark py-20 px-12">
