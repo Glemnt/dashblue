@@ -263,25 +263,25 @@ const Index = () => {
       )}
 
       {/* SEÇÃO 1: BARRAS DE META */}
-      <section className={`bg-[#0B1120] ${isTVMode ? 'py-12 px-16' : 'py-20 px-12'}`}>
+      <section className={`bg-[#0B1120] ${isTVMode ? 'py-6 px-16' : 'py-20 px-12'}`}>
         <h2 className={`text-white font-outfit font-bold text-center tracking-tight ${
-          isTVMode ? 'text-5xl mb-10' : 'text-5xl mb-16'
+          isTVMode ? 'text-4xl mb-6' : 'text-5xl mb-16'
         }`}>
           Status das Metas
         </h2>
         
-        <div className={`max-w-[1600px] mx-auto ${isTVMode ? 'space-y-6' : 'space-y-8'}`}>
+        <div className={`max-w-[1600px] mx-auto ${isTVMode ? 'space-y-3' : 'space-y-8'}`}>
           {/* META MENSAL */}
-          <div className={`bg-[#151E35] rounded-2xl ${isTVMode ? 'p-10 animate-fade-in' : 'p-12'} border border-white/10`}>
+          <div className={`bg-[#151E35] rounded-2xl ${isTVMode ? 'p-6 animate-fade-in' : 'p-12'} border border-white/10`}>
             <div className="flex justify-between items-start mb-4">
               <div>
                 <p className={`text-[#94A3B8] font-outfit font-semibold uppercase tracking-widest ${
-                  isTVMode ? 'text-sm mb-2' : 'text-sm mb-3'
+                  isTVMode ? 'text-xs mb-1' : 'text-sm mb-3'
                 }`}>
                   Meta Mensal
                 </p>
                 <p className={`text-white font-outfit font-black ${
-                  isTVMode ? 'text-5xl' : 'text-6xl'
+                  isTVMode ? 'text-4xl' : 'text-6xl'
                 }`}>
                   {formatarReal(metricas.metaMensal)}
                 </p>
@@ -290,7 +290,7 @@ const Index = () => {
                 <p 
                   key={metricas.progressoMetaMensal}
                   className={`text-white font-outfit font-black ${
-                    isTVMode ? 'text-7xl animate-number-change' : 'text-8xl'
+                    isTVMode ? 'text-5xl animate-number-change' : 'text-8xl'
                   }`}
                 >
                   {metricas.progressoMetaMensal.toFixed(0)}%
@@ -303,7 +303,7 @@ const Index = () => {
               </div>
             </div>
             
-            <div className={`relative ${isTVMode ? 'h-12' : 'h-12'} bg-white/5 rounded-full overflow-hidden mb-4`}>
+            <div className={`relative ${isTVMode ? 'h-8' : 'h-12'} bg-white/5 rounded-full overflow-hidden mb-3`}>
               <div 
                 className={`absolute h-full rounded-full transition-all duration-1000 ${
                   metricas.progressoMetaMensal >= 90 ? 'animate-pulse-glow' : ''
@@ -315,7 +315,7 @@ const Index = () => {
               />
               <div className="absolute inset-0 flex items-center justify-center">
                 <span className={`text-white font-outfit font-bold ${
-                  isTVMode ? 'text-3xl drop-shadow-2xl' : 'text-2xl drop-shadow-lg'
+                  isTVMode ? 'text-2xl drop-shadow-2xl' : 'text-2xl drop-shadow-lg'
                 }`}>
                   {formatarReal(metricas.receitaTotal)}
                 </span>
@@ -324,7 +324,7 @@ const Index = () => {
             
             <div className="flex justify-between items-center">
               <p className={`text-[#94A3B8] font-outfit ${
-                isTVMode ? 'text-lg' : 'text-lg'
+                isTVMode ? 'text-base' : 'text-lg'
               }`}>
                 Faltam <span className="text-white font-semibold">{formatarReal(metricas.metaMensal - metricas.receitaTotal)}</span> para a meta
               </p>
@@ -337,16 +337,16 @@ const Index = () => {
           </div>
 
           {/* META SEMANAL */}
-          <div className={`bg-[#151E35] rounded-2xl ${isTVMode ? 'p-10 animate-fade-in' : 'p-12'} border border-white/10`}>
+          <div className={`bg-[#151E35] rounded-2xl ${isTVMode ? 'p-6 animate-fade-in' : 'p-12'} border border-white/10`}>
             <div className="flex justify-between items-start mb-4">
               <div>
                 <p className={`text-[#94A3B8] font-outfit font-semibold uppercase tracking-widest ${
-                  isTVMode ? 'text-sm mb-2' : 'text-sm mb-3'
+                  isTVMode ? 'text-xs mb-1' : 'text-sm mb-3'
                 }`}>
                   Meta Semanal
                 </p>
                 <p className={`text-white font-outfit font-black ${
-                  isTVMode ? 'text-5xl' : 'text-6xl'
+                  isTVMode ? 'text-4xl' : 'text-6xl'
                 }`}>
                   {formatarReal(metricas.metaSemanal)}
                 </p>
@@ -355,7 +355,7 @@ const Index = () => {
                 <p 
                   key={metricas.progressoMetaSemanal}
                   className={`text-white font-outfit font-black ${
-                    isTVMode ? 'text-7xl animate-number-change' : 'text-8xl'
+                    isTVMode ? 'text-5xl animate-number-change' : 'text-8xl'
                   }`}
                 >
                   {metricas.progressoMetaSemanal.toFixed(0)}%
@@ -368,7 +368,7 @@ const Index = () => {
               </div>
             </div>
             
-            <div className={`relative ${isTVMode ? 'h-12' : 'h-12'} bg-white/5 rounded-full overflow-hidden mb-4`}>
+            <div className={`relative ${isTVMode ? 'h-8' : 'h-12'} bg-white/5 rounded-full overflow-hidden mb-3`}>
               <div 
                 className={`absolute h-full rounded-full transition-all duration-1000 ${
                   metricas.progressoMetaSemanal >= 90 ? 'animate-pulse-glow' : ''
@@ -380,7 +380,7 @@ const Index = () => {
               />
               <div className="absolute inset-0 flex items-center justify-center">
                 <span className={`text-white font-outfit font-bold ${
-                  isTVMode ? 'text-3xl drop-shadow-2xl' : 'text-2xl drop-shadow-lg'
+                  isTVMode ? 'text-2xl drop-shadow-2xl' : 'text-2xl drop-shadow-lg'
                 }`}>
                   {formatarReal(metricas.receitaSemanal)}
                 </span>
@@ -389,7 +389,7 @@ const Index = () => {
             
             <div className="flex justify-between items-center">
               <p className={`text-[#94A3B8] font-outfit ${
-                isTVMode ? 'text-lg' : 'text-lg'
+                isTVMode ? 'text-base' : 'text-lg'
               }`}>
                 Faltam <span className="text-white font-semibold">{formatarReal(metricas.metaSemanal - metricas.receitaSemanal)}</span> para a meta
               </p>
@@ -402,16 +402,16 @@ const Index = () => {
           </div>
 
           {/* META DIÁRIA */}
-          <div className={`bg-[#151E35] rounded-2xl ${isTVMode ? 'p-10 animate-fade-in' : 'p-12'} border border-white/10`}>
+          <div className={`bg-[#151E35] rounded-2xl ${isTVMode ? 'p-6 animate-fade-in' : 'p-12'} border border-white/10`}>
             <div className="flex justify-between items-start mb-4">
               <div>
                 <p className={`text-[#94A3B8] font-outfit font-semibold uppercase tracking-widest ${
-                  isTVMode ? 'text-sm mb-2' : 'text-sm mb-3'
+                  isTVMode ? 'text-xs mb-1' : 'text-sm mb-3'
                 }`}>
                   Meta Diária
                 </p>
                 <p className={`text-white font-outfit font-black ${
-                  isTVMode ? 'text-5xl' : 'text-6xl'
+                  isTVMode ? 'text-4xl' : 'text-6xl'
                 }`}>
                   {formatarReal(metricas.metaDiaria)}
                 </p>
@@ -420,7 +420,7 @@ const Index = () => {
                 <p 
                   key={metricas.progressoMetaDiaria}
                   className={`text-white font-outfit font-black ${
-                    isTVMode ? 'text-7xl animate-number-change' : 'text-8xl'
+                    isTVMode ? 'text-5xl animate-number-change' : 'text-8xl'
                   }`}
                 >
                   {metricas.progressoMetaDiaria.toFixed(0)}%
@@ -433,7 +433,7 @@ const Index = () => {
               </div>
             </div>
             
-            <div className={`relative ${isTVMode ? 'h-12' : 'h-12'} bg-white/5 rounded-full overflow-hidden mb-4`}>
+            <div className={`relative ${isTVMode ? 'h-8' : 'h-12'} bg-white/5 rounded-full overflow-hidden mb-3`}>
               <div 
                 className={`absolute h-full rounded-full transition-all duration-1000 ${
                   metricas.progressoMetaDiaria >= 90 ? 'animate-pulse-glow' : ''
@@ -445,7 +445,7 @@ const Index = () => {
               />
               <div className="absolute inset-0 flex items-center justify-center">
                 <span className={`text-white font-outfit font-bold ${
-                  isTVMode ? 'text-3xl drop-shadow-2xl' : 'text-2xl drop-shadow-lg'
+                  isTVMode ? 'text-2xl drop-shadow-2xl' : 'text-2xl drop-shadow-lg'
                 }`}>
                   {formatarReal(metricas.receitaDiaria)}
                 </span>
@@ -454,7 +454,7 @@ const Index = () => {
             
             <div className="flex justify-between items-center">
               <p className={`text-[#94A3B8] font-outfit ${
-                isTVMode ? 'text-lg' : 'text-lg'
+                isTVMode ? 'text-base' : 'text-lg'
               }`}>
                 Faltam <span className="text-white font-semibold">{formatarReal(metricas.metaDiaria - metricas.receitaDiaria)}</span> para a meta
               </p>
@@ -581,25 +581,27 @@ const Index = () => {
       </section>
 
       {/* SEÇÃO 3: FUNIL DE CONVERSÃO */}
-      <section className="bg-[#0B1120] py-20 px-12">
-        <h2 className="text-white font-outfit text-5xl font-bold mb-16 text-center tracking-tight">
+      <section className={`bg-[#0B1120] ${isTVMode ? 'py-8 px-16' : 'py-20 px-12'}`}>
+        <h2 className={`text-white font-outfit font-bold text-center tracking-tight ${
+          isTVMode ? 'text-4xl mb-6' : 'text-5xl mb-16'
+        }`}>
           Funil de Conversão
         </h2>
         
-        <div className="max-w-[900px] mx-auto space-y-6">
+        <div className={`max-w-[900px] mx-auto ${isTVMode ? 'space-y-2' : 'space-y-6'}`}>
           
           {/* Leads (100%) */}
           <div className="relative">
-            <div className="bg-[#0066FF] rounded-2xl p-8">
+            <div className={`bg-[#0066FF] rounded-2xl ${isTVMode ? 'p-5' : 'p-8'}`}>
               <div className="flex justify-between items-center">
                 <div>
                   <p className="text-white/70 font-outfit text-sm font-semibold uppercase tracking-widest mb-2">Leads</p>
-                  <p className="text-white font-outfit text-7xl font-black">{formatarValor(metricas.funil.leads)}</p>
+                  <p className={`text-white font-outfit font-black ${isTVMode ? 'text-5xl' : 'text-7xl'}`}>{formatarValor(metricas.funil.leads)}</p>
                 </div>
                 <p className="text-white/60 font-outfit text-lg">100% do total</p>
               </div>
             </div>
-            <div className="flex justify-center mt-3">
+            <div className={`flex justify-center ${isTVMode ? 'mt-1' : 'mt-3'}`}>
               <div className="text-center">
                 <p className="text-gray-muted font-outfit text-sm">
                   {metricas.funil.leads > 0 ? ((metricas.funil.mqls / metricas.funil.leads) * 100).toFixed(1) : '0'}% qualificação ↓
@@ -610,18 +612,18 @@ const Index = () => {
 
           {/* MQLs (90%) */}
           <div className="relative mx-auto" style={{ width: '90%' }}>
-            <div className="bg-blue-vibrant/90 rounded-2xl p-8">
+            <div className={`bg-blue-vibrant/90 rounded-2xl ${isTVMode ? 'p-5' : 'p-8'}`}>
               <div className="flex justify-between items-center">
                 <div>
                   <p className="text-white/70 font-outfit text-sm font-semibold uppercase tracking-widest mb-2">MQLs</p>
-                  <p className="text-white font-outfit text-7xl font-black">{formatarValor(metricas.funil.mqls)}</p>
+                  <p className={`text-white font-outfit font-black ${isTVMode ? 'text-5xl' : 'text-7xl'}`}>{formatarValor(metricas.funil.mqls)}</p>
                 </div>
                 <p className="text-white/60 font-outfit text-lg">
                   {metricas.funil.leads > 0 ? ((metricas.funil.mqls / metricas.funil.leads) * 100).toFixed(1) : '0'}% do total
                 </p>
               </div>
             </div>
-            <div className="flex justify-center mt-3">
+            <div className={`flex justify-center ${isTVMode ? 'mt-1' : 'mt-3'}`}>
               <div className="text-center">
                 <p className="text-gray-muted font-outfit text-sm">
                   {metricas.funil.mqls > 0 ? ((metricas.funil.callsAgendadas / metricas.funil.mqls) * 100).toFixed(1) : '0'}% agendamento ↓
@@ -632,18 +634,18 @@ const Index = () => {
 
           {/* Calls Agendadas (80%) */}
           <div className="relative mx-auto" style={{ width: '80%' }}>
-            <div className="bg-blue-vibrant/70 rounded-2xl p-8">
+            <div className={`bg-blue-vibrant/70 rounded-2xl ${isTVMode ? 'p-5' : 'p-8'}`}>
               <div className="flex justify-between items-center">
                 <div>
                   <p className="text-white/70 font-outfit text-sm font-semibold uppercase tracking-widest mb-2">Calls Agendadas</p>
-                  <p className="text-white font-outfit text-7xl font-black">{formatarValor(metricas.funil.callsAgendadas)}</p>
+                  <p className={`text-white font-outfit font-black ${isTVMode ? 'text-5xl' : 'text-7xl'}`}>{formatarValor(metricas.funil.callsAgendadas)}</p>
                 </div>
                 <p className="text-white/60 font-outfit text-lg">
                   {metricas.funil.leads > 0 ? ((metricas.funil.callsAgendadas / metricas.funil.leads) * 100).toFixed(1) : '0'}% do total
                 </p>
               </div>
             </div>
-            <div className="flex justify-center mt-3">
+            <div className={`flex justify-center ${isTVMode ? 'mt-1' : 'mt-3'}`}>
               <div className="text-center">
                 <p className="text-gray-muted font-outfit text-sm">
                   {metricas.funil.callsAgendadas > 0 ? ((metricas.funil.callsRealizadas / metricas.funil.callsAgendadas) * 100).toFixed(1) : '0'}% comparecimento ↓
@@ -654,18 +656,18 @@ const Index = () => {
 
           {/* Calls Realizadas (70%) */}
           <div className="relative mx-auto" style={{ width: '70%' }}>
-            <div className="bg-cyan-modern/80 rounded-2xl p-8">
+            <div className={`bg-cyan-modern/80 rounded-2xl ${isTVMode ? 'p-5' : 'p-8'}`}>
               <div className="flex justify-between items-center">
                 <div>
                   <p className="text-navy-ultra-dark/70 font-outfit text-sm font-semibold uppercase tracking-widest mb-2">Calls Realizadas</p>
-                  <p className="text-navy-ultra-dark font-outfit text-7xl font-black">{formatarValor(metricas.funil.callsRealizadas)}</p>
+                  <p className={`text-navy-ultra-dark font-outfit font-black ${isTVMode ? 'text-5xl' : 'text-7xl'}`}>{formatarValor(metricas.funil.callsRealizadas)}</p>
                 </div>
                 <p className="text-navy-ultra-dark/60 font-outfit text-lg">
                   {metricas.funil.leads > 0 ? ((metricas.funil.callsRealizadas / metricas.funil.leads) * 100).toFixed(1) : '0'}% do total
                 </p>
               </div>
             </div>
-            <div className="flex justify-center mt-3">
+            <div className={`flex justify-center ${isTVMode ? 'mt-1' : 'mt-3'}`}>
               <div className="text-center">
                 <p className="text-gray-muted font-outfit text-sm">
                   {metricas.funil.callsRealizadas > 0 ? ((metricas.funil.contratos / metricas.funil.callsRealizadas) * 100).toFixed(1) : '0'}% conversão ↓
@@ -676,18 +678,18 @@ const Index = () => {
 
           {/* Contratos (60%) */}
           <div className="relative mx-auto" style={{ width: '60%' }}>
-            <div className="bg-cyan-modern rounded-2xl p-8 border-2 border-cyan-modern">
-              <div className="flex justify-between items-center mb-6">
+            <div className={`bg-cyan-modern rounded-2xl border-2 border-cyan-modern ${isTVMode ? 'p-5' : 'p-8'}`}>
+              <div className={`flex justify-between items-center ${isTVMode ? 'mb-3' : 'mb-6'}`}>
                 <div>
                   <p className="text-navy-ultra-dark/70 font-outfit text-sm font-semibold uppercase tracking-widest mb-2">Contratos Fechados</p>
-                  <p className="text-navy-ultra-dark font-outfit text-7xl font-black">{metricas.funil.contratos}</p>
+                  <p className={`text-navy-ultra-dark font-outfit font-black ${isTVMode ? 'text-5xl' : 'text-7xl'}`}>{metricas.funil.contratos}</p>
                 </div>
                 <p className="text-navy-ultra-dark/60 font-outfit text-lg">
                   {metricas.funil.leads > 0 ? ((metricas.funil.contratos / metricas.funil.leads) * 100).toFixed(1) : '0'}% do total
                 </p>
               </div>
-              <div className="pt-6 border-t-2 border-navy-ultra-dark/10">
-                <p className="text-navy-ultra-dark font-outfit text-3xl font-black mb-1">
+              <div className={`border-t-2 border-navy-ultra-dark/10 ${isTVMode ? 'pt-3' : 'pt-6'}`}>
+                <p className={`text-navy-ultra-dark font-outfit font-black mb-1 ${isTVMode ? 'text-2xl' : 'text-3xl'}`}>
                   {formatarReal(metricas.receitaTotal)}
                 </p>
                 <p className="text-navy-ultra-dark/60 font-outfit text-sm">
