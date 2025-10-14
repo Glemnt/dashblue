@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
-import { format } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
 import { RefreshCw, TrendingUp, Target, Trophy } from 'lucide-react';
+import logoWhite from '@/assets/logo-white.png';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import Navigation from '@/components/Navigation';
@@ -34,8 +33,21 @@ const PerformanceCloser = () => {
     setCurrentDateRange(dateRange);
   };
 
-  const formatDate = (date: Date) => format(date, "dd 'de' MMMM 'de' yyyy", { locale: ptBR });
-  const formatTime = (date: Date) => format(date, 'HH:mm:ss', { locale: ptBR });
+  const formatDate = (date: Date) => {
+    return date.toLocaleDateString('pt-BR', {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric'
+    });
+  };
+
+  const formatTime = (date: Date) => {
+    return date.toLocaleTimeString('pt-BR', {
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
 
   const metaMensalReceita = 650000;
   const metaIndividualReceita = metaMensalReceita / 4;
@@ -82,48 +94,44 @@ const PerformanceCloser = () => {
     <div className="min-h-screen bg-[#0B1120] font-outfit">
       
       {/* HEADER */}
-      <header className="bg-[#0B1120] border-b border-white/10 sticky top-0 z-50 backdrop-blur-sm">
-        <div className="max-w-[1920px] mx-auto px-12 py-6">
-          <div className="flex items-center justify-between">
-            
-            {/* Logo + Título */}
-            <div className="flex items-center gap-6">
-              <img src="/src/assets/logo-white.png" alt="Blue Ocean" className="h-16" />
-              <div>
-                <h1 className="text-white font-outfit text-4xl font-black tracking-tight">
-                  Performance Closer
-                </h1>
-                <p className="text-[#94A3B8] font-outfit text-lg mt-1">
-                  Análise detalhada da equipe de fechamento
-                </p>
-              </div>
-            </div>
-
-            {/* Data/Hora + Atualizar */}
-            <div className="flex items-center gap-8">
-              <div className="text-right">
-                <p className="text-white font-outfit text-2xl font-bold">
-                  {formatTime(currentTime)}
-                </p>
-                <p className="text-[#94A3B8] font-outfit text-sm">
-                  {formatDate(currentTime)}
-                </p>
-                {lastUpdate && (
-                  <p className="text-[#64748B] font-outfit text-xs mt-1">
-                    Atualizado: {format(lastUpdate, 'HH:mm:ss')}
-                  </p>
-                )}
-              </div>
-              <Button
-                onClick={refetch}
-                className="bg-[#0066FF] hover:bg-[#0066FF]/90 text-white font-outfit font-semibold px-6 py-6"
-              >
-                <RefreshCw className="w-5 h-5 mr-2" />
-                Atualizar
-              </Button>
-            </div>
-
+      <header className="bg-[#0B1120] border-b border-white/5 sticky top-0 z-50">
+        <div className="max-w-[1920px] mx-auto px-12 py-8 flex justify-between items-center">
+          
+          {/* ESQUERDA: Logo */}
+          <div className="flex items-center">
+            <img src={logoWhite} alt="Blue Ocean" className="h-10 w-auto" />
           </div>
+
+          {/* CENTRO: Título + Subtítulo */}
+          <div className="text-center">
+            <h1 className="text-white font-outfit text-5xl font-bold tracking-tight">
+              Performance Closer
+            </h1>
+            <p className="text-[#94A3B8] font-outfit text-lg mt-2">
+              Análise detalhada da equipe de fechamento
+            </p>
+          </div>
+
+          {/* DIREITA: Botão + Data/Hora */}
+          <div className="text-right flex flex-col items-end gap-3">
+            <Button
+              onClick={refetch}
+              variant="outline"
+              className="bg-[#0066FF]/10 border-[#0066FF] text-[#0066FF] hover:bg-[#0066FF] hover:text-white"
+            >
+              <RefreshCw className="w-4 h-4 mr-2" />
+              Atualizar
+            </Button>
+            <div>
+              <p className="text-white font-outfit text-lg font-semibold capitalize">
+                {formatDate(currentTime)}
+              </p>
+              <p className="text-[#94A3B8] font-outfit text-sm">
+                Atualizado: {lastUpdate ? formatTime(lastUpdate) : '--:--'}
+              </p>
+            </div>
+          </div>
+          
         </div>
       </header>
 
