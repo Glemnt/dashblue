@@ -16,7 +16,7 @@ const CloserPodium = ({ top3 }: CloserPodiumProps) => {
       closer: segundo,
       posicao: 2,
       height: 'h-64',
-      marginBottom: 'mb-8',
+      marginTop: 'mt-16',
       bgColor: 'bg-[#94A3B8]',
       badgeColor: 'bg-[#C0C0C0]',
       badgeText: '2º',
@@ -26,7 +26,7 @@ const CloserPodium = ({ top3 }: CloserPodiumProps) => {
       closer: primeiro,
       posicao: 1,
       height: 'h-80',
-      marginBottom: 'mb-0',
+      marginTop: 'mt-0',
       bgColor: 'bg-[#FFB800]',
       badgeColor: 'bg-[#FFD700]',
       badgeText: '1º',
@@ -37,7 +37,7 @@ const CloserPodium = ({ top3 }: CloserPodiumProps) => {
       closer: terceiro,
       posicao: 3,
       height: 'h-56',
-      marginBottom: 'mb-16',
+      marginTop: 'mt-24',
       bgColor: 'bg-[#CD7F32]',
       badgeColor: 'bg-[#CD853F]',
       badgeText: '3º',
@@ -46,8 +46,8 @@ const CloserPodium = ({ top3 }: CloserPodiumProps) => {
   ];
 
   return (
-    <div className="flex items-end justify-center gap-8">
-      {positions.map(({ closer, posicao, height, marginBottom, bgColor, badgeColor, badgeText, isFirst }) => (
+    <div className="flex items-start justify-center gap-8">
+      {positions.map(({ closer, posicao, height, marginTop, bgColor, badgeColor, badgeText, isFirst }) => (
         <div key={posicao} className="flex flex-col items-center">
           {/* Avatar */}
           <div 
@@ -66,7 +66,7 @@ const CloserPodium = ({ top3 }: CloserPodiumProps) => {
 
           {/* Bloco do Pódio */}
           <div 
-            className={`${height} ${marginBottom} ${bgColor} rounded-2xl shadow-2xl px-12 py-8 flex flex-col justify-between items-center text-center min-w-[280px] transform hover:scale-105 transition-all duration-300`}
+            className={`${height} ${marginTop} ${bgColor} rounded-2xl shadow-2xl px-12 py-8 flex flex-col justify-between items-center text-center min-w-[280px] transform hover:scale-105 transition-all duration-300`}
           >
             {/* Nome e Squad */}
             <div>
