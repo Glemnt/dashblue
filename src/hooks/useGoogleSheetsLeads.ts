@@ -3,6 +3,8 @@ import Papa from 'papaparse';
 
 interface UseLeadsReturn {
   totalLeads: number;
+  totalMQLs: number;
+  totalDesqualificados: number;
   loading: boolean;
   error: string | null;
 }
@@ -11,6 +13,8 @@ const LEADS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSMYk5K5k
 
 export const useGoogleSheetsLeads = (): UseLeadsReturn => {
   const [totalLeads, setTotalLeads] = useState<number>(0);
+  const [totalMQLs, setTotalMQLs] = useState<number>(0);
+  const [totalDesqualificados, setTotalDesqualificados] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -34,8 +38,27 @@ export const useGoogleSheetsLeads = (): UseLeadsReturn => {
             return row['Email'] || row['Nome'] || row['EMAIL'] || row['NOME'];
           });
           
-          console.log('📧 LEADS: Total de leads:', leadsValidos.length);
+          // Contar MQLs (coluna J = "MQL")
+          const mqls = leadsValidos.filter((row: any) => {
+            const statusMql = row['MQL'] || row['mql'] || row['Status'] || row['STATUS'] || row['Qualificação'] || row['QUALIFICAÇÃO'];
+            return statusMql && String(statusMql).trim().toUpperCase() === 'MQL';
+          });
+          
+          // Contar Desqualificados (coluna J = "Desqualificado")
+          const desqualificados = leadsValidos.filter((row: any) => {
+            const statusMql = row['MQL'] || row['mql'] || row['Status'] || row['STATUS'] || row['Qualificação'] || row['QUALIFICAÇÃO'];
+            return statusMql && String(statusMql).trim().toUpperCase().includes('DESQUALIFICADO');
+          });
+          
+          console.log('📧 LEADS - Totais:');
+          console.log('Total de leads:', leadsValidos.length);
+          console.log('MQLs:', mqls.length);
+          console.log('Desqualificados:', desqualificados.length);
+          console.log('Sem classificação:', leadsValidos.length - mqls.length - desqualificados.length);
+          
           setTotalLeads(leadsValidos.length);
+          setTotalMQLs(mqls.length);
+          setTotalDesqualificados(desqualificados.length);
           setLoading(false);
         },
         error: (err) => {
@@ -63,6 +86,8 @@ export const useGoogleSheetsLeads = (): UseLeadsReturn => {
 
   return {
     totalLeads,
+    totalMQLs,
+    totalDesqualificados,
     loading,
     error
   };
