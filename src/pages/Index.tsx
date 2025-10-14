@@ -8,20 +8,35 @@ import { calcularMetricas, formatarValor, formatarReal } from "@/utils/metricsCa
 import { Button } from "@/components/ui/button";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
+import PeriodFilter from "@/components/sdr/PeriodFilter";
+import { PeriodType, DateRange, getCurrentMonthRange, filterDataByDateRange } from '@/utils/dateFilters';
 
 const Index = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const { data, loading, error, lastUpdate, refetch } = useGoogleSheets();
   const { totalLeads: leadsCampanhas, totalMQLs: mqlsCampanhas, loading: loadingCampanhas } = useGoogleSheetsCampanhas();
   const leads = useGoogleSheetsLeads();
+  
+  // Estado do filtro de período
+  const [periodType, setPeriodType] = useState<PeriodType>('mes');
+  const [dateRange, setDateRange] = useState<DateRange>(getCurrentMonthRange());
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
   
-  // Calcular métricas quando os dados mudarem
-  const metricas = data.length > 0 ? calcularMetricas(data, {
+  // Handler para mudança de filtro
+  const handleFilterChange = (type: PeriodType, range: DateRange) => {
+    setPeriodType(type);
+    setDateRange(range);
+  };
+  
+  // Filtrar dados por período antes de calcular métricas
+  const filteredData = data.length > 0 ? filterDataByDateRange(data, dateRange) : [];
+  
+  // Calcular métricas com dados filtrados
+  const metricas = filteredData.length > 0 ? calcularMetricas(filteredData, {
     totalLeads: leadsCampanhas,
     totalMQLs: leads.totalMQLs
   }) : null;
@@ -114,6 +129,17 @@ const Index = () => {
 
       {/* NAVEGAÇÃO */}
       <Navigation />
+
+      {/* FILTRO DE PERÍODO */}
+      <section className="bg-[#0B1120] pt-12 px-12">
+        <div className="max-w-[1600px] mx-auto">
+          <PeriodFilter
+            onFilterChange={handleFilterChange}
+            currentPeriod={periodType}
+            currentDateRange={dateRange}
+          />
+        </div>
+      </section>
 
       {/* SEÇÃO 1: BARRAS DE META */}
       <section className="bg-[#0B1120] py-20 px-12">
