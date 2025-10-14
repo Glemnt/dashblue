@@ -6,6 +6,7 @@ import fotoFranklin from '@/assets/colaboradores/franklin.png';
 import fotoMarcos from '@/assets/colaboradores/marcos.png';
 import fotoTiago from '@/assets/colaboradores/tiago.png';
 import fotoVinicius from '@/assets/colaboradores/vinicius.png';
+import fotoJoaoLopes from '@/assets/colaboradores/joao-lopes.png';
 
 // Mapeamento nome → foto
 const colaboradorPhotos: Record<string, string> = {
@@ -13,7 +14,13 @@ const colaboradorPhotos: Record<string, string> = {
   'Cauã': fotoCaua,
   'Caua': fotoCaua, // variação sem acento
   'Fernandes': fotoFernandes,
+  'Gabriel Fernandes': fotoFernandes,
   'Franklin': fotoFranklin,
+  'Gabriel Franklin': fotoFranklin,
+  'João Lopes': fotoJoaoLopes,
+  'Joao Lopes': fotoJoaoLopes, // variação sem acento
+  'João': fotoJoaoLopes,
+  'Joao': fotoJoaoLopes,
   'Marcos': fotoMarcos,
   'Tiago': fotoTiago,
   'Vinicius': fotoVinicius,
