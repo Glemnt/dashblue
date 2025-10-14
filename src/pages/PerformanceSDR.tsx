@@ -8,6 +8,7 @@ import { formatarReal } from '@/utils/metricsCalculator';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import Navigation from '@/components/Navigation';
+import Footer from '@/components/Footer';
 import SDRPodium from '@/components/sdr/SDRPodium';
 import SDRComparisonTable from '@/components/sdr/SDRComparisonTable';
 import PeriodFilter from '@/components/sdr/PeriodFilter';
@@ -343,6 +344,8 @@ const PerformanceSDR = () => {
         </div>
       </section>
 
+      {/* FOOTER */}
+      <Footer />
     </div>
   );
 };

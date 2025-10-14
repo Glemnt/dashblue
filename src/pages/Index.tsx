@@ -7,6 +7,7 @@ import { useGoogleSheetsLeads } from "@/hooks/useGoogleSheetsLeads";
 import { calcularMetricas, formatarValor, formatarReal } from "@/utils/metricsCalculator";
 import { Button } from "@/components/ui/button";
 import Navigation from "@/components/Navigation";
+import Footer from "@/components/Footer";
 
 const Index = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -616,6 +617,8 @@ const Index = () => {
         </div>
       </section>
 
+      {/* FOOTER */}
+      <Footer />
     </div>
   );
 };

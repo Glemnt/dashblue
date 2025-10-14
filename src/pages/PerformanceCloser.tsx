@@ -4,6 +4,7 @@ import logoWhite from '@/assets/logo-white.png';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import Navigation from '@/components/Navigation';
+import Footer from '@/components/Footer';
 import PeriodFilter from '@/components/sdr/PeriodFilter';
 import CloserPodium from '@/components/closer/CloserPodium';
 import CloserComparisonTable from '@/components/closer/CloserComparisonTable';
@@ -331,6 +332,8 @@ const PerformanceCloser = () => {
         </div>
       </section>
 
+      {/* FOOTER */}
+      <Footer />
     </div>
   );
 };
