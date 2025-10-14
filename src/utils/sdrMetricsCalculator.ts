@@ -1,4 +1,5 @@
 import { parseValor } from './metricsCalculator';
+import { DateRange } from './dateFilters';
 
 export interface SDRMetrics {
   nome: string;
@@ -29,7 +30,32 @@ export interface SDRData {
   destaque: SDRMetrics | null;
 }
 
-export const calcularMetricasSDR = (data: any[]): SDRData => {
+export const calcularMetricasSDR = (data: any[], dateRange?: DateRange): SDRData => {
+  // Filtrar dados por período se houver filtro
+  let filteredData = data;
+  if (dateRange) {
+    filteredData = data.filter(row => {
+      const dataStr = row['DATA'] || row['Data'] || row['data'] || row['Data_Realizacao'];
+      if (!dataStr) return true;
+      
+      try {
+        let rowDate: Date;
+        if (dataStr.includes('/')) {
+          const [day, month, year] = dataStr.split('/');
+          rowDate = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+        } else if (dataStr.includes('-')) {
+          rowDate = new Date(dataStr);
+        } else {
+          return true;
+        }
+        
+        return rowDate >= dateRange.start && rowDate <= dateRange.end;
+      } catch {
+        return true;
+      }
+    });
+  }
+
   // Lista dos 4 SDRs (nomes exatos da planilha)
   const sdrsNomes = ['VINICIUS MEIRELES', 'MARCOS', 'TIAGO', 'JOÃO LOPES'];
   
@@ -43,7 +69,7 @@ export const calcularMetricasSDR = (data: any[]): SDRData => {
 
   const sdrsMetrics: SDRMetrics[] = sdrsNomes.map(nome => {
     // Filtrar linhas onde SDR = nome do SDR (case-insensitive, trim)
-    const callsDoSDR = data.filter(row => {
+    const callsDoSDR = filteredData.filter(row => {
       const sdrNome = String(row['SDR'] || '').trim().toUpperCase();
       return sdrNome === nome; // nome já está em uppercase
     });
@@ -77,7 +103,7 @@ export const calcularMetricasSDR = (data: any[]): SDRData => {
     const taxaShow = callsAgendadas > 0 ? (callsRealizadas / callsAgendadas) * 100 : 0;
 
     // Vendas Originadas (somar VALOR onde SDR FECHOU = nome do SDR)
-    const vendasOriginadas = data
+    const vendasOriginadas = filteredData
       .filter(row => {
         const sdrFechou = String(row['SDR FECHOU'] || '').trim().toUpperCase();
         return sdrFechou === nome;
@@ -88,7 +114,7 @@ export const calcularMetricasSDR = (data: any[]): SDRData => {
       }, 0);
 
     // Número de Contratos Originados
-    const contratosOriginados = data.filter(row => {
+    const contratosOriginados = filteredData.filter(row => {
       const sdrFechou = String(row['SDR FECHOU'] || '').trim().toUpperCase();
       return sdrFechou === nome;
     }).length;
