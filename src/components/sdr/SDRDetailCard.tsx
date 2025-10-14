@@ -5,6 +5,7 @@ import { formatarReal } from '@/utils/metricsCalculator';
 import { getRecentActivities } from '@/utils/sdrActivityUtils';
 import { Progress } from '@/components/ui/progress';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface SDRDetailCardProps {
   sdr: SDRMetrics;
@@ -209,6 +210,93 @@ const SDRDetailCard = ({ sdr, data, metaIndividualCalls }: SDRDetailCardProps) =
                     className="h-3"
                   />
                 </div>
+              </div>
+            </div>
+
+            {/* Seção de Contratos Fechados */}
+            <div className="mb-8">
+              <h4 className="text-[#0B1120] font-outfit text-xl font-bold mb-4">
+                Contratos Fechados ({sdr.contratos?.length || 0})
+              </h4>
+              
+              <div className="space-y-3">
+                {sdr.contratos && sdr.contratos.length > 0 ? (
+                  sdr.contratos.map((contrato, index) => (
+                    <div 
+                      key={index}
+                      className="bg-gray-50 rounded-xl p-5 hover:bg-gray-100 transition-all duration-300 border border-gray-200 hover:border-[#00E5CC]/30 hover:shadow-md"
+                    >
+                      {/* Header: Nome do cliente + Data */}
+                      <div className="flex items-center justify-between mb-3">
+                        <p className="text-[#0B1120] font-outfit text-lg font-bold">
+                          {contrato.nomeCall}
+                        </p>
+                        <span className="text-[#64748B] text-sm font-outfit">
+                          {contrato.data}
+                        </span>
+                      </div>
+
+                      {/* Info do Closer */}
+                      <div className="mb-3">
+                        <p className="text-[#64748B] text-xs font-outfit uppercase tracking-wider mb-1">
+                          Fechado por
+                        </p>
+                        <p className="text-[#0B1120] font-outfit font-semibold">
+                          {contrato.closer}
+                        </p>
+                      </div>
+
+                      {/* Grid com informações do contrato */}
+                      <div className="bg-white rounded-lg p-4 border border-[#00E5CC]/20">
+                        <div className="grid grid-cols-3 gap-4">
+                          
+                          {/* Valor do Contrato */}
+                          <div>
+                            <p className="text-[#64748B] text-xs font-outfit uppercase tracking-wider mb-1">
+                              Valor
+                            </p>
+                            <p className="text-[#0B1120] font-outfit text-lg font-black">
+                              {formatarReal(contrato.valor)}
+                            </p>
+                          </div>
+
+                          {/* Status Assinatura */}
+                          <div>
+                            <p className="text-[#64748B] text-xs font-outfit uppercase tracking-wider mb-1">
+                              Assinatura
+                            </p>
+                            <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${
+                              contrato.assinado 
+                                ? 'bg-[#00E5CC]/20 text-[#00E5CC]' 
+                                : 'bg-[#FFB800]/20 text-[#FFB800]'
+                            }`}>
+                              {contrato.assinado ? '✓ Assinado' : 'Pendente'}
+                            </span>
+                          </div>
+
+                          {/* Status Pagamento */}
+                          <div>
+                            <p className="text-[#64748B] text-xs font-outfit uppercase tracking-wider mb-1">
+                              Pagamento
+                            </p>
+                            <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${
+                              contrato.pago 
+                                ? 'bg-[#00E5CC]/20 text-[#00E5CC]' 
+                                : 'bg-[#FF4757]/20 text-[#FF4757]'
+                            }`}>
+                              {contrato.pago ? '✓ Pago' : 'Pendente'}
+                            </span>
+                          </div>
+
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-[#94A3B8] text-center py-8">
+                    Nenhum contrato fechado
+                  </p>
+                )}
               </div>
             </div>
 

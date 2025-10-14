@@ -1,6 +1,15 @@
 import { parseValor } from './metricsCalculator';
 import { DateRange } from './dateFilters';
 
+export interface SDRContract {
+  nomeCall: string;
+  closer: string;
+  valor: number;
+  data: string;
+  assinado: boolean;
+  pago: boolean;
+}
+
 export interface SDRMetrics {
   nome: string;
   nomeOriginal: string;
@@ -16,6 +25,7 @@ export interface SDRMetrics {
   taxaShow: number;
   vendasOriginadas: number;
   contratosOriginados: number;
+  contratos: SDRContract[];
   // Campos do dashboard
   valorVendasDash?: number;
   percentualVendasDash?: number;
@@ -127,6 +137,37 @@ export const calcularMetricasSDR = (data: any[], dateRange?: DateRange): SDRData
       return sdrFechou === nome;
     }).length;
 
+    // Coletar contratos fechados originados por este SDR
+    const contratos: SDRContract[] = filteredData
+      .filter(row => {
+        const sdrFechou = String(row['SDR FECHOU'] || '').trim().toUpperCase();
+        const fechamento = String(row['FECHAMENTO'] || '').trim().toUpperCase();
+        return sdrFechou === nome && fechamento === 'SIM';
+      })
+      .map(row => {
+        const assinatura = String(row['ASSINATURA'] || '').trim().toUpperCase();
+        const pagamento = String(row['PAGAMENTO'] || '').trim().toUpperCase();
+        
+        return {
+          nomeCall: row['NOME DA CALL'] || 'Cliente não identificado',
+          closer: row['CLOSER'] || 'Closer não atribuído',
+          valor: parseValor(row['VALOR'] || '0'),
+          data: row['DATA'] || row['Data'] || 'Sem data',
+          assinado: assinatura === 'ASSINOU',
+          pago: pagamento === 'PAGOU'
+        };
+      })
+      .sort((a, b) => {
+        // Ordenar por data (mais recente primeiro)
+        try {
+          const dateA = new Date(a.data.split('/').reverse().join('-'));
+          const dateB = new Date(b.data.split('/').reverse().join('-'));
+          return dateB.getTime() - dateA.getTime();
+        } catch {
+          return 0;
+        }
+      });
+
     // Log de debug
     console.log(`📊 SDR: ${nome}`);
     console.log('  - Total Calls:', totalCalls);
@@ -149,7 +190,8 @@ export const calcularMetricasSDR = (data: any[], dateRange?: DateRange): SDRData
       noShows,
       taxaShow,
       vendasOriginadas,
-      contratosOriginados
+      contratosOriginados,
+      contratos
     };
   });
 
@@ -229,7 +271,8 @@ export const mesclarMetricasSDRComDashboard = (
         txNoShowDash: dashData.txNoShow,
         txComparecimentoDash: dashData.txComparecimento,
         // Priorizar dados do dashboard onde aplicável
-        vendasOriginadas: dashData.valorVendas || sdr.vendasOriginadas
+        vendasOriginadas: dashData.valorVendas || sdr.vendasOriginadas,
+        contratos: sdr.contratos
       };
     } else {
       console.log(`⚠️ Nenhum match encontrado para ${sdr.nome}`);
