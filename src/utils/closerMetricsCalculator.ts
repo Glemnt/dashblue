@@ -57,6 +57,17 @@ const parseValor = (valorStr: string): number => {
   return isNaN(parsed) ? 0 : parsed;
 };
 
+// Função auxiliar para matching de nomes (inclui abreviações)
+const matchCloserName = (closerFechou: string, closerOriginal: string): boolean => {
+  if (closerFechou === closerOriginal) return true;
+  
+  // Match abreviado
+  if (closerOriginal === 'GABRIEL FERNANDES' && closerFechou === 'G. FERNANDES') return true;
+  if (closerOriginal === 'GABRIEL FRANKLIN' && closerFechou === 'G. FRANKLIN') return true;
+  
+  return false;
+};
+
 export const calcularMetricasCloser = (data: any[], dateRange?: DateRange): CloserData => {
   // Filtrar dados por data se necessário
   let filteredData = data;
@@ -83,6 +94,25 @@ export const calcularMetricasCloser = (data: any[], dateRange?: DateRange): Clos
     });
   }
 
+  // 🔍 DEBUG LOGS
+  console.log('🔍 DEBUG calcularMetricasCloser:');
+  console.log('📊 Total de linhas filtradas:', filteredData.length);
+
+  // Ver quantas têm FECHAMENTO = "SIM"
+  const linhasFechamento = filteredData.filter(row => {
+    const fechamento = String(row['FECHAMENTO'] || '').trim().toUpperCase();
+    return fechamento === 'SIM';
+  });
+  console.log('📊 Linhas com FECHAMENTO = "SIM":', linhasFechamento.length);
+
+  // Ver nomes únicos em CLOSER FECHOU
+  const nomesClosers = [...new Set(
+    linhasFechamento
+      .map(r => String(r['CLOSER FECHOU'] || '').trim())
+      .filter(n => n !== '')
+  )];
+  console.log('📊 Nomes em CLOSER FECHOU:', nomesClosers);
+
   const closersNomes = [
     { original: 'BRUNO', display: 'Bruno', squad: 'Hot Dogs', color: '#FF4757', emoji: '🔴' },
     { original: 'CAUÃ', display: 'Cauã', squad: 'Hot Dogs', color: '#FF4757', emoji: '🔴' },
@@ -108,20 +138,27 @@ export const calcularMetricasCloser = (data: any[], dateRange?: DateRange): Clos
     const contratosFechados = filteredData.filter(row => {
       const closerFechou = String(row['CLOSER FECHOU'] || '').trim().toUpperCase();
       const fechamento = String(row['FECHAMENTO'] || '').trim().toUpperCase();
-      return closerFechou === closer.original && fechamento === 'GANHO';
+      
+      // Match por nome exato OU abreviado
+      const nomeMatch = matchCloserName(closerFechou, closer.original);
+      
+      // FECHAMENTO = "SIM" (não "GANHO")
+      return nomeMatch && fechamento === 'SIM';
     });
 
     const contratos: CloserContract[] = contratosFechados.map(row => {
       const valor = parseValor(row['VALOR'] || '0');
-      const assinado = String(row['ASSINATURA'] || '').trim().toUpperCase() === 'ASSINADO';
-      const pago = String(row['PAGAMENTO'] || '').trim().toUpperCase() === 'PAGO';
+      const assinatura = String(row['ASSINATURA'] || '').trim().toUpperCase();
+      const pagamento = String(row['PAGAMENTO'] || '').trim().toUpperCase();
+      const assinado = assinatura === 'ASSINOU';
+      const pago = pagamento === 'PAGOU';
       
       let status = 'Pendente Assinatura';
       if (assinado && pago) status = 'Assinado + Pago';
       else if (assinado) status = 'Pendente Pagamento';
 
       return {
-        nome: row['EMPRESA'] || row['Empresa'] || 'Contrato',
+        nome: row['NOME DA CALL'] || 'Contrato',
         valor,
         data: row['DATA'] || row['Data'] || 'Sem data',
         status,
