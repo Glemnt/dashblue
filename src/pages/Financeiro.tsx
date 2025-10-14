@@ -65,7 +65,7 @@ const Financeiro = () => {
     return date.toLocaleDateString('pt-BR', { 
       weekday: 'long', 
       day: 'numeric', 
-      month: 'long', 
+      month: 'short',
       year: 'numeric' 
     });
   };
@@ -73,8 +73,7 @@ const Financeiro = () => {
   const formatTime = (date: Date) => {
     return date.toLocaleTimeString('pt-BR', { 
       hour: '2-digit', 
-      minute: '2-digit',
-      second: '2-digit'
+      minute: '2-digit'
     });
   };
 
@@ -118,48 +117,58 @@ const Financeiro = () => {
     <div className="min-h-screen bg-[#0B1120] font-outfit">
       {/* HEADER */}
       <header className={`bg-[#0B1120] border-b border-white/5 ${isTVMode ? '' : 'sticky top-0'} z-50`}>
-        <div className={`max-w-[1920px] mx-auto flex items-center justify-between ${
-          isTVMode ? 'px-12 py-8' : 'px-12 py-6'
-        }`}>
-          <div className="flex items-center gap-6">
-            <img 
-              src={logoWhite} 
-              alt="Blue Ocean" 
-              className={`${isTVMode ? 'h-20' : 'h-12'} w-auto`}
-            />
-            <div>
-              <h1 className={`text-white font-black ${isTVMode ? 'text-5xl' : 'text-3xl'}`}>
-                Financeiro
-              </h1>
-              <p className={`text-[#94A3B8] ${isTVMode ? 'text-xl mt-2' : 'text-sm'}`}>
+        <div className={`max-w-[1920px] mx-auto ${isTVMode ? 'px-16 py-12' : 'px-12 py-8'} flex justify-between items-center`}>
+          
+          {/* ESQUERDA: Logo (oculta no TV mode) */}
+          {!isTVMode && (
+            <div className="flex items-center">
+              <img src={logoWhite} alt="Blue Ocean" className="h-10 w-auto" />
+            </div>
+          )}
+
+          {/* CENTRO: Título + Subtítulo */}
+          <div className="text-center">
+            <h1 className={`text-white font-outfit font-bold tracking-tight ${
+              isTVMode ? 'text-7xl' : 'text-5xl'
+            }`}>
+              Financeiro
+            </h1>
+            {!isTVMode && (
+              <p className="text-[#94A3B8] font-outfit text-lg mt-2">
                 Análise detalhada da saúde financeira
               </p>
-            </div>
+            )}
           </div>
 
-          <div className="flex items-center gap-6">
-            <div className="text-right">
-              <p className={`text-white font-semibold ${isTVMode ? 'text-2xl' : 'text-base'}`}>
-                {formatDate(currentTime)}
-              </p>
-              <p className={`text-[#00E5CC] font-mono ${isTVMode ? 'text-3xl' : 'text-xl'}`}>
-                {formatTime(currentTime)}
-              </p>
-            </div>
-            
-            {!isTVMode && (
+          {/* DIREITA: Botões + Data/Hora */}
+          <div className="text-right flex flex-col items-end gap-3">
+            <div className={`flex ${isTVMode ? 'gap-6' : 'gap-3'}`}>
+              <TVModeToggle isTVMode={isTVMode} onToggle={() => setIsTVMode(!isTVMode)} />
               <Button
                 onClick={refetch}
                 variant="outline"
-                className="bg-[#0066FF]/10 border-[#0066FF] text-[#0066FF] hover:bg-[#0066FF] hover:text-white"
+                className={`bg-[#0066FF]/10 border-2 border-[#0066FF] text-[#0066FF] hover:bg-[#0066FF] hover:text-white transition-all ${
+                  isTVMode ? 'px-8 py-6 text-2xl' : 'px-6 py-3 text-lg'
+                }`}
               >
-                <RefreshCw className="w-4 h-4 mr-2" />
-                Atualizar
+                <RefreshCw className={`${isTVMode ? 'w-8 h-8 mr-4' : 'w-5 h-5 mr-2'}`} />
+                <span className="font-outfit font-semibold">Atualizar</span>
               </Button>
-            )}
-
-            <TVModeToggle isTVMode={isTVMode} onToggle={() => setIsTVMode(!isTVMode)} />
+            </div>
+            <div>
+              <p className={`text-white font-outfit font-semibold capitalize ${
+                isTVMode ? 'text-2xl' : 'text-lg'
+              }`}>
+                {formatDate(currentTime)}
+              </p>
+              <p className={`text-[#94A3B8] font-outfit ${
+                isTVMode ? 'text-lg' : 'text-sm'
+              }`}>
+                {isTVMode ? formatTime(currentTime) : `Atualizado: ${lastUpdate ? formatTime(lastUpdate) : '--:--'}`}
+              </p>
+            </div>
           </div>
+          
         </div>
       </header>
 
