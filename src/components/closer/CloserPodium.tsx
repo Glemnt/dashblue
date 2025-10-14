@@ -66,11 +66,11 @@ const CloserPodium = ({ top3 }: CloserPodiumProps) => {
 
           {/* Bloco do Pódio */}
           <div 
-            className={`${height} ${marginTop} ${bgColor} rounded-2xl shadow-2xl px-12 py-8 flex flex-col justify-between items-center text-center min-w-[280px] transform hover:scale-105 transition-all duration-300`}
+            className={`${height} ${marginTop} ${bgColor} rounded-2xl shadow-2xl px-8 py-8 flex flex-col justify-between items-center text-center min-w-[320px] max-w-[320px] overflow-hidden transform hover:scale-105 transition-all duration-300`}
           >
             {/* Nome e Squad */}
             <div>
-              <h3 className="text-white font-outfit text-3xl font-bold mb-3">
+              <h3 className="text-white font-outfit text-2xl font-bold mb-3 break-words line-clamp-2 w-full">
                 {closer.nome}
               </h3>
               <div 
@@ -86,17 +86,17 @@ const CloserPodium = ({ top3 }: CloserPodiumProps) => {
               <p className="text-white/80 text-sm font-outfit uppercase tracking-wider mb-2">
                 Receita Total
               </p>
-              <p className="text-white font-outfit text-5xl font-black mb-4">
+              <p className="text-white font-outfit text-4xl font-black mb-4 break-all leading-tight">
                 {formatarReal(closer.receitaTotal)}
               </p>
               
               {/* Contratos */}
-              <p className="text-white/90 text-lg font-outfit mb-2">
+              <p className="text-white/90 text-lg font-outfit mb-2 break-words">
                 {closer.contratosFechados} contratos fechados
               </p>
               
               {/* Ticket Médio */}
-              <p className="text-white/80 text-sm font-outfit">
+              <p className="text-white/80 text-sm font-outfit break-words">
                 Ticket médio: {formatarReal(closer.ticketMedio)}
               </p>
             </div>
