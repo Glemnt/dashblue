@@ -8,32 +8,18 @@ import { Button } from '@/components/ui/button';
 import Navigation from '@/components/Navigation';
 import SDRPodium from '@/components/sdr/SDRPodium';
 import SDRComparisonTable from '@/components/sdr/SDRComparisonTable';
-import PeriodFilter from '@/components/sdr/PeriodFilter';
-import SDRDetailCard from '@/components/sdr/SDRDetailCard';
-import SDRCharts from '@/components/sdr/SDRCharts';
-import { PeriodType, DateRange, getCurrentMonthRange } from '@/utils/dateFilters';
 
 const PerformanceSDR = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const { data, loading, error, lastUpdate, refetch } = useGoogleSheets();
-
-  // State para filtro de período
-  const [currentPeriod, setCurrentPeriod] = useState<PeriodType>('mes');
-  const [currentDateRange, setCurrentDateRange] = useState<DateRange>(getCurrentMonthRange());
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
 
-  // Calcular métricas SDR COM filtro de data
-  const metricas = data.length > 0 ? calcularMetricasSDR(data, currentDateRange) : null;
-
-  // Handler para mudança de filtro
-  const handleFilterChange = (type: PeriodType, dateRange: DateRange) => {
-    setCurrentPeriod(type);
-    setCurrentDateRange(dateRange);
-  };
+  // Calcular métricas SDR
+  const metricas = data.length > 0 ? calcularMetricasSDR(data) : null;
 
   const formatDate = (date: Date) => {
     return date.toLocaleDateString('pt-BR', {
@@ -88,7 +74,6 @@ const PerformanceSDR = () => {
   }
 
   const metaMensalCalls = 367;
-  const metaIndividualCalls = Math.ceil(metaMensalCalls / 4);
 
   return (
     <div className="min-h-screen bg-[#0B1120] font-outfit">
@@ -131,17 +116,6 @@ const PerformanceSDR = () => {
 
       {/* NAVEGAÇÃO */}
       <Navigation />
-
-      {/* FILTRO DE PERÍODO */}
-      <section className="bg-[#0B1120] pt-12 px-12">
-        <div className="max-w-[1800px] mx-auto">
-          <PeriodFilter
-            onFilterChange={handleFilterChange}
-            currentPeriod={currentPeriod}
-            currentDateRange={currentDateRange}
-          />
-        </div>
-      </section>
 
       {/* SEÇÃO 1: RESUMO GERAL */}
       <section className="bg-[#0B1120] py-20 px-12">
@@ -264,36 +238,6 @@ const PerformanceSDR = () => {
         </h2>
         <div className="max-w-[1800px] mx-auto">
           <SDRComparisonTable sdrs={metricas.sdrs} destaque={metricas.destaque} />
-        </div>
-      </section>
-
-      {/* SEÇÃO 4: CARDS INDIVIDUAIS EXPANSÍVEIS */}
-      <section className="bg-[#F8FAFC] py-20 px-12">
-        <h2 className="text-[#0B1120] font-outfit text-5xl font-bold mb-16 text-center tracking-tight">
-          Detalhamento Individual
-        </h2>
-        <div className="max-w-[1400px] mx-auto space-y-6">
-          {metricas.sdrs.map((sdr) => (
-            <SDRDetailCard
-              key={sdr.nomeOriginal}
-              sdr={sdr}
-              data={data}
-              metaIndividualCalls={metaIndividualCalls}
-            />
-          ))}
-        </div>
-      </section>
-
-      {/* SEÇÃO 5: GRÁFICOS COMPARATIVOS */}
-      <section className="bg-[#0B1120] py-20 px-12">
-        <h2 className="text-white font-outfit text-5xl font-bold mb-16 text-center tracking-tight">
-          Análise Gráfica Comparativa
-        </h2>
-        <div className="max-w-[1800px] mx-auto">
-          <SDRCharts 
-            sdrs={metricas.sdrs} 
-            metaIndividualCalls={metaIndividualCalls}
-          />
         </div>
       </section>
 
