@@ -7,6 +7,7 @@ export interface CloserContract {
   status: string;
   assinado: boolean;
   pago: boolean;
+  observacoes?: string;
 }
 
 export interface CloserMetrics {
@@ -163,7 +164,8 @@ export const calcularMetricasCloser = (data: any[], dateRange?: DateRange): Clos
         data: row['DATA'] || row['Data'] || 'Sem data',
         status,
         assinado,
-        pago
+        pago,
+        observacoes: row['OBSERVAÇÕES E PRÓXIMOS PASSOS'] || ''
       };
     });
 

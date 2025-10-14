@@ -4,6 +4,7 @@ import { CloserMetrics } from '@/utils/closerMetricsCalculator';
 import { formatarReal } from '@/utils/metricsCalculator';
 import { Progress } from '@/components/ui/progress';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface CloserDetailCardProps {
   closer: CloserMetrics;
@@ -313,34 +314,91 @@ const CloserDetailCard = ({ closer, metaIndividual }: CloserDetailCardProps) => 
                 Contratos Fechados ({closer.contratos.length})
               </h4>
               
-              <div className="space-y-2 max-h-96 overflow-y-auto">
+              <div className="space-y-3">
                 {closer.contratos.length > 0 ? (
-                  closer.contratos.map((contrato, index) => {
-                    const badge = getStatusBadge(contrato);
-                    return (
-                      <div 
-                        key={index}
-                        className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-                      >
-                        <div className="flex-1">
-                          <p className="text-[#0B1120] font-outfit font-semibold text-lg">
-                            {contrato.nome}
-                          </p>
-                          <p className="text-[#64748B] text-sm font-outfit">
-                            {contrato.data}
-                          </p>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-[#0B1120] font-outfit text-xl font-black mb-2">
-                            {formatarReal(contrato.valor)}
-                          </p>
-                          <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${badge.color}`}>
-                            {badge.text}
-                          </span>
-                        </div>
-                      </div>
-                    );
-                  })
+                  <TooltipProvider>
+                    {closer.contratos.map((contrato, index) => (
+                      <Tooltip key={index} delayDuration={200}>
+                        <TooltipTrigger asChild>
+                          <div 
+                            className="bg-gray-50 rounded-xl p-5 hover:bg-gray-100 transition-all duration-300 border border-gray-200 hover:border-[#0066FF]/30 hover:shadow-md cursor-pointer"
+                          >
+                            {/* Header: Nome do cliente + Data */}
+                            <div className="flex items-center justify-between mb-3">
+                              <p className="text-[#0B1120] font-outfit text-lg font-bold">
+                                {contrato.nome}
+                              </p>
+                              <span className="text-[#64748B] text-sm font-outfit">
+                                {contrato.data}
+                              </span>
+                            </div>
+
+                            {/* Grid com informações do contrato */}
+                            <div className="bg-white rounded-lg p-4 border border-[#0066FF]/20">
+                              <div className="grid grid-cols-3 gap-4">
+                                
+                                {/* Valor do Contrato */}
+                                <div>
+                                  <p className="text-[#64748B] text-xs font-outfit uppercase tracking-wider mb-1">
+                                    Valor
+                                  </p>
+                                  <p className="text-[#0B1120] font-outfit text-lg font-black">
+                                    {formatarReal(contrato.valor)}
+                                  </p>
+                                </div>
+
+                                {/* Status Assinatura */}
+                                <div>
+                                  <p className="text-[#64748B] text-xs font-outfit uppercase tracking-wider mb-1">
+                                    Assinatura
+                                  </p>
+                                  <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${
+                                    contrato.assinado 
+                                      ? 'bg-[#00E5CC]/20 text-[#00E5CC]' 
+                                      : 'bg-[#FFB800]/20 text-[#FFB800]'
+                                  }`}>
+                                    {contrato.assinado ? '✓ Assinado' : 'Pendente'}
+                                  </span>
+                                </div>
+
+                                {/* Status Pagamento */}
+                                <div>
+                                  <p className="text-[#64748B] text-xs font-outfit uppercase tracking-wider mb-1">
+                                    Pagamento
+                                  </p>
+                                  <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${
+                                    contrato.pago 
+                                      ? 'bg-[#00E5CC]/20 text-[#00E5CC]' 
+                                      : 'bg-[#FF4757]/20 text-[#FF4757]'
+                                  }`}>
+                                    {contrato.pago ? '✓ Pago' : 'Pendente'}
+                                  </span>
+                                </div>
+
+                              </div>
+                            </div>
+                          </div>
+                        </TooltipTrigger>
+                        
+                        {/* Tooltip com observações */}
+                        {contrato.observacoes && (
+                          <TooltipContent 
+                            side="top" 
+                            className="max-w-md p-4 bg-[#0B1120] text-white border-[#0066FF]/30"
+                          >
+                            <div>
+                              <p className="font-outfit text-xs uppercase tracking-wider text-[#94A3B8] mb-2">
+                                Observações e Próximos Passos
+                              </p>
+                              <p className="font-outfit text-sm leading-relaxed">
+                                {contrato.observacoes}
+                              </p>
+                            </div>
+                          </TooltipContent>
+                        )}
+                      </Tooltip>
+                    ))}
+                  </TooltipProvider>
                 ) : (
                   <p className="text-[#94A3B8] text-center py-8">
                     Nenhum contrato fechado
