@@ -223,26 +223,26 @@ const PerformanceCloser = () => {
       )}
 
       {/* SEÇÃO 1: RESUMO GERAL */}
-      <section className="bg-[#0B1120] py-20 px-12">
+      <section className={`bg-[#0B1120] ${isTVMode ? 'py-8 px-12' : 'py-20 px-12'}`}>
         <div className="max-w-[1600px] mx-auto">
           
-          <div className="grid grid-cols-2 gap-8">
+          <div className={`grid grid-cols-2 ${isTVMode ? 'gap-4' : 'gap-8'}`}>
             
             {/* Card 1: Receita Total */}
-            <div className="bg-[#151E35] rounded-2xl p-12 border border-white/5 hover:shadow-2xl transition-all duration-300">
-              <div className="flex items-start justify-between mb-8">
-                <div className="bg-[#0066FF]/20 p-6 rounded-2xl">
+            <div className={`bg-[#151E35] rounded-2xl border border-white/5 hover:shadow-2xl transition-all duration-300 ${isTVMode ? 'p-6' : 'p-12'}`}>
+              <div className={`flex items-start justify-between ${isTVMode ? 'mb-4' : 'mb-8'}`}>
+                <div className={`bg-[#0066FF]/20 rounded-2xl ${isTVMode ? 'p-4' : 'p-6'}`}>
                   <span className="text-5xl">💰</span>
                 </div>
-                <TrendingUp className="w-10 h-10 text-[#0066FF]" />
+                <TrendingUp className={`text-[#0066FF] ${isTVMode ? 'w-7 h-7' : 'w-10 h-10'}`} />
               </div>
-              <h3 className="text-[#94A3B8] font-outfit text-lg uppercase tracking-wider mb-3">
+              <h3 className={`text-[#94A3B8] font-outfit uppercase tracking-wider ${isTVMode ? 'text-sm mb-2' : 'text-lg mb-3'}`}>
                 Receita Total
               </h3>
-              <p className="text-white font-outfit text-7xl font-black mb-4">
+              <p className={`text-white font-outfit font-black ${isTVMode ? 'text-5xl mb-2' : 'text-7xl mb-4'}`}>
                 {formatarReal(metricas.totais.receitaTotal)}
               </p>
-              <p className="text-[#94A3B8] text-lg font-outfit mb-6">
+              <p className={`text-[#94A3B8] font-outfit ${isTVMode ? 'text-sm mb-3' : 'text-lg mb-6'}`}>
                 {metricas.totais.contratosTotais} contratos fechados
               </p>
               <div className="space-y-2">
@@ -254,7 +254,7 @@ const PerformanceCloser = () => {
                 </div>
                 <Progress 
                   value={(metricas.totais.receitaTotal / metaMensalReceita) * 100} 
-                  className="h-3"
+                  className={isTVMode ? 'h-2' : 'h-3'}
                   style={{
                     '--progress-background': getProgressColor(metricas.totais.receitaTotal, metaMensalReceita)
                   } as any}
@@ -263,20 +263,20 @@ const PerformanceCloser = () => {
             </div>
 
             {/* Card 2: Ticket Médio Geral */}
-            <div className="bg-[#151E35] rounded-2xl p-12 border border-white/5 hover:shadow-2xl transition-all duration-300">
-              <div className="flex items-start justify-between mb-8">
-                <div className="bg-[#00E5CC]/20 p-6 rounded-2xl">
+            <div className={`bg-[#151E35] rounded-2xl border border-white/5 hover:shadow-2xl transition-all duration-300 ${isTVMode ? 'p-6' : 'p-12'}`}>
+              <div className={`flex items-start justify-between ${isTVMode ? 'mb-4' : 'mb-8'}`}>
+                <div className={`bg-[#00E5CC]/20 rounded-2xl ${isTVMode ? 'p-4' : 'p-6'}`}>
                   <span className="text-5xl">📊</span>
                 </div>
-                <Target className="w-10 h-10 text-[#00E5CC]" />
+                <Target className={`text-[#00E5CC] ${isTVMode ? 'w-7 h-7' : 'w-10 h-10'}`} />
               </div>
-              <h3 className="text-[#94A3B8] font-outfit text-lg uppercase tracking-wider mb-3">
+              <h3 className={`text-[#94A3B8] font-outfit uppercase tracking-wider ${isTVMode ? 'text-sm mb-2' : 'text-lg mb-3'}`}>
                 Ticket Médio Geral
               </h3>
-              <p className="text-white font-outfit text-7xl font-black mb-4">
+              <p className={`text-white font-outfit font-black ${isTVMode ? 'text-5xl mb-2' : 'text-7xl mb-4'}`}>
                 {formatarReal(metricas.totais.ticketMedioGeral)}
               </p>
-              <p className="text-[#94A3B8] text-lg font-outfit mb-6">
+              <p className={`text-[#94A3B8] font-outfit ${isTVMode ? 'text-sm mb-3' : 'text-lg mb-6'}`}>
                 Meta: {formatarReal(metaTicketMedio)}
               </p>
               <div className="space-y-2">
@@ -288,7 +288,7 @@ const PerformanceCloser = () => {
                 </div>
                 <Progress 
                   value={Math.min((metricas.totais.ticketMedioGeral / metaTicketMedio) * 100, 100)} 
-                  className="h-3"
+                  className={isTVMode ? 'h-2' : 'h-3'}
                   style={{
                     '--progress-background': getProgressColor(metricas.totais.ticketMedioGeral, metaTicketMedio)
                   } as any}
@@ -297,20 +297,20 @@ const PerformanceCloser = () => {
             </div>
 
             {/* Card 3: Taxa de Conversão Média */}
-            <div className="bg-[#151E35] rounded-2xl p-12 border border-white/5 hover:shadow-2xl transition-all duration-300">
-              <div className="flex items-start justify-between mb-8">
-                <div className="bg-[#FFB800]/20 p-6 rounded-2xl">
+            <div className={`bg-[#151E35] rounded-2xl border border-white/5 hover:shadow-2xl transition-all duration-300 ${isTVMode ? 'p-6' : 'p-12'}`}>
+              <div className={`flex items-start justify-between ${isTVMode ? 'mb-4' : 'mb-8'}`}>
+                <div className={`bg-[#FFB800]/20 rounded-2xl ${isTVMode ? 'p-4' : 'p-6'}`}>
                   <span className="text-5xl">🎯</span>
                 </div>
-                <Target className="w-10 h-10 text-[#FFB800]" />
+                <Target className={`text-[#FFB800] ${isTVMode ? 'w-7 h-7' : 'w-10 h-10'}`} />
               </div>
-              <h3 className="text-[#94A3B8] font-outfit text-lg uppercase tracking-wider mb-3">
+              <h3 className={`text-[#94A3B8] font-outfit uppercase tracking-wider ${isTVMode ? 'text-sm mb-2' : 'text-lg mb-3'}`}>
                 Taxa de Conversão Média
               </h3>
-              <p className="text-white font-outfit text-7xl font-black mb-4">
+              <p className={`text-white font-outfit font-black ${isTVMode ? 'text-5xl mb-2' : 'text-7xl mb-4'}`}>
                 {metricas.totais.taxaConversaoMedia.toFixed(1)}%
               </p>
-              <p className="text-[#94A3B8] text-lg font-outfit mb-6">
+              <p className={`text-[#94A3B8] font-outfit ${isTVMode ? 'text-sm mb-3' : 'text-lg mb-6'}`}>
                 Meta: {metaTaxaConversao}%
               </p>
               <div className="space-y-2">
@@ -322,7 +322,7 @@ const PerformanceCloser = () => {
                 </div>
                 <Progress 
                   value={Math.min(metricas.totais.taxaConversaoMedia, 100)} 
-                  className="h-3"
+                  className={isTVMode ? 'h-2' : 'h-3'}
                   style={{
                     '--progress-background': getProgressColor(metricas.totais.taxaConversaoMedia, metaTaxaConversao)
                   } as any}
@@ -332,10 +332,10 @@ const PerformanceCloser = () => {
 
             {/* Card 4: Closer Destaque */}
             {metricas.destaque && (
-              <div className="bg-gradient-to-br from-[#FFB800] to-[#FF8C00] rounded-2xl p-12 border-4 border-[#FFD700] hover:shadow-2xl hover:scale-105 transition-all duration-300 relative">
-                <div className="flex items-start justify-between mb-8">
-                  <div className="bg-white/20 p-6 rounded-2xl">
-                    <Trophy className="w-10 h-10 text-white" />
+              <div className={`bg-gradient-to-br from-[#FFB800] to-[#FF8C00] rounded-2xl border-4 border-[#FFD700] hover:shadow-2xl hover:scale-105 transition-all duration-300 relative ${isTVMode ? 'p-6' : 'p-12'}`}>
+                <div className={`flex items-start justify-between ${isTVMode ? 'mb-4' : 'mb-8'}`}>
+                  <div className={`bg-white/20 rounded-2xl ${isTVMode ? 'p-4' : 'p-6'}`}>
+                    <Trophy className={`text-white ${isTVMode ? 'w-7 h-7' : 'w-10 h-10'}`} />
                   </div>
                   <ColaboradorAvatar 
                     nome={metricas.destaque.nome}
@@ -345,16 +345,16 @@ const PerformanceCloser = () => {
                     className="absolute -top-8 right-8"
                   />
                 </div>
-                <h3 className="text-white/90 font-outfit text-lg uppercase tracking-wider mb-3">
+                <h3 className={`text-white/90 font-outfit uppercase tracking-wider ${isTVMode ? 'text-sm mb-2' : 'text-lg mb-3'}`}>
                   🏆 Closer Destaque
                 </h3>
-                <p className="text-white font-outfit text-5xl font-black mb-4">
+                <p className={`text-white font-outfit font-black ${isTVMode ? 'text-4xl mb-2' : 'text-5xl mb-4'}`}>
                   {metricas.destaque.nome}
                 </p>
-                <p className="text-white/90 text-3xl font-outfit font-bold mb-2">
+                <p className={`text-white/90 font-outfit font-bold ${isTVMode ? 'text-2xl mb-1' : 'text-3xl mb-2'}`}>
                   {formatarReal(metricas.destaque.receitaTotal)}
                 </p>
-                <p className="text-white/80 text-lg font-outfit">
+                <p className={`text-white/80 font-outfit ${isTVMode ? 'text-base' : 'text-lg'}`}>
                   {metricas.destaque.contratosFechados} contratos fechados
                 </p>
               </div>
@@ -365,8 +365,8 @@ const PerformanceCloser = () => {
       </section>
 
       {/* SEÇÃO 2: PÓDIO DOS TOP 3 */}
-      <section className="bg-[#F8FAFC] py-20 px-12">
-        <h2 className="text-[#0B1120] font-outfit text-5xl font-bold mb-16 text-center tracking-tight">
+      <section className={`bg-[#F8FAFC] ${isTVMode ? 'py-8 px-12' : 'py-20 px-12'}`}>
+        <h2 className={`text-[#0B1120] font-outfit font-bold text-center tracking-tight ${isTVMode ? 'text-4xl mb-6' : 'text-5xl mb-16'}`}>
           Pódio dos Top 3 Closers
         </h2>
         <div className="max-w-[1600px] mx-auto">
@@ -375,8 +375,8 @@ const PerformanceCloser = () => {
       </section>
 
       {/* SEÇÃO 3: TABELA COMPARATIVA */}
-      <section className="bg-[#0B1120] py-20 px-12">
-        <h2 className="text-white font-outfit text-5xl font-bold mb-16 text-center tracking-tight">
+      <section className={`bg-[#0B1120] ${isTVMode ? 'py-8 px-12' : 'py-20 px-12'}`}>
+        <h2 className={`text-white font-outfit font-bold text-center tracking-tight ${isTVMode ? 'text-4xl mb-6' : 'text-5xl mb-16'}`}>
           Comparação de Performance
         </h2>
         <div className="max-w-[1800px] mx-auto">
@@ -385,11 +385,11 @@ const PerformanceCloser = () => {
       </section>
 
       {/* SEÇÃO 4: CARDS INDIVIDUAIS */}
-      <section className="bg-[#F8FAFC] py-20 px-12">
-        <h2 className="text-[#0B1120] font-outfit text-5xl font-bold mb-16 text-center tracking-tight">
+      <section className={`bg-[#F8FAFC] ${isTVMode ? 'py-8 px-12' : 'py-20 px-12'}`}>
+        <h2 className={`text-[#0B1120] font-outfit font-bold text-center tracking-tight ${isTVMode ? 'text-4xl mb-6' : 'text-5xl mb-16'}`}>
           Detalhamento Individual
         </h2>
-        <div className="max-w-[1400px] mx-auto space-y-6">
+        <div className={`max-w-[1400px] mx-auto ${isTVMode ? 'space-y-3' : 'space-y-6'}`}>
           {metricas.closers.map((closer) => (
             <CloserDetailCard
               key={closer.nomeOriginal}
@@ -401,8 +401,8 @@ const PerformanceCloser = () => {
       </section>
 
       {/* SEÇÃO 5: GRÁFICOS COMPARATIVOS */}
-      <section className="bg-[#0B1120] py-20 px-12">
-        <h2 className="text-white font-outfit text-5xl font-bold mb-16 text-center tracking-tight">
+      <section className={`bg-[#0B1120] ${isTVMode ? 'py-8 px-12' : 'py-20 px-12'}`}>
+        <h2 className={`text-white font-outfit font-bold text-center tracking-tight ${isTVMode ? 'text-4xl mb-6' : 'text-5xl mb-16'}`}>
           Análise Gráfica Comparativa
         </h2>
         <div className="max-w-[1800px] mx-auto">
