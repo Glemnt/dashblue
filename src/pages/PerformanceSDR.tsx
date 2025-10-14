@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
-import { RefreshCw } from 'lucide-react';
+import { RefreshCw, TrendingUp, Target, Trophy, Phone } from 'lucide-react';
 import logoWhite from '@/assets/logo-white.png';
 import { useGoogleSheets } from '@/hooks/useGoogleSheets';
 import { useSDRKPIs } from '@/hooks/useSDRKPIs';
 import { calcularMetricasSDR, mesclarMetricasSDRComDashboard } from '@/utils/sdrMetricsCalculator';
 import { formatarReal } from '@/utils/metricsCalculator';
 import { Button } from '@/components/ui/button';
+import { Progress } from '@/components/ui/progress';
 import Navigation from '@/components/Navigation';
 import SDRPodium from '@/components/sdr/SDRPodium';
 import SDRComparisonTable from '@/components/sdr/SDRComparisonTable';
@@ -101,6 +102,13 @@ const PerformanceSDR = () => {
   const metaMensalCalls = 367;
   const metaIndividualCalls = Math.ceil(metaMensalCalls / 4);
 
+  const getProgressColor = (value: number, meta: number) => {
+    const percentage = (value / meta) * 100;
+    if (percentage >= 90) return '#00E5CC';
+    if (percentage >= 70) return '#FFB800';
+    return '#FF4757';
+  };
+
   return (
     <div className="min-h-screen bg-[#0B1120] font-outfit">
       {/* HEADER */}
@@ -160,98 +168,125 @@ const PerformanceSDR = () => {
           <div className="grid grid-cols-2 gap-8">
             
             {/* Card 1: Total de Calls */}
-            <div className="bg-[#151E35] rounded-2xl p-12 border border-white/5 hover:shadow-xl transition-all duration-300">
-              <div className="flex items-center gap-4 mb-6">
-                <div className="text-5xl">📞</div>
-                <p className="text-[#64748B] font-outfit text-xs font-semibold uppercase tracking-widest">
-                  Total de Calls
-                </p>
+            <div className="bg-[#151E35] rounded-2xl p-12 border border-white/5 hover:shadow-2xl transition-all duration-300">
+              <div className="flex items-start justify-between mb-8">
+                <div className="bg-[#0066FF]/20 p-6 rounded-2xl">
+                  <Phone className="w-10 h-10 text-[#0066FF]" />
+                </div>
+                <TrendingUp className="w-10 h-10 text-[#0066FF]" />
               </div>
+              <h3 className="text-[#94A3B8] font-outfit text-lg uppercase tracking-wider mb-3">
+                Total de Calls
+              </h3>
               <p className="text-white font-outfit text-7xl font-black mb-4">
                 {metricas.totais.totalCalls}
               </p>
-              <div className="h-3 bg-white/5 rounded-full mb-4">
-                <div 
-                  className={`h-full rounded-full ${
-                    (metricas.totais.totalCalls / metaMensalCalls) * 100 >= 90 ? 'bg-[#00E5CC]' :
-                    (metricas.totais.totalCalls / metaMensalCalls) * 100 >= 70 ? 'bg-[#FFB800]' :
-                    'bg-[#FF4757]'
-                  }`}
-                  style={{ width: `${Math.min((metricas.totais.totalCalls / metaMensalCalls) * 100, 100)}%` }}
+              <p className="text-[#94A3B8] text-lg font-outfit mb-6">
+                Meta mensal: {metaMensalCalls} calls
+              </p>
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-[#94A3B8]">Progresso</span>
+                  <span className="text-white font-semibold">
+                    {((metricas.totais.totalCalls / metaMensalCalls) * 100).toFixed(0)}%
+                  </span>
+                </div>
+                <Progress 
+                  value={(metricas.totais.totalCalls / metaMensalCalls) * 100} 
+                  className="h-3"
+                  style={{
+                    '--progress-background': getProgressColor(metricas.totais.totalCalls, metaMensalCalls)
+                  } as any}
                 />
               </div>
-              <p className="text-[#94A3B8] font-outfit text-base">
-                Meta mensal: {metaMensalCalls} calls ({((metricas.totais.totalCalls / metaMensalCalls) * 100).toFixed(1)}%)
-              </p>
             </div>
 
             {/* Card 2: Taxa Média de Qualificação */}
-            <div className="bg-[#151E35] rounded-2xl p-12 border border-white/5 hover:shadow-xl transition-all duration-300">
-              <div className="flex items-center gap-4 mb-6">
-                <div className="text-5xl">✅</div>
-                <p className="text-[#64748B] font-outfit text-xs font-semibold uppercase tracking-widest">
-                  Taxa Média Qualificação
-                </p>
+            <div className="bg-[#151E35] rounded-2xl p-12 border border-white/5 hover:shadow-2xl transition-all duration-300">
+              <div className="flex items-start justify-between mb-8">
+                <div className="bg-[#00E5CC]/20 p-6 rounded-2xl">
+                  <span className="text-5xl">✅</span>
+                </div>
+                <Target className="w-10 h-10 text-[#00E5CC]" />
               </div>
+              <h3 className="text-[#94A3B8] font-outfit text-lg uppercase tracking-wider mb-3">
+                Taxa Média de Qualificação
+              </h3>
               <p className="text-white font-outfit text-7xl font-black mb-4">
                 {metricas.totais.taxaQualificacaoMedia.toFixed(1)}%
               </p>
-              <div className="h-3 bg-white/5 rounded-full mb-4">
-                <div 
-                  className={`h-full rounded-full ${
-                    metricas.totais.taxaQualificacaoMedia >= 50 ? 'bg-[#00E5CC]' :
-                    metricas.totais.taxaQualificacaoMedia >= 35 ? 'bg-[#FFB800]' :
-                    'bg-[#FF4757]'
-                  }`}
-                  style={{ width: `${Math.min(metricas.totais.taxaQualificacaoMedia, 100)}%` }}
-                />
-              </div>
-              <p className="text-[#94A3B8] font-outfit text-base">
+              <p className="text-[#94A3B8] text-lg font-outfit mb-6">
                 Meta: 50%
               </p>
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-[#94A3B8]">Progresso</span>
+                  <span className="text-white font-semibold">
+                    {((metricas.totais.taxaQualificacaoMedia / 50) * 100).toFixed(0)}%
+                  </span>
+                </div>
+                <Progress 
+                  value={Math.min(metricas.totais.taxaQualificacaoMedia, 100)} 
+                  className="h-3"
+                  style={{
+                    '--progress-background': getProgressColor(metricas.totais.taxaQualificacaoMedia, 50)
+                  } as any}
+                />
+              </div>
             </div>
 
             {/* Card 3: Taxa Média de Show */}
-            <div className="bg-[#151E35] rounded-2xl p-12 border border-white/5 hover:shadow-xl transition-all duration-300">
-              <div className="flex items-center gap-4 mb-6">
-                <div className="text-5xl">📊</div>
-                <p className="text-[#64748B] font-outfit text-xs font-semibold uppercase tracking-widest">
-                  Taxa Média de Show
-                </p>
+            <div className="bg-[#151E35] rounded-2xl p-12 border border-white/5 hover:shadow-2xl transition-all duration-300">
+              <div className="flex items-start justify-between mb-8">
+                <div className="bg-[#FFB800]/20 p-6 rounded-2xl">
+                  <span className="text-5xl">📊</span>
+                </div>
+                <Target className="w-10 h-10 text-[#FFB800]" />
               </div>
+              <h3 className="text-[#94A3B8] font-outfit text-lg uppercase tracking-wider mb-3">
+                Taxa Média de Show
+              </h3>
               <p className="text-white font-outfit text-7xl font-black mb-4">
                 {metricas.totais.taxaShowMedia.toFixed(1)}%
               </p>
-              <div className="h-3 bg-white/5 rounded-full mb-4">
-                <div 
-                  className={`h-full rounded-full ${
-                    metricas.totais.taxaShowMedia >= 75 ? 'bg-[#00E5CC]' :
-                    metricas.totais.taxaShowMedia >= 50 ? 'bg-[#FFB800]' :
-                    'bg-[#FF4757]'
-                  }`}
-                  style={{ width: `${Math.min(metricas.totais.taxaShowMedia, 100)}%` }}
-                />
-              </div>
-              <p className="text-[#94A3B8] font-outfit text-base">
+              <p className="text-[#94A3B8] text-lg font-outfit mb-6">
                 Meta: 75%
               </p>
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-[#94A3B8]">Progresso</span>
+                  <span className="text-white font-semibold">
+                    {((metricas.totais.taxaShowMedia / 75) * 100).toFixed(0)}%
+                  </span>
+                </div>
+                <Progress 
+                  value={Math.min(metricas.totais.taxaShowMedia, 100)} 
+                  className="h-3"
+                  style={{
+                    '--progress-background': getProgressColor(metricas.totais.taxaShowMedia, 75)
+                  } as any}
+                />
+              </div>
             </div>
 
             {/* Card 4: SDR Destaque */}
-            <div className="bg-gradient-to-br from-[#FFB800] to-[#FF8C00] rounded-2xl p-12 border-2 border-[#FFB800] hover:shadow-2xl transition-all duration-300">
-              <div className="flex items-center gap-4 mb-6">
-                <div className="text-5xl">🏆</div>
-                <p className="text-white/90 font-outfit text-xs font-semibold uppercase tracking-widest">
-                  SDR Destaque
-                </p>
+            <div className="bg-gradient-to-br from-[#FFB800] to-[#FF8C00] rounded-2xl p-12 border-4 border-[#FFD700] hover:shadow-2xl hover:scale-105 transition-all duration-300">
+              <div className="flex items-start justify-between mb-8">
+                <div className="bg-white/20 p-6 rounded-2xl">
+                  <Trophy className="w-10 h-10 text-white" />
+                </div>
+                <span className="text-5xl">🏆</span>
               </div>
-              <p className="text-white font-outfit text-5xl font-black mb-2">
+              <h3 className="text-white/90 font-outfit text-lg uppercase tracking-wider mb-3">
+                SDR Destaque
+              </h3>
+              <p className="text-white font-outfit text-5xl font-black mb-4">
                 {metricas.destaque?.nome}
               </p>
-              <p className="text-white font-outfit text-4xl font-bold mb-4">
+              <p className="text-white/90 text-3xl font-outfit font-bold mb-2">
                 {formatarReal(metricas.destaque?.vendasOriginadas || 0)}
               </p>
-              <p className="text-white/80 font-outfit text-base">
+              <p className="text-white/80 text-lg font-outfit">
                 {metricas.destaque?.contratosOriginados} contratos originados
               </p>
             </div>
