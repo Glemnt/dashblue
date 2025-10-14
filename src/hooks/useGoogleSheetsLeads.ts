@@ -38,16 +38,37 @@ export const useGoogleSheetsLeads = (): UseLeadsReturn => {
             return row['Email'] || row['Nome'] || row['EMAIL'] || row['NOME'];
           });
           
-          // Contar MQLs (coluna J = "MQL")
+          // Debug: Verificar colunas disponíveis
+          console.log('📧 LEADS - Headers disponíveis:', Object.keys(leadsValidos[0] || {}));
+          console.log('📧 LEADS - Primeira linha:', leadsValidos[0]);
+          
+          // Verificar se a coluna Status_Lead existe
+          const temStatusLead = leadsValidos[0] && leadsValidos[0].hasOwnProperty('Status_Lead');
+          console.log('📧 LEADS - Coluna Status_Lead existe?', temStatusLead);
+          
+          if (temStatusLead) {
+            const valoresUnicos = [...new Set(leadsValidos.map(row => row['Status_Lead']))].filter(v => v);
+            console.log('📧 LEADS - Valores únicos em Status_Lead:', valoresUnicos);
+          }
+          
+          // Contar MQLs (coluna Status_Lead = "MQL")
           const mqls = leadsValidos.filter((row: any) => {
-            const statusMql = row['MQL'] || row['mql'] || row['Status'] || row['STATUS'] || row['Qualificação'] || row['QUALIFICAÇÃO'];
-            return statusMql && String(statusMql).trim().toUpperCase() === 'MQL';
+            const statusLead = row['Status_Lead'] || row['STATUS_LEAD'] || row['status_lead'];
+            
+            if (!statusLead) return false;
+            
+            const valor = String(statusLead).trim().toUpperCase();
+            return valor === 'MQL';
           });
           
-          // Contar Desqualificados (coluna J = "Desqualificado")
+          // Contar Desqualificados (coluna Status_Lead = "Desqualificado")
           const desqualificados = leadsValidos.filter((row: any) => {
-            const statusMql = row['MQL'] || row['mql'] || row['Status'] || row['STATUS'] || row['Qualificação'] || row['QUALIFICAÇÃO'];
-            return statusMql && String(statusMql).trim().toUpperCase().includes('DESQUALIFICADO');
+            const statusLead = row['Status_Lead'] || row['STATUS_LEAD'] || row['status_lead'];
+            
+            if (!statusLead) return false;
+            
+            const valor = String(statusLead).trim().toUpperCase();
+            return valor === 'DESQUALIFICADO';
           });
           
           console.log('📧 LEADS - Totais:');
