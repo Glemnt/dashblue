@@ -3,6 +3,7 @@ import { ArrowUpDown } from 'lucide-react';
 import { CloserMetrics } from '@/utils/closerMetricsCalculator';
 import { formatarReal } from '@/utils/metricsCalculator';
 import { Progress } from '@/components/ui/progress';
+import ColaboradorAvatar from '@/components/ColaboradorAvatar';
 
 interface CloserComparisonTableProps {
   closers: CloserMetrics[];
@@ -86,7 +87,13 @@ const CloserComparisonTable = ({ closers, destaque }: CloserComparisonTableProps
                 {/* Closer */}
                 <td className="px-6 py-6">
                   <div className="flex items-center gap-3">
-                    <span className="text-3xl">{closer.emoji}</span>
+                    <ColaboradorAvatar 
+                      nome={closer.nome}
+                      emoji={closer.emoji}
+                      squadColor={closer.squadColor}
+                      size="sm"
+                      showBorder={false}
+                    />
                     <span className="text-white font-outfit font-semibold text-base">
                       {closer.nome}
                     </span>

@@ -15,6 +15,7 @@ import PeriodFilter from '@/components/sdr/PeriodFilter';
 import SDRDetailCard from '@/components/sdr/SDRDetailCard';
 import SDRCharts from '@/components/sdr/SDRCharts';
 import TVModeToggle from '@/components/TVModeToggle';
+import ColaboradorAvatar from '@/components/ColaboradorAvatar';
 import { PeriodType, DateRange, getCurrentMonthRange } from '@/utils/dateFilters';
 
 const PerformanceSDR = () => {
@@ -343,12 +344,18 @@ const PerformanceSDR = () => {
             </div>
 
             {/* Card 4: SDR Destaque */}
-            <div className="bg-gradient-to-br from-[#FFB800] to-[#FF8C00] rounded-2xl p-12 border-4 border-[#FFD700] hover:shadow-2xl hover:scale-105 transition-all duration-300">
+            <div className="bg-gradient-to-br from-[#FFB800] to-[#FF8C00] rounded-2xl p-12 border-4 border-[#FFD700] hover:shadow-2xl hover:scale-105 transition-all duration-300 relative">
               <div className="flex items-start justify-between mb-8">
                 <div className="bg-white/20 p-6 rounded-2xl">
                   <Trophy className="w-10 h-10 text-white" />
                 </div>
-                <span className="text-5xl">🏆</span>
+                <ColaboradorAvatar 
+                  nome={metricas.destaque?.nome || ''}
+                  emoji={metricas.destaque?.emoji || '🏆'}
+                  squadColor={metricas.destaque?.squadColor || '#FFB800'}
+                  size="xl"
+                  className="absolute -top-8 right-8"
+                />
               </div>
               <h3 className="text-white/90 font-outfit text-lg uppercase tracking-wider mb-3">
                 SDR Destaque

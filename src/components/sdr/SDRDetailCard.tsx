@@ -4,6 +4,7 @@ import { SDRMetrics } from '@/utils/sdrMetricsCalculator';
 import { formatarReal } from '@/utils/metricsCalculator';
 import { Progress } from '@/components/ui/progress';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import ColaboradorAvatar from '@/components/ColaboradorAvatar';
 
 interface SDRDetailCardProps {
   sdr: SDRMetrics;
@@ -33,12 +34,12 @@ const SDRDetailCard = ({ sdr, data, metaIndividualCalls }: SDRDetailCardProps) =
             <div className="flex items-center justify-between">
               
               <div className="flex items-center gap-6">
-                <div 
-                  className="w-20 h-20 rounded-full flex items-center justify-center text-4xl border-4 border-white shadow-lg"
-                  style={{ backgroundColor: sdr.squadColor }}
-                >
-                  {sdr.emoji}
-                </div>
+                <ColaboradorAvatar 
+                  nome={sdr.nome}
+                  emoji={sdr.emoji}
+                  squadColor={sdr.squadColor}
+                  size="md"
+                />
 
                 <div>
                   <h3 className="text-[#0B1120] font-outfit text-3xl font-bold mb-2">

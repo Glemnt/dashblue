@@ -11,6 +11,7 @@ import CloserComparisonTable from '@/components/closer/CloserComparisonTable';
 import CloserDetailCard from '@/components/closer/CloserDetailCard';
 import CloserCharts from '@/components/closer/CloserCharts';
 import TVModeToggle from '@/components/TVModeToggle';
+import ColaboradorAvatar from '@/components/ColaboradorAvatar';
 import { useGoogleSheets } from '@/hooks/useGoogleSheets';
 import { calcularMetricasCloser } from '@/utils/closerMetricsCalculator';
 import { formatarReal } from '@/utils/metricsCalculator';
@@ -331,12 +332,18 @@ const PerformanceCloser = () => {
 
             {/* Card 4: Closer Destaque */}
             {metricas.destaque && (
-              <div className="bg-gradient-to-br from-[#FFB800] to-[#FF8C00] rounded-2xl p-12 border-4 border-[#FFD700] hover:shadow-2xl hover:scale-105 transition-all duration-300">
+              <div className="bg-gradient-to-br from-[#FFB800] to-[#FF8C00] rounded-2xl p-12 border-4 border-[#FFD700] hover:shadow-2xl hover:scale-105 transition-all duration-300 relative">
                 <div className="flex items-start justify-between mb-8">
                   <div className="bg-white/20 p-6 rounded-2xl">
                     <Trophy className="w-10 h-10 text-white" />
                   </div>
-                  <span className="text-5xl">{metricas.destaque.emoji}</span>
+                  <ColaboradorAvatar 
+                    nome={metricas.destaque.nome}
+                    emoji={metricas.destaque.emoji}
+                    squadColor={metricas.destaque.squadColor}
+                    size="xl"
+                    className="absolute -top-8 right-8"
+                  />
                 </div>
                 <h3 className="text-white/90 font-outfit text-lg uppercase tracking-wider mb-3">
                   🏆 Closer Destaque

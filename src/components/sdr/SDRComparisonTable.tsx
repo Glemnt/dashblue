@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { formatarReal } from '@/utils/metricsCalculator';
 import { ArrowUp, ArrowDown } from 'lucide-react';
 import { SDRMetrics } from '@/utils/sdrMetricsCalculator';
+import ColaboradorAvatar from '@/components/ColaboradorAvatar';
 
 interface SDRComparisonTableProps {
   sdrs: SDRMetrics[];
@@ -118,7 +119,13 @@ const SDRComparisonTable = ({ sdrs, destaque }: SDRComparisonTableProps) => {
                 >
                   <td className="p-6">
                     <div className="flex items-center gap-3">
-                      <span className="text-2xl">{sdr.emoji}</span>
+                      <ColaboradorAvatar 
+                        nome={sdr.nome}
+                        emoji={sdr.emoji}
+                        squadColor={sdr.squadColor}
+                        size="sm"
+                        showBorder={false}
+                      />
                       <span className="text-white font-outfit text-lg font-semibold">
                         {sdr.nome}
                       </span>

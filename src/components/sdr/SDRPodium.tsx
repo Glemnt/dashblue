@@ -1,5 +1,6 @@
 import { formatarReal } from '@/utils/metricsCalculator';
 import { SDRMetrics } from '@/utils/sdrMetricsCalculator';
+import ColaboradorAvatar from '@/components/ColaboradorAvatar';
 
 interface SDRPodiumProps {
   top3: SDRMetrics[];
@@ -32,12 +33,13 @@ const SDRPodium = ({ top3 }: SDRPodiumProps) => {
     return (
       <div className="flex flex-col items-center">
         {/* Avatar */}
-        <div 
-          className="w-24 h-24 rounded-full flex items-center justify-center text-4xl mb-4 border-4 border-white shadow-lg"
-          style={{ backgroundColor: sdr.squadColor }}
-        >
-          {sdr.emoji}
-        </div>
+        <ColaboradorAvatar 
+          nome={sdr.nome}
+          emoji={sdr.emoji}
+          squadColor={sdr.squadColor}
+          size="lg"
+          className="mb-4"
+        />
 
         {/* Bloco do Pódio */}
         <div 

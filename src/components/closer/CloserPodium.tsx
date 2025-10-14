@@ -1,6 +1,7 @@
 import { Trophy } from 'lucide-react';
 import { CloserMetrics } from '@/utils/closerMetricsCalculator';
 import { formatarReal } from '@/utils/metricsCalculator';
+import ColaboradorAvatar from '@/components/ColaboradorAvatar';
 
 interface CloserPodiumProps {
   top3: CloserMetrics[];
@@ -50,15 +51,18 @@ const CloserPodium = ({ top3 }: CloserPodiumProps) => {
       {positions.map(({ closer, posicao, height, marginTop, bgColor, badgeColor, badgeText, isFirst }) => (
         <div key={posicao} className="flex flex-col items-center">
           {/* Avatar */}
-          <div 
-            className="w-32 h-32 rounded-full flex items-center justify-center text-6xl border-8 border-white shadow-2xl mb-6 relative"
-            style={{ backgroundColor: closer.squadColor }}
-          >
-            {closer.emoji}
+          <div className="relative mb-6">
+            <ColaboradorAvatar 
+              nome={closer.nome}
+              emoji={closer.emoji}
+              squadColor={closer.squadColor}
+              size="xl"
+              className="border-8"
+            />
             
             {/* Badge de Posição */}
             <div 
-              className={`absolute -top-4 ${badgeColor} text-white rounded-full w-12 h-12 flex items-center justify-center font-outfit font-black text-lg shadow-lg`}
+              className={`absolute -top-4 ${badgeColor} text-white rounded-full w-12 h-12 flex items-center justify-center font-outfit font-black text-lg shadow-lg left-1/2 transform -translate-x-1/2`}
             >
               {badgeText}
             </div>

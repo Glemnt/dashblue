@@ -5,6 +5,7 @@ import { formatarReal } from '@/utils/metricsCalculator';
 import { Progress } from '@/components/ui/progress';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import ColaboradorAvatar from '@/components/ColaboradorAvatar';
 
 interface CloserDetailCardProps {
   closer: CloserMetrics;
@@ -43,13 +44,13 @@ const CloserDetailCard = ({ closer, metaIndividual }: CloserDetailCardProps) => 
             <div className="flex items-center justify-between">
               
               <div className="flex items-center gap-6">
-                {/* Emoji do Squad */}
-                <div 
-                  className="w-20 h-20 rounded-full flex items-center justify-center text-4xl border-4 border-white shadow-lg"
-                  style={{ backgroundColor: closer.squadColor }}
-                >
-                  {closer.emoji}
-                </div>
+                {/* Avatar do Colaborador */}
+                <ColaboradorAvatar 
+                  nome={closer.nome}
+                  emoji={closer.emoji}
+                  squadColor={closer.squadColor}
+                  size="md"
+                />
 
                 {/* Nome e Squad */}
                 <div>
