@@ -21,7 +21,7 @@ const Index = () => {
   // Calcular métricas quando os dados mudarem
   const metricas = data.length > 0 ? calcularMetricas(data, {
     totalLeads: leadsCampanhas,
-    totalMQLs: mqlsCampanhas
+    totalMQLs: leads.totalMQLs
   }) : null;
 
   const formatDate = (date: Date) => {
