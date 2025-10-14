@@ -121,17 +121,17 @@ export const calcularMetricasCloser = (data: any[], dateRange?: DateRange): Clos
   ];
 
   const closersMetrics: CloserMetrics[] = closersNomes.map(closer => {
-    // Calls Realizadas: contar linhas onde CLOSER = nome
+    // Calls Realizadas: contar linhas onde CLOSER = nome (com matching de abreviações)
     const callsRealizadas = filteredData.filter(row => {
       const closerName = String(row['CLOSER'] || '').trim().toUpperCase();
-      return closerName === closer.original;
+      return matchCloserName(closerName, closer.original);
     }).length;
 
-    // Calls Qualificadas: CLOSER = nome E QUALIFICADA = "SIM"
+    // Calls Qualificadas: CLOSER = nome E QUALIFICADA = "SIM" (com matching de abreviações)
     const callsQualificadas = filteredData.filter(row => {
       const closerName = String(row['CLOSER'] || '').trim().toUpperCase();
       const qualificada = String(row['QUALIFICADA (SQL)'] || '').trim().toUpperCase();
-      return closerName === closer.original && qualificada === 'SIM';
+      return matchCloserName(closerName, closer.original) && qualificada === 'SIM';
     }).length;
 
     // Contratos Fechados e Receitas
