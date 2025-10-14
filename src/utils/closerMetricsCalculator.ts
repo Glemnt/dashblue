@@ -26,6 +26,14 @@ export interface CloserMetrics {
   taxaAssinatura: number;
   taxaPagamento: number;
   contratos: CloserContract[];
+  // Dados do Dashboard VENDAS-OUTUBRO
+  valorVendasDash?: number;
+  percentualVendasDash?: number;
+  ticketMedioDash?: number;
+  callsRealizadasDash?: number;
+  callsQualificadasDash?: number;
+  numeroContratosDash?: number;
+  taxaConversaoDash?: number;
 }
 
 export interface CloserData {
@@ -177,6 +185,87 @@ export const calcularMetricasCloser = (data: any[], dateRange?: DateRange): Clos
       taxaConversaoMedia,
       taxaAssinaturaMedia,
       taxaPagamentoMedia
+    },
+    top3,
+    destaque
+  };
+};
+
+// Função para mesclar dados calculados com dados do dashboard
+export const mesclarMetricasComDashboard = (
+  metricasCalculadas: CloserData,
+  dadosDashboard: Array<{
+    nome: string;
+    valorVendas: number;
+    percentualVendas: number;
+    ticketMedio: number;
+    callsRealizadas: number;
+    callsQualificadas: number;
+    numeroContratos: number;
+    taxaConversao: number;
+  }>
+): CloserData => {
+  const closersMap = new Map(
+    dadosDashboard.map(d => [d.nome.toUpperCase(), d])
+  );
+
+  const closersMesclados = metricasCalculadas.closers.map(closer => {
+    // Tentar match por nome
+    let dashData = closersMap.get(closer.nomeOriginal);
+    
+    // Tentar match alternativo (G. Franklin -> GABRIEL FRANKLIN, etc)
+    if (!dashData) {
+      if (closer.nomeOriginal === 'GABRIEL FRANKLIN') {
+        dashData = closersMap.get('G. FRANKLIN');
+      } else if (closer.nomeOriginal === 'GABRIEL FERNANDES') {
+        dashData = closersMap.get('G. FERNANDES');
+      }
+    }
+
+    if (dashData) {
+      return {
+        ...closer,
+        // Usar dados do dashboard como principal
+        receitaTotal: dashData.valorVendas,
+        ticketMedio: dashData.ticketMedio,
+        callsRealizadas: dashData.callsRealizadas,
+        callsQualificadas: dashData.callsQualificadas,
+        contratosFechados: dashData.numeroContratos,
+        taxaConversao: dashData.taxaConversao,
+        // Manter dados do dashboard separados
+        valorVendasDash: dashData.valorVendas,
+        percentualVendasDash: dashData.percentualVendas,
+        ticketMedioDash: dashData.ticketMedio,
+        callsRealizadasDash: dashData.callsRealizadas,
+        callsQualificadasDash: dashData.callsQualificadas,
+        numeroContratosDash: dashData.numeroContratos,
+        taxaConversaoDash: dashData.taxaConversao
+      };
+    }
+
+    return closer;
+  });
+
+  // Recalcular top3 e destaque com dados mesclados
+  const top3 = [...closersMesclados].sort((a, b) => b.receitaTotal - a.receitaTotal).slice(0, 3);
+  const destaque = closersMesclados.length > 0 
+    ? closersMesclados.reduce((max, c) => c.receitaTotal > max.receitaTotal ? c : max, closersMesclados[0])
+    : null;
+
+  // Recalcular totais
+  const receitaTotal = closersMesclados.reduce((sum, c) => sum + c.receitaTotal, 0);
+  const contratosTotais = closersMesclados.reduce((sum, c) => sum + c.contratosFechados, 0);
+  const ticketMedioGeral = contratosTotais > 0 ? receitaTotal / contratosTotais : 0;
+  const taxaConversaoMedia = closersMesclados.reduce((sum, c) => sum + c.taxaConversao, 0) / closersMesclados.length;
+
+  return {
+    closers: closersMesclados,
+    totais: {
+      ...metricasCalculadas.totais,
+      receitaTotal,
+      contratosTotais,
+      ticketMedioGeral,
+      taxaConversaoMedia
     },
     top3,
     destaque
