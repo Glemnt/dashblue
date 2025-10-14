@@ -66,7 +66,7 @@ const CloserPodium = ({ top3 }: CloserPodiumProps) => {
 
           {/* Bloco do Pódio */}
           <div 
-            className={`${height} ${marginTop} ${bgColor} rounded-2xl shadow-2xl px-8 py-8 flex flex-col justify-between items-center text-center min-w-[320px] max-w-[320px] overflow-hidden transform hover:scale-105 transition-all duration-300`}
+            className={`${height} ${marginTop} ${bgColor} rounded-2xl shadow-2xl px-8 py-8 flex flex-col justify-center items-center text-center min-w-[320px] max-w-[320px] overflow-hidden transform hover:scale-105 transition-all duration-300 gap-4`}
           >
             {/* Nome e Squad */}
             <div>
