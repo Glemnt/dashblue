@@ -15,7 +15,7 @@ const CloserPodium = ({ top3 }: CloserPodiumProps) => {
     {
       closer: segundo,
       posicao: 2,
-      height: 'h-64',
+      height: 'h-[400px]',
       marginTop: 'mt-16',
       bgColor: 'bg-[#94A3B8]',
       badgeColor: 'bg-[#C0C0C0]',
@@ -25,7 +25,7 @@ const CloserPodium = ({ top3 }: CloserPodiumProps) => {
     {
       closer: primeiro,
       posicao: 1,
-      height: 'h-80',
+      height: 'h-[480px]',
       marginTop: 'mt-0',
       bgColor: 'bg-[#FFB800]',
       badgeColor: 'bg-[#FFD700]',
@@ -36,7 +36,7 @@ const CloserPodium = ({ top3 }: CloserPodiumProps) => {
     {
       closer: terceiro,
       posicao: 3,
-      height: 'h-56',
+      height: 'h-[360px]',
       marginTop: 'mt-24',
       bgColor: 'bg-[#CD7F32]',
       badgeColor: 'bg-[#CD853F]',
@@ -66,15 +66,15 @@ const CloserPodium = ({ top3 }: CloserPodiumProps) => {
 
           {/* Bloco do Pódio */}
           <div 
-            className={`${height} ${marginTop} ${bgColor} rounded-2xl shadow-2xl px-6 py-8 flex flex-col justify-center items-center text-center min-w-[320px] max-w-[320px] overflow-hidden transform hover:scale-105 transition-all duration-300 gap-4`}
+            className={`${height} ${marginTop} ${bgColor} rounded-2xl shadow-2xl px-6 py-6 flex flex-col justify-between items-center text-center min-w-[340px] max-w-[340px] overflow-hidden transform hover:scale-105 transition-all duration-300`}
           >
             {/* Nome e Squad */}
             <div className="w-full overflow-hidden">
-              <h3 className="text-white font-outfit text-xl font-bold mb-3 break-words line-clamp-2 px-2">
+              <h3 className="text-white font-outfit text-xl font-bold mb-2 break-words line-clamp-2">
                 {closer.nome}
               </h3>
               <div 
-                className="inline-block px-4 py-1 rounded-full text-xs font-semibold uppercase tracking-wider mb-4"
+                className="inline-block px-4 py-1 rounded-full text-xs font-semibold uppercase tracking-wider"
                 style={{ backgroundColor: closer.squadColor + '30', color: closer.squadColor }}
               >
                 {closer.squad}
@@ -82,16 +82,16 @@ const CloserPodium = ({ top3 }: CloserPodiumProps) => {
             </div>
 
             {/* Receita Total */}
-            <div className="w-full overflow-hidden px-2">
-              <p className="text-white/80 text-sm font-outfit uppercase tracking-wider mb-2">
+            <div className="w-full overflow-hidden space-y-2">
+              <p className="text-white/80 text-sm font-outfit uppercase tracking-wider">
                 Receita Total
               </p>
-              <p className="text-white font-outfit text-3xl font-black mb-4 break-all leading-tight">
+              <p className="text-white font-outfit text-3xl font-black break-all leading-tight">
                 {formatarReal(closer.receitaTotal)}
               </p>
               
               {/* Contratos */}
-              <p className="text-white/90 text-base font-outfit mb-2 break-words">
+              <p className="text-white/90 text-base font-outfit break-words">
                 {closer.contratosFechados} contratos fechados
               </p>
               
