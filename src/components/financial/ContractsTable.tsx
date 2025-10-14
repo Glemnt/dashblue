@@ -45,25 +45,25 @@ const ContractsTable = ({ contratos, isTVMode }: Props) => {
   }, [contratos, filtroAssinatura, filtroPagamento, filtroSquad, busca, sortOrder]);
 
   // Cores para Status de Assinatura
-  const getBadgeVariantAssinatura = (status: string): "default" | "secondary" | "destructive" => {
-    if (status === 'Assinado') return 'default';        // Verde
-    if (status === 'Enviado') return 'secondary';       // Amarelo
-    return 'destructive';                                // Vermelho (Não Enviado)
+  const getBadgeVariantAssinatura = (status: string): "success" | "warning" | "destructive" => {
+    if (status === 'Assinado') return 'success';        // Verde
+    if (status === 'Enviado') return 'warning';         // Amarelo
+    return 'destructive';                               // Vermelho (Não Enviado)
   };
 
   // Cores para Status de Pagamento
-  const getBadgeVariantPagamento = (status: string): "default" | "secondary" | "destructive" => {
-    if (status === 'Pago') return 'default';                      // Verde
-    if (status === 'Link Enviado') return 'secondary';            // Amarelo
+  const getBadgeVariantPagamento = (status: string): "success" | "warning" | "destructive" => {
+    if (status === 'Pago') return 'success';                      // Verde
+    if (status === 'Link Enviado') return 'warning';              // Amarelo
     if (status === 'Esperando Financeiro') return 'destructive';  // Vermelho
-    return 'destructive';                                          // Vermelho (fallback)
+    return 'destructive';                                         // Vermelho (fallback)
   };
 
   // Cores para Status Geral
-  const getBadgeVariantGeral = (status: string): "default" | "secondary" | "destructive" => {
-    if (status === 'Completo') return 'default';       // Verde
-    if (status === 'Parcial') return 'secondary';      // Amarelo
-    return 'destructive';                               // Vermelho (Pendente)
+  const getBadgeVariantGeral = (status: string): "success" | "warning" | "destructive" => {
+    if (status === 'Completo') return 'success';       // Verde
+    if (status === 'Parcial') return 'warning';        // Amarelo
+    return 'destructive';                              // Vermelho (Pendente)
   };
 
   return (
