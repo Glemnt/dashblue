@@ -173,7 +173,7 @@ const Financeiro = () => {
       </header>
 
       {/* NAVEGAÇÃO */}
-      {!isTVMode && <Navigation isTVMode={isTVMode} />}
+      <Navigation isTVMode={isTVMode} />
 
       {/* TV Mode Indicator */}
       {isTVMode && loading && (
