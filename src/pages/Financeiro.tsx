@@ -49,15 +49,25 @@ const Financeiro = () => {
     }
   }, [isTVMode]);
 
-  // Esconder cursor no modo TV
+  // Ocultar cursor após inatividade no modo TV
   useEffect(() => {
-    if (isTVMode) {
-      document.body.style.cursor = 'none';
-    } else {
-      document.body.style.cursor = 'auto';
-    }
+    if (!isTVMode) return;
+    
+    let timeout: NodeJS.Timeout;
+    const hideCursor = () => document.body.style.cursor = 'none';
+    const showCursor = () => {
+      document.body.style.cursor = 'default';
+      clearTimeout(timeout);
+      timeout = setTimeout(hideCursor, 3000);
+    };
+    
+    document.addEventListener('mousemove', showCursor);
+    timeout = setTimeout(hideCursor, 3000);
+    
     return () => {
-      document.body.style.cursor = 'auto';
+      document.removeEventListener('mousemove', showCursor);
+      clearTimeout(timeout);
+      document.body.style.cursor = 'default';
     };
   }, [isTVMode]);
 
