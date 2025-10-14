@@ -144,13 +144,13 @@ const SDRComparisonTable = ({ sdrs, destaque }: SDRComparisonTableProps) => {
                         <span className="text-white font-outfit text-xl font-bold">
                           {sdr.taxaQualificacao.toFixed(1)}%
                         </span>
-                        <span>{getIndicator(sdr.taxaQualificacao, 35)}</span>
+                        <span>{getIndicator(sdr.taxaQualificacao, 50)}</span>
                       </div>
                       <div className="w-full h-2 bg-white/10 rounded-full">
                         <div 
                           className={`h-full rounded-full ${
-                            sdr.taxaQualificacao >= 35 ? 'bg-[#00E5CC]' : 
-                            sdr.taxaQualificacao >= 25 ? 'bg-[#FFB800]' : 
+                            sdr.taxaQualificacao >= 50 ? 'bg-[#00E5CC]' : 
+                            sdr.taxaQualificacao >= 35 ? 'bg-[#FFB800]' : 
                             'bg-[#FF4757]'
                           }`}
                           style={{ width: `${Math.min(sdr.taxaQualificacao, 100)}%` }}

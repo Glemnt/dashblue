@@ -199,15 +199,15 @@ const PerformanceSDR = () => {
               <div className="h-3 bg-white/5 rounded-full mb-4">
                 <div 
                   className={`h-full rounded-full ${
-                    metricas.totais.taxaQualificacaoMedia >= 35 ? 'bg-[#00E5CC]' :
-                    metricas.totais.taxaQualificacaoMedia >= 25 ? 'bg-[#FFB800]' :
+                    metricas.totais.taxaQualificacaoMedia >= 50 ? 'bg-[#00E5CC]' :
+                    metricas.totais.taxaQualificacaoMedia >= 35 ? 'bg-[#FFB800]' :
                     'bg-[#FF4757]'
                   }`}
                   style={{ width: `${Math.min(metricas.totais.taxaQualificacaoMedia, 100)}%` }}
                 />
               </div>
               <p className="text-[#94A3B8] font-outfit text-base">
-                Meta: 35%
+                Meta: 50%
               </p>
             </div>
 
