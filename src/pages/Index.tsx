@@ -11,6 +11,58 @@ import Footer from "@/components/Footer";
 import PeriodFilter from "@/components/sdr/PeriodFilter";
 import { PeriodType, DateRange, getCurrentMonthRange, filterDataByDateRange } from '@/utils/dateFilters';
 
+// Função auxiliar para interpolar entre duas cores hex
+const interpolateColor = (color1: string, color2: string, ratio: number): string => {
+  const hex = (color: string) => {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(color);
+    return result ? {
+      r: parseInt(result[1], 16),
+      g: parseInt(result[2], 16),
+      b: parseInt(result[3], 16)
+    } : null;
+  };
+
+  const c1 = hex(color1);
+  const c2 = hex(color2);
+  
+  if (!c1 || !c2) return color1;
+
+  const r = Math.round(c1.r + (c2.r - c1.r) * ratio);
+  const g = Math.round(c1.g + (c2.g - c1.g) * ratio);
+  const b = Math.round(c1.b + (c2.b - c1.b) * ratio);
+
+  return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
+};
+
+// Função para calcular a cor da barra de progresso baseada na porcentagem
+const getProgressColor = (percentage: number): string => {
+  const progress = Math.min(percentage, 120);
+  
+  if (progress < 20) {
+    return '#EF4444'; // Vermelho intenso
+  } else if (progress < 35) {
+    const ratio = (progress - 20) / 15;
+    return interpolateColor('#EF4444', '#F97316', ratio);
+  } else if (progress < 50) {
+    const ratio = (progress - 35) / 15;
+    return interpolateColor('#F97316', '#F59E0B', ratio);
+  } else if (progress < 65) {
+    const ratio = (progress - 50) / 15;
+    return interpolateColor('#F59E0B', '#EAB308', ratio);
+  } else if (progress < 80) {
+    const ratio = (progress - 65) / 15;
+    return interpolateColor('#EAB308', '#84CC16', ratio);
+  } else if (progress < 90) {
+    const ratio = (progress - 80) / 10;
+    return interpolateColor('#84CC16', '#22C55E', ratio);
+  } else if (progress < 100) {
+    const ratio = (progress - 90) / 10;
+    return interpolateColor('#22C55E', '#10B981', ratio);
+  } else {
+    return '#00E5CC'; // Verde água brilhante
+  }
+};
+
 const Index = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const { data, loading, error, lastUpdate, refetch } = useGoogleSheets();
@@ -171,15 +223,14 @@ const Index = () => {
             
             <div className="relative h-12 bg-white/5 rounded-full overflow-hidden mb-6">
               <div 
-                className={`absolute h-full rounded-full transition-all duration-1000 ${
-                  metricas.progressoMetaMensal < 70 ? 'bg-red-alert' : 
-                  metricas.progressoMetaMensal < 90 ? 'bg-yellow-warning' : 
-                  'bg-[#00E5CC]'
-                }`}
-                style={{ width: `${Math.min(metricas.progressoMetaMensal, 100)}%` }}
+                className="absolute h-full rounded-full transition-all duration-1000"
+                style={{ 
+                  width: `${Math.min(metricas.progressoMetaMensal, 100)}%`,
+                  backgroundColor: getProgressColor(metricas.progressoMetaMensal)
+                }}
               />
               <div className="absolute inset-0 flex items-center justify-center">
-                <span className="text-white font-outfit text-2xl font-bold">
+                <span className="text-white font-outfit text-2xl font-bold drop-shadow-lg">
                   {formatarReal(metricas.receitaTotal)}
                 </span>
               </div>
@@ -218,15 +269,14 @@ const Index = () => {
             
             <div className="relative h-12 bg-white/5 rounded-full overflow-hidden mb-6">
               <div 
-                className={`absolute h-full rounded-full transition-all duration-1000 ${
-                  metricas.progressoMetaSemanal < 70 ? 'bg-red-alert' : 
-                  metricas.progressoMetaSemanal < 90 ? 'bg-yellow-warning' : 
-                  'bg-[#00E5CC]'
-                }`}
-                style={{ width: `${Math.min(metricas.progressoMetaSemanal, 100)}%` }}
+                className="absolute h-full rounded-full transition-all duration-1000"
+                style={{ 
+                  width: `${Math.min(metricas.progressoMetaSemanal, 100)}%`,
+                  backgroundColor: getProgressColor(metricas.progressoMetaSemanal)
+                }}
               />
               <div className="absolute inset-0 flex items-center justify-center">
-                <span className="text-[#0B1120] font-outfit text-2xl font-bold">
+                <span className="text-white font-outfit text-2xl font-bold drop-shadow-lg">
                   {formatarReal(metricas.receitaSemanal)}
                 </span>
               </div>
@@ -267,15 +317,14 @@ const Index = () => {
             
             <div className="relative h-12 bg-white/5 rounded-full overflow-hidden mb-6">
               <div 
-                className={`absolute h-full rounded-full transition-all duration-1000 ${
-                  metricas.progressoMetaDiaria < 70 ? 'bg-red-alert' : 
-                  metricas.progressoMetaDiaria < 90 ? 'bg-yellow-warning' : 
-                  'bg-[#00E5CC]'
-                }`}
-                style={{ width: `${Math.min(metricas.progressoMetaDiaria, 100)}%` }}
+                className="absolute h-full rounded-full transition-all duration-1000"
+                style={{ 
+                  width: `${Math.min(metricas.progressoMetaDiaria, 100)}%`,
+                  backgroundColor: getProgressColor(metricas.progressoMetaDiaria)
+                }}
               />
               <div className="absolute inset-0 flex items-center justify-center">
-                <span className="text-[#0B1120] font-outfit text-2xl font-bold">
+                <span className="text-white font-outfit text-2xl font-bold drop-shadow-lg">
                   {formatarReal(metricas.receitaDiaria)}
                 </span>
               </div>
