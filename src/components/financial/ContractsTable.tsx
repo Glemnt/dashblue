@@ -44,19 +44,26 @@ const ContractsTable = ({ contratos, isTVMode }: Props) => {
     });
   }, [contratos, filtroAssinatura, filtroPagamento, filtroSquad, busca, sortOrder]);
 
-  const getBadgeVariant = (status: string): "default" | "secondary" | "destructive" => {
-    // Verde: Status completo
-    if (status === 'Assinado' || status === 'Pago' || status === 'Completo') {
-      return 'default';
-    }
-    // Amarelo: Status intermediário (enviado/aguardando)
-    else if (status === 'Enviado' || status === 'Link Enviado' || status === 'Esperando Financeiro' || status === 'Parcial') {
-      return 'secondary';
-    }
-    // Vermelho: Status negativo
-    else {
-      return 'destructive';
-    }
+  // Cores para Status de Assinatura
+  const getBadgeVariantAssinatura = (status: string): "default" | "secondary" | "destructive" => {
+    if (status === 'Assinado') return 'default';        // Verde
+    if (status === 'Enviado') return 'secondary';       // Amarelo
+    return 'destructive';                                // Vermelho (Não Enviado)
+  };
+
+  // Cores para Status de Pagamento
+  const getBadgeVariantPagamento = (status: string): "default" | "secondary" | "destructive" => {
+    if (status === 'Pago') return 'default';                      // Verde
+    if (status === 'Link Enviado') return 'secondary';            // Amarelo
+    if (status === 'Esperando Financeiro') return 'destructive';  // Vermelho
+    return 'destructive';                                          // Vermelho (fallback)
+  };
+
+  // Cores para Status Geral
+  const getBadgeVariantGeral = (status: string): "default" | "secondary" | "destructive" => {
+    if (status === 'Completo') return 'default';       // Verde
+    if (status === 'Parcial') return 'secondary';      // Amarelo
+    return 'destructive';                               // Vermelho (Pendente)
   };
 
   return (
@@ -145,17 +152,17 @@ const ContractsTable = ({ contratos, isTVMode }: Props) => {
                 <TableCell className="text-[#94A3B8]">{contrato.closer}</TableCell>
                 <TableCell className="font-semibold text-white">{formatarReal(contrato.valor)}</TableCell>
                 <TableCell>
-                  <Badge variant={getBadgeVariant(contrato.statusAssinatura)}>
+                  <Badge variant={getBadgeVariantAssinatura(contrato.statusAssinatura)}>
                     {contrato.statusAssinatura}
                   </Badge>
                 </TableCell>
                 <TableCell>
-                  <Badge variant={getBadgeVariant(contrato.statusPagamento)}>
+                  <Badge variant={getBadgeVariantPagamento(contrato.statusPagamento)}>
                     {contrato.statusPagamento}
                   </Badge>
                 </TableCell>
                 <TableCell>
-                  <Badge variant={getBadgeVariant(contrato.statusGeral)}>
+                  <Badge variant={getBadgeVariantGeral(contrato.statusGeral)}>
                     {contrato.statusGeral}
                   </Badge>
                 </TableCell>
