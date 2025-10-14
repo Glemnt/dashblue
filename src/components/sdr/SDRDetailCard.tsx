@@ -2,10 +2,8 @@ import { useState } from 'react';
 import { ChevronDown, ChevronUp, Phone, CheckCircle, Calendar, TrendingUp } from 'lucide-react';
 import { SDRMetrics } from '@/utils/sdrMetricsCalculator';
 import { formatarReal } from '@/utils/metricsCalculator';
-import { getRecentActivities } from '@/utils/sdrActivityUtils';
 import { Progress } from '@/components/ui/progress';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface SDRDetailCardProps {
   sdr: SDRMetrics;
@@ -15,8 +13,6 @@ interface SDRDetailCardProps {
 
 const SDRDetailCard = ({ sdr, data, metaIndividualCalls }: SDRDetailCardProps) => {
   const [isOpen, setIsOpen] = useState(false);
-  
-  const recentActivities = getRecentActivities(data, sdr.nomeOriginal, 5);
 
   const getProgressColor = (value: number, meta: number) => {
     const percentage = (value / meta) * 100;
@@ -214,7 +210,7 @@ const SDRDetailCard = ({ sdr, data, metaIndividualCalls }: SDRDetailCardProps) =
             </div>
 
             {/* Seção de Contratos Fechados */}
-            <div className="mb-8">
+            <div>
               <h4 className="text-[#0B1120] font-outfit text-xl font-bold mb-4">
                 Contratos Fechados ({sdr.contratos?.length || 0})
               </h4>
@@ -300,114 +296,6 @@ const SDRDetailCard = ({ sdr, data, metaIndividualCalls }: SDRDetailCardProps) =
               </div>
             </div>
 
-            <div>
-              <h4 className="text-[#0B1120] font-outfit text-xl font-bold mb-4">
-                Últimas 5 Atividades
-              </h4>
-              
-              <div className="space-y-3">
-                {recentActivities.length > 0 ? (
-                  recentActivities.map((activity, index) => (
-                    <div 
-                      key={index}
-                      className="bg-gray-50 rounded-xl p-5 hover:bg-gray-100 transition-colors border border-gray-200"
-                    >
-                      {/* Header: Nome do cliente + Data */}
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="flex items-center gap-3">
-                          <span className={`w-3 h-3 rounded-full ${activity.qualificada ? 'bg-[#00E5CC]' : 'bg-[#94A3B8]'}`} />
-                          <p className="text-[#0B1120] font-outfit text-lg font-bold">
-                            {activity.nomeCall}
-                          </p>
-                        </div>
-                        <span className="text-[#64748B] text-sm font-outfit">
-                          {activity.data}
-                        </span>
-                      </div>
-
-                      {/* Informações principais */}
-                      <div className="grid grid-cols-2 gap-4 mb-3">
-                        <div>
-                          <p className="text-[#64748B] text-xs font-outfit uppercase tracking-wider mb-1">
-                            Empresa
-                          </p>
-                          <p className="text-[#0B1120] font-outfit font-semibold">
-                            {activity.empresa}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-[#64748B] text-xs font-outfit uppercase tracking-wider mb-1">
-                            Closer
-                          </p>
-                          <p className="text-[#0B1120] font-outfit font-semibold">
-                            {activity.closer}
-                          </p>
-                        </div>
-                      </div>
-
-                      {/* Informações de contrato (condicional) */}
-                      {activity.temContrato && (
-                        <div className="bg-white rounded-lg p-4 border border-[#00E5CC]/20">
-                          <div className="grid grid-cols-3 gap-4">
-                            {/* Valor do Contrato */}
-                            <div>
-                              <p className="text-[#64748B] text-xs font-outfit uppercase tracking-wider mb-1">
-                                Valor
-                              </p>
-                              <p className="text-[#0B1120] font-outfit text-lg font-black">
-                                {formatarReal(activity.valorContrato)}
-                              </p>
-                            </div>
-
-                            {/* Status Assinatura */}
-                            <div>
-                              <p className="text-[#64748B] text-xs font-outfit uppercase tracking-wider mb-1">
-                                Assinatura
-                              </p>
-                              <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${
-                                activity.assinatura.toUpperCase() === 'ASSINOU' 
-                                  ? 'bg-[#00E5CC]/20 text-[#00E5CC]' 
-                                  : 'bg-[#FFB800]/20 text-[#FFB800]'
-                              }`}>
-                                {activity.assinatura.toUpperCase() === 'ASSINOU' ? '✓ Assinado' : 'Pendente'}
-                              </span>
-                            </div>
-
-                            {/* Status Pagamento */}
-                            <div>
-                              <p className="text-[#64748B] text-xs font-outfit uppercase tracking-wider mb-1">
-                                Pagamento
-                              </p>
-                              <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${
-                                activity.pagamento.toUpperCase() === 'PAGOU' 
-                                  ? 'bg-[#00E5CC]/20 text-[#00E5CC]' 
-                                  : 'bg-[#FF4757]/20 text-[#FF4757]'
-                              }`}>
-                                {activity.pagamento.toUpperCase() === 'PAGOU' ? '✓ Pago' : 'Pendente'}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Status da call (se não tiver contrato) */}
-                      {!activity.temContrato && (
-                        <div className="flex items-center gap-2">
-                          <span className="text-[#64748B] text-sm font-outfit">Status:</span>
-                          <span className="text-[#0B1120] text-sm font-outfit font-semibold">
-                            {activity.status}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                  ))
-                ) : (
-                  <p className="text-[#94A3B8] text-center py-8">
-                    Nenhuma atividade registrada
-                  </p>
-                )}
-              </div>
-            </div>
 
           </div>
         </CollapsibleContent>
