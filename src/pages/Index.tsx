@@ -479,10 +479,10 @@ const Index = () => {
               </div>
               <div className="pt-6 border-t-2 border-navy-ultra-dark/10">
                 <p className="text-navy-ultra-dark font-outfit text-3xl font-black mb-1">
-                  {formatarReal(metricas.funil.receitaEsperada)}
+                  {formatarReal(metricas.receitaTotal)}
                 </p>
                 <p className="text-navy-ultra-dark/60 font-outfit text-sm">
-                  Receita Total Esperada
+                  Receita Fechada
                 </p>
               </div>
             </div>
