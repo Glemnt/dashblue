@@ -118,15 +118,39 @@ interface Metricas {
   };
 }
 
-export const calcularMetricas = (data: any[]): Metricas => {
+export const calcularMetricas = (
+  data: any[],
+  dadosMarketing?: {
+    totalLeads: number;
+    totalMQLs: number;
+  }
+): Metricas => {
   console.log('🔄 Calculando métricas com', data.length, 'linhas');
   
+  // FASE 2: Filtrar linhas de cálculo (TOP SDR, TOP CLOSER, TOTAL)
+  const dadosValidos = data.filter(row => {
+    const nomeCall = getColumnValue(row, ['NOME DA CALL', 'NOME']);
+    if (!nomeCall) return false;
+    
+    const nomeStr = String(nomeCall).trim().toUpperCase();
+    
+    // Ignora linhas de cabeçalho/cálculo
+    if (nomeStr.includes('TOP SDR')) return false;
+    if (nomeStr.includes('TOP CLOSER')) return false;
+    if (nomeStr.includes('TOTAL')) return false;
+    if (nomeStr === 'SDR' || nomeStr === 'CLOSER') return false;
+    
+    return true;
+  });
+  
+  console.log('✅ Linhas válidas após filtro:', dadosValidos.length);
+  
   // Logging dos headers
-  if (data.length > 0) {
-    console.log('📋 Headers disponíveis:', Object.keys(data[0]));
-    console.log('🔍 Valores únicos de FECHAMENTO:', [...new Set(data.map(row => getColumnValue(row, ['FECHAMENTO', 'STATUS'])))]);
-    console.log('🔍 Valores únicos de QUALIFICADA (SQL):', [...new Set(data.map(row => getColumnValue(row, ['QUALIFICADA (SQL)', 'QUALIFICADA'])))]);
-    console.log('🔍 Primeiros 5 valores de VALOR:', data.slice(0, 5).map(row => getColumnValue(row, ['VALOR'])));
+  if (dadosValidos.length > 0) {
+    console.log('📋 Headers disponíveis:', Object.keys(dadosValidos[0]));
+    console.log('🔍 Valores únicos de FECHAMENTO:', [...new Set(dadosValidos.map(row => getColumnValue(row, ['FECHAMENTO', 'STATUS'])))]);
+    console.log('🔍 Valores únicos de QUALIFICADA (SQL):', [...new Set(dadosValidos.map(row => getColumnValue(row, ['QUALIFICADA (SQL)', 'QUALIFICADA'])))]);
+    console.log('🔍 Primeiros 5 valores de VALOR:', dadosValidos.slice(0, 5).map(row => getColumnValue(row, ['VALOR'])));
   }
   
   // Função para verificar se um closer pertence a um squad (matching flexível)
@@ -206,8 +230,8 @@ export const calcularMetricas = (data: any[]): Metricas => {
   const metaSemanal = 162500;
   const metaDiaria = 22000;
   
-  // Filtros básicos
-  const vendasGanhas = data.filter(row => {
+  // Filtros básicos (usar dadosValidos ao invés de data)
+  const vendasGanhas = dadosValidos.filter(row => {
     const fechamento = getColumnValue(row, ['FECHAMENTO', 'STATUS']);
     return matchValue(fechamento, 'SIM');
   });
@@ -217,7 +241,7 @@ export const calcularMetricas = (data: any[]): Metricas => {
     console.log('💰 Exemplo de venda ganha:', vendasGanhas[0]);
   }
   
-  const callsQualificadasList = data.filter(row => {
+  const callsQualificadasList = dadosValidos.filter(row => {
     const qualificada = getColumnValue(row, ['QUALIFICADA (SQL)', 'QUALIFICADA', 'SQL']);
     return matchValue(qualificada, 'SIM');
   });
@@ -233,14 +257,14 @@ export const calcularMetricas = (data: any[]): Metricas => {
   
   console.log('💰 Receita Total calculada:', receitaTotal);
   
-  const receitaPaga = data
+  const receitaPaga = dadosValidos
     .filter(row => {
       const pagamento = getColumnValue(row, ['PAGAMENTO', 'STATUS PAGAMENTO']);
       return matchValue(pagamento, 'PAGOU');
     })
     .reduce((acc, row) => acc + parseValor(getColumnValue(row, ['VALOR', 'PREÇO'])), 0);
   
-  const receitaAssinada = data
+  const receitaAssinada = dadosValidos
     .filter(row => {
       const assinatura = getColumnValue(row, ['ASSINATURA', 'STATUS ASSINATURA']);
       return matchValue(assinatura, 'ASSINOU');
@@ -301,11 +325,33 @@ export const calcularMetricas = (data: any[]): Metricas => {
   const totalContratos = vendasGanhas.length;
   
   // Calls
-  const totalCalls = data.length;
+  const totalCalls = dadosValidos.length;
   const callsQualificadas = callsQualificadasList.length;
-  const callsRealizadas = data.filter(row => row['DATAHORA'] && row['DATAHORA'].trim() !== '').length;
+  
+  // FASE 1: Corrigir identificação de calls realizadas
+  const callsRealizadas = dadosValidos.filter(row => {
+    const closer = getColumnValue(row, ['CLOSER', 'CLOSER FECHOU']);
+    
+    // Call foi realizada se tem um closer E não é "NO-SHOW"
+    if (!closer) return false;
+    
+    const closerStr = String(closer).trim().toUpperCase();
+    
+    // Ignora se for NO-SHOW ou vazio
+    if (closerStr === '' || closerStr === 'NO-SHOW' || closerStr === 'NOSHOW') return false;
+    
+    // Ignora linhas de cálculo (TOP SDR, TOP CLOSER, etc)
+    if (closerStr.includes('TOP') || closerStr.includes('TOTAL')) return false;
+    
+    return true;
+  }).length;
+  
   const callsAgendadas = totalCalls;
   const noShow = callsAgendadas - callsRealizadas;
+  
+  console.log('📞 CALLS REALIZADAS - DEBUG:');
+  console.log('Total de calls realizadas (closer preenchido):', callsRealizadas);
+  console.log('No-shows calculados:', noShow);
   
   // Taxas
   const taxaQualificacao = totalCalls > 0 ? (callsQualificadas / totalCalls) * 100 : 0;
@@ -426,14 +472,31 @@ export const calcularMetricas = (data: any[]): Metricas => {
       vantagemPercentual
     },
     funil: {
-      leads: 2100,
-      mqls: 734,
-      callsAgendadas: 367,
-      callsRealizadas: 275,
-      contratos: 55,
-      receitaEsperada: 650000
+      leads: dadosMarketing?.totalLeads || 0,
+      mqls: dadosMarketing?.totalMQLs || callsQualificadas,
+      callsAgendadas: callsAgendadas,
+      callsRealizadas: callsRealizadas,
+      contratos: totalContratos,
+      receitaEsperada: metaMensal
     }
   };
+  
+  // FASE 5: Logging detalhado do funil
+  console.log('📊 FUNIL DE CONVERSÃO - DEBUG:');
+  console.log('Leads:', metricas.funil.leads);
+  console.log('MQLs:', metricas.funil.mqls);
+  console.log('Calls Agendadas:', metricas.funil.callsAgendadas);
+  console.log('Calls Realizadas:', metricas.funil.callsRealizadas);
+  console.log('Contratos:', metricas.funil.contratos);
+  if (metricas.funil.leads > 0) {
+    console.log('Taxa Leads → MQLs:', ((metricas.funil.mqls / metricas.funil.leads) * 100).toFixed(1) + '%');
+  }
+  if (metricas.funil.mqls > 0) {
+    console.log('Taxa MQLs → Calls:', ((metricas.funil.callsAgendadas / metricas.funil.mqls) * 100).toFixed(1) + '%');
+  }
+  if (metricas.funil.callsRealizadas > 0) {
+    console.log('Taxa Calls → Contratos:', ((metricas.funil.contratos / metricas.funil.callsRealizadas) * 100).toFixed(1) + '%');
+  }
   
   console.log('✅ Métricas calculadas:', metricas);
   

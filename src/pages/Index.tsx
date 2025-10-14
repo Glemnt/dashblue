@@ -2,12 +2,16 @@ import { useEffect, useState } from "react";
 import { RefreshCw } from "lucide-react";
 import logoWhite from "@/assets/logo-white.png";
 import { useGoogleSheets } from "@/hooks/useGoogleSheets";
+import { useGoogleSheetsCampanhas } from "@/hooks/useGoogleSheetsCampanhas";
+import { useGoogleSheetsLeads } from "@/hooks/useGoogleSheetsLeads";
 import { calcularMetricas, formatarValor, formatarReal } from "@/utils/metricsCalculator";
 import { Button } from "@/components/ui/button";
 
 const Index = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const { data, loading, error, lastUpdate, refetch } = useGoogleSheets();
+  const campanhas = useGoogleSheetsCampanhas();
+  const leads = useGoogleSheetsLeads();
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
@@ -15,7 +19,10 @@ const Index = () => {
   }, []);
   
   // Calcular métricas quando os dados mudarem
-  const metricas = data.length > 0 ? calcularMetricas(data) : null;
+  const metricas = data.length > 0 ? calcularMetricas(data, {
+    totalLeads: leads.totalLeads,
+    totalMQLs: campanhas.totalMQLs
+  }) : null;
 
   const formatDate = (date: Date) => {
     return date.toLocaleDateString('pt-BR', { 
@@ -34,7 +41,7 @@ const Index = () => {
   };
 
   // Loading State
-  if (loading && !metricas) {
+  if ((loading || campanhas.loading || leads.loading) && !metricas) {
     return (
       <div className="min-h-screen bg-navy-ultra-dark font-outfit flex items-center justify-center">
         <div className="text-center">
@@ -47,12 +54,12 @@ const Index = () => {
   }
 
   // Error State
-  if (error) {
+  if (error || campanhas.error || leads.error) {
     return (
       <div className="min-h-screen bg-navy-ultra-dark font-outfit flex items-center justify-center">
         <div className="text-center max-w-md">
           <h2 className="text-red-alert text-4xl font-bold mb-4">Erro ao Carregar Dados</h2>
-          <p className="text-white text-lg mb-6">{error}</p>
+          <p className="text-white text-lg mb-6">{error || campanhas.error || leads.error}</p>
           <Button 
             onClick={refetch}
             className="bg-blue-vibrant hover:bg-blue-vibrant/90 text-white px-8 py-3 text-lg"
@@ -378,14 +385,16 @@ const Index = () => {
               <div className="flex justify-between items-center">
                 <div>
                   <p className="text-white/70 font-outfit text-sm font-semibold uppercase tracking-widest mb-2">Leads</p>
-                  <p className="text-white font-outfit text-7xl font-black">2.100</p>
+                  <p className="text-white font-outfit text-7xl font-black">{formatarValor(metricas.funil.leads)}</p>
                 </div>
                 <p className="text-white/60 font-outfit text-lg">100% do total</p>
               </div>
             </div>
             <div className="flex justify-center mt-3">
               <div className="text-center">
-                <p className="text-gray-muted font-outfit text-sm">35% qualificação ↓</p>
+                <p className="text-gray-muted font-outfit text-sm">
+                  {metricas.funil.leads > 0 ? ((metricas.funil.mqls / metricas.funil.leads) * 100).toFixed(1) : '0'}% qualificação ↓
+                </p>
               </div>
             </div>
           </div>
@@ -396,14 +405,18 @@ const Index = () => {
               <div className="flex justify-between items-center">
                 <div>
                   <p className="text-white/70 font-outfit text-sm font-semibold uppercase tracking-widest mb-2">MQLs</p>
-                  <p className="text-white font-outfit text-7xl font-black">734</p>
+                  <p className="text-white font-outfit text-7xl font-black">{formatarValor(metricas.funil.mqls)}</p>
                 </div>
-                <p className="text-white/60 font-outfit text-lg">35% do total</p>
+                <p className="text-white/60 font-outfit text-lg">
+                  {metricas.funil.leads > 0 ? ((metricas.funil.mqls / metricas.funil.leads) * 100).toFixed(1) : '0'}% do total
+                </p>
               </div>
             </div>
             <div className="flex justify-center mt-3">
               <div className="text-center">
-                <p className="text-gray-muted font-outfit text-sm">50% agendamento ↓</p>
+                <p className="text-gray-muted font-outfit text-sm">
+                  {metricas.funil.mqls > 0 ? ((metricas.funil.callsAgendadas / metricas.funil.mqls) * 100).toFixed(1) : '0'}% agendamento ↓
+                </p>
               </div>
             </div>
           </div>
@@ -414,14 +427,18 @@ const Index = () => {
               <div className="flex justify-between items-center">
                 <div>
                   <p className="text-white/70 font-outfit text-sm font-semibold uppercase tracking-widest mb-2">Calls Agendadas</p>
-                  <p className="text-white font-outfit text-7xl font-black">367</p>
+                  <p className="text-white font-outfit text-7xl font-black">{formatarValor(metricas.funil.callsAgendadas)}</p>
                 </div>
-                <p className="text-white/60 font-outfit text-lg">17,5% do total</p>
+                <p className="text-white/60 font-outfit text-lg">
+                  {metricas.funil.leads > 0 ? ((metricas.funil.callsAgendadas / metricas.funil.leads) * 100).toFixed(1) : '0'}% do total
+                </p>
               </div>
             </div>
             <div className="flex justify-center mt-3">
               <div className="text-center">
-                <p className="text-gray-muted font-outfit text-sm">75% comparecimento ↓</p>
+                <p className="text-gray-muted font-outfit text-sm">
+                  {metricas.funil.callsAgendadas > 0 ? ((metricas.funil.callsRealizadas / metricas.funil.callsAgendadas) * 100).toFixed(1) : '0'}% comparecimento ↓
+                </p>
               </div>
             </div>
           </div>
@@ -432,14 +449,18 @@ const Index = () => {
               <div className="flex justify-between items-center">
                 <div>
                   <p className="text-navy-ultra-dark/70 font-outfit text-sm font-semibold uppercase tracking-widest mb-2">Calls Realizadas</p>
-                  <p className="text-navy-ultra-dark font-outfit text-7xl font-black">275</p>
+                  <p className="text-navy-ultra-dark font-outfit text-7xl font-black">{formatarValor(metricas.funil.callsRealizadas)}</p>
                 </div>
-                <p className="text-navy-ultra-dark/60 font-outfit text-lg">13,1% do total</p>
+                <p className="text-navy-ultra-dark/60 font-outfit text-lg">
+                  {metricas.funil.leads > 0 ? ((metricas.funil.callsRealizadas / metricas.funil.leads) * 100).toFixed(1) : '0'}% do total
+                </p>
               </div>
             </div>
             <div className="flex justify-center mt-3">
               <div className="text-center">
-                <p className="text-gray-muted font-outfit text-sm">20% conversão ↓</p>
+                <p className="text-gray-muted font-outfit text-sm">
+                  {metricas.funil.callsRealizadas > 0 ? ((metricas.funil.contratos / metricas.funil.callsRealizadas) * 100).toFixed(1) : '0'}% conversão ↓
+                </p>
               </div>
             </div>
           </div>
@@ -450,13 +471,15 @@ const Index = () => {
               <div className="flex justify-between items-center mb-6">
                 <div>
                   <p className="text-navy-ultra-dark/70 font-outfit text-sm font-semibold uppercase tracking-widest mb-2">Contratos Fechados</p>
-                  <p className="text-navy-ultra-dark font-outfit text-7xl font-black">55</p>
+                  <p className="text-navy-ultra-dark font-outfit text-7xl font-black">{metricas.funil.contratos}</p>
                 </div>
-                <p className="text-navy-ultra-dark/60 font-outfit text-lg">2,6% do total</p>
+                <p className="text-navy-ultra-dark/60 font-outfit text-lg">
+                  {metricas.funil.leads > 0 ? ((metricas.funil.contratos / metricas.funil.leads) * 100).toFixed(1) : '0'}% do total
+                </p>
               </div>
               <div className="pt-6 border-t-2 border-navy-ultra-dark/10">
                 <p className="text-navy-ultra-dark font-outfit text-3xl font-black mb-1">
-                  R$ 650.000,00
+                  {formatarReal(metricas.funil.receitaEsperada)}
                 </p>
                 <p className="text-navy-ultra-dark/60 font-outfit text-sm">
                   Receita Total Esperada
