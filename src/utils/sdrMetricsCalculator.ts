@@ -16,6 +16,14 @@ export interface SDRMetrics {
   taxaShow: number;
   vendasOriginadas: number;
   contratosOriginados: number;
+  // Campos do dashboard
+  valorVendasDash?: number;
+  percentualVendasDash?: number;
+  callsAgendadasDash?: number;
+  callsQualificadasDash?: number;
+  noShowDash?: number;
+  txNoShowDash?: number;
+  txComparecimentoDash?: number;
 }
 
 export interface SDRData {
@@ -172,5 +180,88 @@ export const calcularMetricasSDR = (data: any[], dateRange?: DateRange): SDRData
     totais,
     top3,
     destaque
+  };
+};
+
+// Função para mesclar métricas calculadas com dados do dashboard
+export const mesclarMetricasSDRComDashboard = (
+  metricasCalculadas: SDRData,
+  dadosDashboard: any[]
+): SDRData => {
+  console.log('🔄 Mesclando métricas SDR com dashboard...');
+  console.log('Métricas calculadas:', metricasCalculadas);
+  console.log('Dados dashboard:', dadosDashboard);
+
+  // Criar mapa de normalização de nomes
+  const mapearNomes: Record<string, string> = {
+    'VINICIUS': 'VINICIUS MEIRELES',
+    'VINÍCIUS': 'VINICIUS MEIRELES',
+    'VINICIUS MEIRELES': 'VINICIUS MEIRELES',
+    'MARCOS': 'MARCOS',
+    'TIAGO': 'TIAGO',
+    'JOÃO': 'JOÃO LOPES',
+    'JOÃO LOPES': 'JOÃO LOPES',
+    'JOAO': 'JOÃO LOPES',
+    'JOAO LOPES': 'JOÃO LOPES'
+  };
+
+  const normalizarNome = (nome: string): string => {
+    const nomeUpper = nome.toUpperCase().trim();
+    return mapearNomes[nomeUpper] || nomeUpper;
+  };
+
+  // Mesclar dados
+  const sdrsMesclados = metricasCalculadas.sdrs.map(sdr => {
+    const nomeDash = normalizarNome(sdr.nomeOriginal);
+    const dashData = dadosDashboard.find(d => 
+      normalizarNome(d.nome) === nomeDash
+    );
+
+    if (dashData) {
+      console.log(`✅ Match encontrado para ${sdr.nome}:`, dashData);
+      return {
+        ...sdr,
+        valorVendasDash: dashData.valorVendas,
+        percentualVendasDash: dashData.percentualVendas,
+        callsAgendadasDash: dashData.callsAgendadas,
+        callsQualificadasDash: dashData.callsQualificadas,
+        noShowDash: dashData.noShow,
+        txNoShowDash: dashData.txNoShow,
+        txComparecimentoDash: dashData.txComparecimento,
+        // Priorizar dados do dashboard onde aplicável
+        vendasOriginadas: dashData.valorVendas || sdr.vendasOriginadas
+      };
+    } else {
+      console.log(`⚠️ Nenhum match encontrado para ${sdr.nome}`);
+      return sdr;
+    }
+  });
+
+  // Recalcular top3 e destaque com dados mesclados
+  const top3Mesclado = [...sdrsMesclados]
+    .sort((a, b) => b.vendasOriginadas - a.vendasOriginadas)
+    .slice(0, 3);
+
+  const destaqueMesclado = sdrsMesclados.reduce((prev, current) => 
+    current.vendasOriginadas > prev.vendasOriginadas ? current : prev
+  , sdrsMesclados[0]);
+
+  // Recalcular totais
+  const totaisMesclados = {
+    totalCalls: sdrsMesclados.reduce((acc, sdr) => acc + sdr.totalCalls, 0),
+    taxaQualificacaoMedia: sdrsMesclados.length > 0 
+      ? sdrsMesclados.reduce((acc, sdr) => acc + sdr.taxaQualificacao, 0) / sdrsMesclados.length 
+      : 0,
+    taxaShowMedia: sdrsMesclados.length > 0
+      ? sdrsMesclados.reduce((acc, sdr) => acc + sdr.taxaShow, 0) / sdrsMesclados.length
+      : 0,
+    vendasOriginadasTotal: sdrsMesclados.reduce((acc, sdr) => acc + sdr.vendasOriginadas, 0)
+  };
+
+  return {
+    sdrs: sdrsMesclados,
+    totais: totaisMesclados,
+    top3: top3Mesclado,
+    destaque: destaqueMesclado
   };
 };

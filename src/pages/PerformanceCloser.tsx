@@ -11,7 +11,7 @@ import CloserComparisonTable from '@/components/closer/CloserComparisonTable';
 import CloserDetailCard from '@/components/closer/CloserDetailCard';
 import CloserCharts from '@/components/closer/CloserCharts';
 import { useGoogleSheets } from '@/hooks/useGoogleSheets';
-import { useGoogleSheetsVendasOutubro } from '@/hooks/useGoogleSheetsVendasOutubro';
+import { useCloserKPIs } from '@/hooks/useCloserKPIs';
 import { calcularMetricasCloser, mesclarMetricasComDashboard } from '@/utils/closerMetricsCalculator';
 import { formatarReal } from '@/utils/metricsCalculator';
 import { PeriodType, DateRange, getCurrentMonthRange } from '@/utils/dateFilters';
@@ -20,12 +20,12 @@ const PerformanceCloser = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const { data, loading, error, lastUpdate, refetch } = useGoogleSheets();
   const { 
-    closers: vendasOutubro, 
-    totais: totaisOutubro,
-    loading: loadingVendas,
-    error: errorVendas,
-    refetch: refetchVendas
-  } = useGoogleSheetsVendasOutubro();
+    kpis: closerKPIs, 
+    total: totalKPI,
+    loading: loadingKPIs,
+    error: errorKPIs,
+    refetch: refetchKPIs
+  } = useCloserKPIs();
   
   const [currentPeriod, setCurrentPeriod] = useState<PeriodType>('mes');
   const [currentDateRange, setCurrentDateRange] = useState<DateRange>(getCurrentMonthRange());
@@ -36,8 +36,8 @@ const PerformanceCloser = () => {
   }, []);
 
   const metricasCalculadas = data.length > 0 ? calcularMetricasCloser(data, currentDateRange) : null;
-  const metricas = metricasCalculadas && vendasOutubro.length > 0
-    ? mesclarMetricasComDashboard(metricasCalculadas, vendasOutubro)
+  const metricas = metricasCalculadas && closerKPIs.length > 0
+    ? mesclarMetricasComDashboard(metricasCalculadas, closerKPIs)
     : metricasCalculadas;
 
   const handleFilterChange = (type: PeriodType, dateRange: DateRange) => {
@@ -53,7 +53,7 @@ const PerformanceCloser = () => {
   const metaTicketMedio = 12000;
   const metaTaxaConversao = 25;
 
-  if (loading || loadingVendas) {
+  if (loading || loadingKPIs) {
     return (
       <div className="min-h-screen bg-[#0B1120] flex items-center justify-center">
         <div className="text-center">
@@ -64,13 +64,13 @@ const PerformanceCloser = () => {
     );
   }
 
-  if (error || errorVendas) {
+  if (error || errorKPIs) {
     return (
       <div className="min-h-screen bg-[#0B1120] flex items-center justify-center">
         <div className="text-center">
           <p className="text-red-500 font-outfit text-2xl mb-6">Erro ao carregar dados</p>
-          <p className="text-[#94A3B8] mb-8">{error || errorVendas}</p>
-          <Button onClick={() => { refetch(); refetchVendas(); }} className="bg-[#0066FF] hover:bg-[#0066FF]/90">
+          <p className="text-[#94A3B8] mb-8">{error || errorKPIs}</p>
+          <Button onClick={() => { refetch(); refetchKPIs(); }} className="bg-[#0066FF] hover:bg-[#0066FF]/90">
             Tentar Novamente
           </Button>
         </div>
@@ -126,7 +126,7 @@ const PerformanceCloser = () => {
                 )}
               </div>
               <Button
-                onClick={() => { refetch(); refetchVendas(); }}
+                onClick={() => { refetch(); refetchKPIs(); }}
                 className="bg-[#0066FF] hover:bg-[#0066FF]/90 text-white font-outfit font-semibold px-6 py-6"
               >
                 <RefreshCw className="w-5 h-5 mr-2" />

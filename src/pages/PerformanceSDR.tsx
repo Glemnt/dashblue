@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import { RefreshCw } from 'lucide-react';
 import logoWhite from '@/assets/logo-white.png';
 import { useGoogleSheets } from '@/hooks/useGoogleSheets';
-import { calcularMetricasSDR } from '@/utils/sdrMetricsCalculator';
+import { useSDRKPIs } from '@/hooks/useSDRKPIs';
+import { calcularMetricasSDR, mesclarMetricasSDRComDashboard } from '@/utils/sdrMetricsCalculator';
 import { formatarReal } from '@/utils/metricsCalculator';
 import { Button } from '@/components/ui/button';
 import Navigation from '@/components/Navigation';
@@ -16,6 +17,13 @@ import { PeriodType, DateRange, getCurrentMonthRange } from '@/utils/dateFilters
 const PerformanceSDR = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const { data, loading, error, lastUpdate, refetch } = useGoogleSheets();
+  const { 
+    kpis: sdrKPIs, 
+    total: totalKPI,
+    loading: loadingKPIs,
+    error: errorKPIs,
+    refetch: refetchKPIs
+  } = useSDRKPIs();
 
   // State para filtro de período
   const [currentPeriod, setCurrentPeriod] = useState<PeriodType>('mes');
@@ -27,7 +35,10 @@ const PerformanceSDR = () => {
   }, []);
 
   // Calcular métricas SDR COM filtro de data
-  const metricas = data.length > 0 ? calcularMetricasSDR(data, currentDateRange) : null;
+  const metricasCalculadas = data.length > 0 ? calcularMetricasSDR(data, currentDateRange) : null;
+  const metricas = metricasCalculadas && sdrKPIs.length > 0
+    ? mesclarMetricasSDRComDashboard(metricasCalculadas, sdrKPIs)
+    : metricasCalculadas;
 
   // Handler para mudança de filtro
   const handleFilterChange = (type: PeriodType, dateRange: DateRange) => {
@@ -52,7 +63,7 @@ const PerformanceSDR = () => {
   };
 
   // Loading State
-  if (loading && !metricas) {
+  if ((loading || loadingKPIs) && !metricas) {
     return (
       <div className="min-h-screen bg-[#0B1120] font-outfit flex items-center justify-center">
         <div className="text-center">
@@ -65,14 +76,14 @@ const PerformanceSDR = () => {
   }
 
   // Error State
-  if (error) {
+  if (error || errorKPIs) {
     return (
       <div className="min-h-screen bg-[#0B1120] font-outfit flex items-center justify-center">
         <div className="text-center max-w-md">
           <h2 className="text-[#FF4757] text-4xl font-bold mb-4">Erro ao Carregar Dados</h2>
-          <p className="text-white text-lg mb-6">{error}</p>
+          <p className="text-white text-lg mb-6">{error || errorKPIs}</p>
           <Button
-            onClick={refetch}
+            onClick={() => { refetch(); refetchKPIs(); }}
             className="bg-[#0066FF] hover:bg-[#0066FF]/90 text-white px-8 py-3 text-lg"
           >
             <RefreshCw className="w-5 h-5 mr-2" />
@@ -110,7 +121,7 @@ const PerformanceSDR = () => {
 
           <div className="text-right flex flex-col items-end gap-3">
             <Button
-              onClick={refetch}
+              onClick={() => { refetch(); refetchKPIs(); }}
               variant="outline"
               className="bg-[#0066FF]/10 border-[#0066FF] text-[#0066FF] hover:bg-[#0066FF] hover:text-white"
             >
