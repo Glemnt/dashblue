@@ -4,7 +4,7 @@ const Navigation = () => {
   const menuItems = [
     { path: '/', label: 'Visão Geral', enabled: true },
     { path: '/sdr', label: 'SDR', enabled: true },
-    { path: '/closer', label: 'Closer', enabled: false },
+    { path: '/closer', label: 'Closer', enabled: true },
     { path: '/financeiro', label: 'Financeiro', enabled: false },
     { path: '/squads', label: 'Squads', enabled: false },
     { path: '/trafego', label: 'Tráfego', enabled: false }
