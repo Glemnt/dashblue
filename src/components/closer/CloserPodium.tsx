@@ -66,11 +66,11 @@ const CloserPodium = ({ top3 }: CloserPodiumProps) => {
 
           {/* Bloco do Pódio */}
           <div 
-            className={`${height} ${marginTop} ${bgColor} rounded-2xl shadow-2xl px-8 py-8 flex flex-col justify-center items-center text-center min-w-[320px] max-w-[320px] overflow-hidden transform hover:scale-105 transition-all duration-300 gap-4`}
+            className={`${height} ${marginTop} ${bgColor} rounded-2xl shadow-2xl px-6 py-8 flex flex-col justify-center items-center text-center min-w-[320px] max-w-[320px] overflow-hidden transform hover:scale-105 transition-all duration-300 gap-4`}
           >
             {/* Nome e Squad */}
-            <div>
-              <h3 className="text-white font-outfit text-2xl font-bold mb-3 break-words line-clamp-2 w-full">
+            <div className="w-full overflow-hidden">
+              <h3 className="text-white font-outfit text-xl font-bold mb-3 break-words line-clamp-2 px-2">
                 {closer.nome}
               </h3>
               <div 
@@ -82,16 +82,16 @@ const CloserPodium = ({ top3 }: CloserPodiumProps) => {
             </div>
 
             {/* Receita Total */}
-            <div>
+            <div className="w-full overflow-hidden px-2">
               <p className="text-white/80 text-sm font-outfit uppercase tracking-wider mb-2">
                 Receita Total
               </p>
-              <p className="text-white font-outfit text-4xl font-black mb-4 break-all leading-tight">
+              <p className="text-white font-outfit text-3xl font-black mb-4 break-all leading-tight">
                 {formatarReal(closer.receitaTotal)}
               </p>
               
               {/* Contratos */}
-              <p className="text-white/90 text-lg font-outfit mb-2 break-words">
+              <p className="text-white/90 text-base font-outfit mb-2 break-words">
                 {closer.contratosFechados} contratos fechados
               </p>
               
@@ -103,9 +103,9 @@ const CloserPodium = ({ top3 }: CloserPodiumProps) => {
 
             {/* Badge TOP CLOSER no 1º */}
             {isFirst && (
-              <div className="flex items-center gap-2 bg-white/20 backdrop-blur-sm px-6 py-3 rounded-full">
-                <Trophy className="w-5 h-5 text-white" />
-                <span className="text-white font-outfit font-bold text-sm uppercase tracking-wider">
+              <div className="flex items-center gap-2 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full max-w-full overflow-hidden">
+                <Trophy className="w-4 h-4 text-white flex-shrink-0" />
+                <span className="text-white font-outfit font-bold text-xs uppercase tracking-wider truncate">
                   Top Closer do Mês
                 </span>
               </div>
