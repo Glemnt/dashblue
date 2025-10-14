@@ -182,18 +182,18 @@ const PerformanceSDR = () => {
           </div>
 
           <div className="text-right flex flex-col items-end gap-3">
-            <div className="flex gap-3">
+            <div className={`flex ${isTVMode ? 'gap-6' : 'gap-3'}`}>
               <TVModeToggle isTVMode={isTVMode} onToggle={() => setIsTVMode(!isTVMode)} />
-              {!isTVMode && (
-                <Button
-                  onClick={() => { refetch(); refetchKPIs(); }}
-                  variant="outline"
-                  className="bg-[#0066FF]/10 border-[#0066FF] text-[#0066FF] hover:bg-[#0066FF] hover:text-white"
-                >
-                  <RefreshCw className="w-4 h-4 mr-2" />
-                  Atualizar
-                </Button>
-              )}
+              <Button
+                onClick={() => { refetch(); refetchKPIs(); }}
+                variant="outline"
+                className={`bg-[#0066FF]/10 border-2 border-[#0066FF] text-[#0066FF] hover:bg-[#0066FF] hover:text-white transition-all ${
+                  isTVMode ? 'px-8 py-6 text-2xl' : 'px-6 py-3 text-lg'
+                }`}
+              >
+                <RefreshCw className={`${isTVMode ? 'w-8 h-8 mr-4' : 'w-5 h-5 mr-2'}`} />
+                <span className="font-outfit font-semibold">Atualizar</span>
+              </Button>
             </div>
             <div>
               <p className={`text-white font-outfit font-semibold capitalize ${
@@ -212,7 +212,7 @@ const PerformanceSDR = () => {
       </header>
 
       {/* NAVEGAÇÃO */}
-      {!isTVMode && <Navigation />}
+      <Navigation isTVMode={isTVMode} />
 
       {/* INDICADOR DE ATUALIZAÇÃO (TV MODE) */}
       {isTVMode && (loading || loadingKPIs) && (

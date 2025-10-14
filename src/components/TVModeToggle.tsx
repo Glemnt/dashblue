@@ -11,10 +11,18 @@ const TVModeToggle = ({ isTVMode, onToggle }: TVModeToggleProps) => {
     <Button
       onClick={onToggle}
       variant="outline"
-      className="bg-[#0066FF]/10 border-[#0066FF] text-[#0066FF] hover:bg-[#0066FF] hover:text-white"
+      className={`bg-[#0066FF]/10 border-2 border-[#0066FF] text-[#0066FF] hover:bg-[#0066FF] hover:text-white transition-all ${
+        isTVMode ? 'px-8 py-6 text-2xl' : 'px-6 py-3 text-lg'
+      }`}
     >
-      {isTVMode ? <MonitorOff className="w-4 h-4 mr-2" /> : <Monitor className="w-4 h-4 mr-2" />}
-      {isTVMode ? 'Modo Normal' : 'Modo TV'}
+      {isTVMode ? (
+        <MonitorOff className={`${isTVMode ? 'w-8 h-8 mr-4' : 'w-5 h-5 mr-2'}`} />
+      ) : (
+        <Monitor className={`${isTVMode ? 'w-8 h-8 mr-4' : 'w-5 h-5 mr-2'}`} />
+      )}
+      <span className="font-outfit font-semibold">
+        {isTVMode ? 'Modo Normal' : 'Modo TV'}
+      </span>
     </Button>
   );
 };
