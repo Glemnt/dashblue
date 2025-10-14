@@ -28,8 +28,8 @@ export interface FinancialContract {
   sdr: string;
   closer: string;
   valor: number;
-  statusAssinatura: 'Assinado' | 'Pendente' | 'Não Assinado';
-  statusPagamento: 'Pago' | 'Pendente' | 'Atrasado';
+  statusAssinatura: 'Assinado' | 'Enviado' | 'Não Enviado';
+  statusPagamento: 'Pago' | 'Link Enviado' | 'Esperando Financeiro';
   statusGeral: 'Completo' | 'Parcial' | 'Pendente';
   squad: 'Hot Dogs' | 'Corvo Azul';
   assinado: boolean;
@@ -116,14 +116,23 @@ export const calcularMetricasFinanceiras = (data: any[]): FinancialMetrics => {
     const assinado = assinatura === 'ASSINOU';
     const pago = pagamento === 'PAGOU';
     
-    let statusAssinatura: 'Assinado' | 'Pendente' | 'Não Assinado';
-    if (assinado) statusAssinatura = 'Assinado';
-    else if (assinatura === 'PENDENTE') statusAssinatura = 'Pendente';
-    else statusAssinatura = 'Não Assinado';
+    let statusAssinatura: 'Assinado' | 'Enviado' | 'Não Enviado';
+    if (assinado) {
+      statusAssinatura = 'Assinado';
+    } else if (assinatura === 'ENVIADO') {
+      statusAssinatura = 'Enviado';
+    } else {
+      statusAssinatura = 'Não Enviado';
+    }
     
-    let statusPagamento: 'Pago' | 'Pendente' | 'Atrasado';
-    if (pago) statusPagamento = 'Pago';
-    else statusPagamento = 'Pendente';
+    let statusPagamento: 'Pago' | 'Link Enviado' | 'Esperando Financeiro';
+    if (pago) {
+      statusPagamento = 'Pago';
+    } else if (pagamento === 'LINK ENVIADO') {
+      statusPagamento = 'Link Enviado';
+    } else {
+      statusPagamento = 'Esperando Financeiro';
+    }
     
     let statusGeral: 'Completo' | 'Parcial' | 'Pendente';
     if (assinado && pago) statusGeral = 'Completo';

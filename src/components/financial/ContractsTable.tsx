@@ -45,11 +45,16 @@ const ContractsTable = ({ contratos, isTVMode }: Props) => {
   }, [contratos, filtroAssinatura, filtroPagamento, filtroSquad, busca, sortOrder]);
 
   const getBadgeVariant = (status: string): "default" | "secondary" | "destructive" => {
-    if (status.includes('Assinado') || status.includes('Pago') || status === 'Completo') {
+    // Verde: Status completo
+    if (status === 'Assinado' || status === 'Pago' || status === 'Completo') {
       return 'default';
-    } else if (status.includes('Pendente') || status === 'Parcial') {
+    }
+    // Amarelo: Status intermediário (enviado/aguardando)
+    else if (status === 'Enviado' || status === 'Link Enviado' || status === 'Esperando Financeiro' || status === 'Parcial') {
       return 'secondary';
-    } else {
+    }
+    // Vermelho: Status negativo
+    else {
       return 'destructive';
     }
   };
@@ -75,8 +80,8 @@ const ContractsTable = ({ contratos, isTVMode }: Props) => {
           <SelectContent>
             <SelectItem value="todos">Todos</SelectItem>
             <SelectItem value="Assinado">Assinado</SelectItem>
-            <SelectItem value="Pendente">Pendente</SelectItem>
-            <SelectItem value="Não Assinado">Não Assinado</SelectItem>
+            <SelectItem value="Enviado">Enviado</SelectItem>
+            <SelectItem value="Não Enviado">Não Enviado</SelectItem>
           </SelectContent>
         </Select>
 
@@ -87,8 +92,8 @@ const ContractsTable = ({ contratos, isTVMode }: Props) => {
           <SelectContent>
             <SelectItem value="todos">Todos</SelectItem>
             <SelectItem value="Pago">Pago</SelectItem>
-            <SelectItem value="Pendente">Pendente</SelectItem>
-            <SelectItem value="Atrasado">Atrasado</SelectItem>
+            <SelectItem value="Link Enviado">Link Enviado</SelectItem>
+            <SelectItem value="Esperando Financeiro">Esperando Financeiro</SelectItem>
           </SelectContent>
         </Select>
 
