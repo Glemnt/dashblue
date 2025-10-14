@@ -10,6 +10,7 @@ import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import PeriodFilter from "@/components/sdr/PeriodFilter";
 import TVModeToggle from "@/components/TVModeToggle";
+import { useTVMode } from "@/hooks/useTVMode";
 import { PeriodType, DateRange, getCurrentMonthRange, filterDataByDateRange } from '@/utils/dateFilters';
 
 // Função auxiliar para interpolar entre duas cores hex
@@ -75,7 +76,7 @@ const Index = () => {
   const [dateRange, setDateRange] = useState<DateRange>(getCurrentMonthRange());
   
   // Estado do modo TV
-  const [isTVMode, setIsTVMode] = useState(false);
+  const { isTVMode, setIsTVMode } = useTVMode();
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);

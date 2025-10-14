@@ -16,6 +16,7 @@ import SDRDetailCard from '@/components/sdr/SDRDetailCard';
 import SDRCharts from '@/components/sdr/SDRCharts';
 import TVModeToggle from '@/components/TVModeToggle';
 import ColaboradorAvatar from '@/components/ColaboradorAvatar';
+import { useTVMode } from '@/hooks/useTVMode';
 import { PeriodType, DateRange, getCurrentMonthRange } from '@/utils/dateFilters';
 
 const PerformanceSDR = () => {
@@ -34,7 +35,7 @@ const PerformanceSDR = () => {
   const [currentDateRange, setCurrentDateRange] = useState<DateRange>(getCurrentMonthRange());
   
   // Estado do modo TV
-  const [isTVMode, setIsTVMode] = useState(false);
+  const { isTVMode, setIsTVMode } = useTVMode();
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);

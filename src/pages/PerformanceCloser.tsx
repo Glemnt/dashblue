@@ -12,6 +12,7 @@ import CloserDetailCard from '@/components/closer/CloserDetailCard';
 import CloserCharts from '@/components/closer/CloserCharts';
 import TVModeToggle from '@/components/TVModeToggle';
 import ColaboradorAvatar from '@/components/ColaboradorAvatar';
+import { useTVMode } from '@/hooks/useTVMode';
 import { useGoogleSheets } from '@/hooks/useGoogleSheets';
 import { calcularMetricasCloser } from '@/utils/closerMetricsCalculator';
 import { formatarReal } from '@/utils/metricsCalculator';
@@ -25,7 +26,7 @@ const PerformanceCloser = () => {
   const [currentDateRange, setCurrentDateRange] = useState<DateRange>(getCurrentMonthRange());
   
   // Estado do modo TV
-  const [isTVMode, setIsTVMode] = useState(false);
+  const { isTVMode, setIsTVMode } = useTVMode();
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
