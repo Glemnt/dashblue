@@ -44,11 +44,11 @@ const Index = () => {
   // Loading State
   if ((loading || loadingCampanhas || leads.loading) && !metricas) {
     return (
-      <div className="min-h-screen bg-navy-ultra-dark font-outfit flex items-center justify-center">
+      <div className="min-h-screen bg-[#0B1120] font-outfit flex items-center justify-center">
         <div className="text-center">
-          <RefreshCw className="w-16 h-16 text-blue-vibrant mx-auto mb-4 animate-spin" />
+          <RefreshCw className="w-16 h-16 text-[#0066FF] mx-auto mb-4 animate-spin" />
           <h2 className="text-white text-3xl font-bold mb-2">Carregando Dashboard...</h2>
-          <p className="text-gray-muted text-lg">Buscando dados do Google Sheets</p>
+          <p className="text-[#94A3B8] text-lg">Buscando dados do Google Sheets</p>
         </div>
       </div>
     );
@@ -57,13 +57,13 @@ const Index = () => {
   // Error State
   if (error || leads.error) {
     return (
-      <div className="min-h-screen bg-navy-ultra-dark font-outfit flex items-center justify-center">
+      <div className="min-h-screen bg-[#0B1120] font-outfit flex items-center justify-center">
         <div className="text-center max-w-md">
           <h2 className="text-red-alert text-4xl font-bold mb-4">Erro ao Carregar Dados</h2>
           <p className="text-white text-lg mb-6">{error || leads.error}</p>
           <Button 
             onClick={refetch}
-            className="bg-blue-vibrant hover:bg-blue-vibrant/90 text-white px-8 py-3 text-lg"
+            className="bg-[#0066FF] hover:bg-[#0066FF]/90 text-white px-8 py-3 text-lg"
           >
             <RefreshCw className="w-5 h-5 mr-2" />
             Tentar Novamente
@@ -78,9 +78,9 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen bg-navy-ultra-dark font-outfit">
+    <div className="min-h-screen bg-[#0B1120] font-outfit">
       {/* HEADER */}
-      <header className="bg-navy-ultra-dark border-b border-white/5 sticky top-0 z-50">
+      <header className="bg-[#0B1120] border-b border-white/5 sticky top-0 z-50">
         <div className="max-w-[1920px] mx-auto px-12 py-8 flex justify-between items-center">
           <div className="flex items-center">
             <img src={logoWhite} alt="Blue Ocean" className="h-10 w-auto" />
@@ -94,7 +94,7 @@ const Index = () => {
             <Button 
               onClick={refetch}
               variant="outline"
-              className="bg-blue-vibrant/10 border-blue-vibrant text-blue-vibrant hover:bg-blue-vibrant hover:text-white"
+              className="bg-[#0066FF]/10 border-[#0066FF] text-[#0066FF] hover:bg-[#0066FF] hover:text-white"
             >
               <RefreshCw className="w-4 h-4 mr-2" />
               Atualizar
@@ -103,7 +103,7 @@ const Index = () => {
               <p className="text-white font-outfit text-lg font-semibold capitalize">
                 {formatDate(currentTime)}
               </p>
-              <p className="text-gray-muted font-outfit text-sm">
+              <p className="text-[#94A3B8] font-outfit text-sm">
                 Atualizado: {lastUpdate ? formatTime(lastUpdate) : '--:--'}
               </p>
             </div>
@@ -115,17 +115,17 @@ const Index = () => {
       <Navigation />
 
       {/* SEÇÃO 1: BARRAS DE META */}
-      <section className="bg-navy-ultra-dark py-20 px-12">
+      <section className="bg-[#0B1120] py-20 px-12">
         <h2 className="text-white font-outfit text-5xl font-bold mb-16 text-center tracking-tight">
           Status das Metas
         </h2>
         
         <div className="max-w-[1600px] mx-auto space-y-8">
           {/* META MENSAL */}
-          <div className="bg-navy-card rounded-2xl p-12 border border-white/5">
+          <div className="bg-[#151E35] rounded-2xl p-12 border border-white/5">
             <div className="flex justify-between items-start mb-8">
               <div>
-                <p className="text-gray-muted font-outfit text-sm font-semibold uppercase tracking-widest mb-3">
+                <p className="text-[#94A3B8] font-outfit text-sm font-semibold uppercase tracking-widest mb-3">
                   Meta Mensal
                 </p>
                 <p className="text-white font-outfit text-6xl font-black">
@@ -136,7 +136,7 @@ const Index = () => {
                 <p className="text-white font-outfit text-8xl font-black">
                   {metricas.progressoMetaMensal.toFixed(0)}%
                 </p>
-                <p className="text-gray-muted font-outfit text-base">
+                <p className="text-[#94A3B8] font-outfit text-base">
                   do objetivo
                 </p>
               </div>
@@ -147,7 +147,7 @@ const Index = () => {
                 className={`absolute h-full rounded-full transition-all duration-1000 ${
                   metricas.progressoMetaMensal < 70 ? 'bg-red-alert' : 
                   metricas.progressoMetaMensal < 90 ? 'bg-yellow-warning' : 
-                  'bg-cyan-modern'
+                  'bg-[#00E5CC]'
                 }`}
                 style={{ width: `${Math.min(metricas.progressoMetaMensal, 100)}%` }}
               />
@@ -159,20 +159,20 @@ const Index = () => {
             </div>
             
             <div className="flex justify-between items-center">
-              <p className="text-gray-muted font-outfit text-lg">
+              <p className="text-[#94A3B8] font-outfit text-lg">
                 Faltam <span className="text-white font-semibold">{formatarReal(metricas.metaMensal - metricas.receitaTotal)}</span> para a meta
               </p>
-              <p className="text-gray-muted font-outfit text-sm">
+              <p className="text-[#94A3B8] font-outfit text-sm">
                 15 dias úteis restantes
               </p>
             </div>
           </div>
 
           {/* META SEMANAL */}
-          <div className="bg-navy-card rounded-2xl p-12 border border-white/5">
+          <div className="bg-[#151E35] rounded-2xl p-12 border border-white/5">
             <div className="flex justify-between items-start mb-8">
               <div>
-                <p className="text-gray-muted font-outfit text-sm font-semibold uppercase tracking-widest mb-3">
+                <p className="text-[#94A3B8] font-outfit text-sm font-semibold uppercase tracking-widest mb-3">
                   Meta Semanal
                 </p>
                 <p className="text-white font-outfit text-6xl font-black">
@@ -183,7 +183,7 @@ const Index = () => {
                 <p className="text-white font-outfit text-8xl font-black">
                   {metricas.progressoMetaSemanal.toFixed(0)}%
                 </p>
-                <p className="text-gray-muted font-outfit text-base">
+                <p className="text-[#94A3B8] font-outfit text-base">
                   do objetivo
                 </p>
               </div>
@@ -194,23 +194,23 @@ const Index = () => {
                 className={`absolute h-full rounded-full transition-all duration-1000 ${
                   metricas.progressoMetaSemanal < 70 ? 'bg-red-alert' : 
                   metricas.progressoMetaSemanal < 90 ? 'bg-yellow-warning' : 
-                  'bg-cyan-modern'
+                  'bg-[#00E5CC]'
                 }`}
                 style={{ width: `${Math.min(metricas.progressoMetaSemanal, 100)}%` }}
               />
               <div className="absolute inset-0 flex items-center justify-center">
-                <span className="text-navy-ultra-dark font-outfit text-2xl font-bold">
+                <span className="text-[#0B1120] font-outfit text-2xl font-bold">
                   {formatarReal(metricas.receitaSemanal)}
                 </span>
               </div>
             </div>
             
             <div className="flex justify-between items-center">
-              <p className="text-gray-muted font-outfit text-lg">
+              <p className="text-[#94A3B8] font-outfit text-lg">
                 Faltam <span className="text-white font-semibold">{formatarReal(metricas.metaSemanal - metricas.receitaSemanal)}</span> para a meta
               </p>
               <p className={`font-outfit text-sm font-semibold ${
-                metricas.progressoMetaSemanal >= 70 ? 'text-cyan-modern' : 'text-gray-muted'
+                metricas.progressoMetaSemanal >= 70 ? 'text-[#00E5CC]' : 'text-[#94A3B8]'
               }`}>
                 {metricas.progressoMetaSemanal >= 70 ? 'No caminho certo' : 'Atenção'}
               </p>
@@ -218,10 +218,10 @@ const Index = () => {
           </div>
 
           {/* META DIÁRIA */}
-          <div className="bg-navy-card rounded-2xl p-12 border border-white/5">
+          <div className="bg-[#151E35] rounded-2xl p-12 border border-white/5">
             <div className="flex justify-between items-start mb-8">
               <div>
-                <p className="text-gray-muted font-outfit text-sm font-semibold uppercase tracking-widest mb-3">
+                <p className="text-[#94A3B8] font-outfit text-sm font-semibold uppercase tracking-widest mb-3">
                   Meta Diária
                 </p>
                 <p className="text-white font-outfit text-6xl font-black">
@@ -232,7 +232,7 @@ const Index = () => {
                 <p className="text-white font-outfit text-8xl font-black">
                   {metricas.progressoMetaDiaria.toFixed(0)}%
                 </p>
-                <p className="text-gray-muted font-outfit text-base">
+                <p className="text-[#94A3B8] font-outfit text-base">
                   do objetivo
                 </p>
               </div>
@@ -243,23 +243,23 @@ const Index = () => {
                 className={`absolute h-full rounded-full transition-all duration-1000 ${
                   metricas.progressoMetaDiaria < 70 ? 'bg-red-alert' : 
                   metricas.progressoMetaDiaria < 90 ? 'bg-yellow-warning' : 
-                  'bg-cyan-modern'
+                  'bg-[#00E5CC]'
                 }`}
                 style={{ width: `${Math.min(metricas.progressoMetaDiaria, 100)}%` }}
               />
               <div className="absolute inset-0 flex items-center justify-center">
-                <span className="text-navy-ultra-dark font-outfit text-2xl font-bold">
+                <span className="text-[#0B1120] font-outfit text-2xl font-bold">
                   {formatarReal(metricas.receitaDiaria)}
                 </span>
               </div>
             </div>
             
             <div className="flex justify-between items-center">
-              <p className="text-gray-muted font-outfit text-lg">
+              <p className="text-[#94A3B8] font-outfit text-lg">
                 Faltam <span className="text-white font-semibold">{formatarReal(metricas.metaDiaria - metricas.receitaDiaria)}</span> para a meta
               </p>
               <p className={`font-outfit text-sm font-bold ${
-                metricas.progressoMetaDiaria >= 90 ? 'text-cyan-modern' : 'text-gray-muted'
+                metricas.progressoMetaDiaria >= 90 ? 'text-[#00E5CC]' : 'text-[#94A3B8]'
               }`}>
                 {metricas.progressoMetaDiaria >= 90 ? 'QUASE LÁ' : 'ATENÇÃO'}
               </p>
@@ -269,23 +269,23 @@ const Index = () => {
       </section>
 
       {/* SEÇÃO 2: KPI CARDS */}
-      <section className="bg-gray-light py-20 px-12">
-        <h2 className="text-navy-ultra-dark font-outfit text-5xl font-bold mb-16 text-center tracking-tight">
+      <section className="bg-[#F8FAFC] py-20 px-12">
+        <h2 className="text-[#0B1120] font-outfit text-5xl font-bold mb-16 text-center tracking-tight">
           Indicadores Principais
         </h2>
         
         <div className="grid grid-cols-3 gap-8 max-w-[1600px] mx-auto">
           
             {/* Card 1: Receita Total */}
-          <div className="bg-white rounded-2xl p-10 border-2 border-gray-light hover:shadow-xl transition-all duration-300">
+          <div className="bg-white rounded-2xl p-10 border-2 border-[#F8FAFC] hover:shadow-xl transition-all duration-300">
             <p className="text-gray-medium font-outfit text-xs font-semibold uppercase tracking-widest mb-6">
               Receita Total
             </p>
-            <p className="text-navy-ultra-dark font-outfit text-8xl font-black mb-4">
+            <p className="text-[#0B1120] font-outfit text-7xl font-black mb-4">
               {formatarValor(metricas.receitaTotal)}
             </p>
-            <div className="h-2 bg-gray-light rounded-full mb-4">
-              <div className="h-full bg-blue-vibrant rounded-full" style={{ width: `${Math.min(metricas.progressoMetaMensal, 100)}%` }}></div>
+            <div className="h-2 bg-[#F8FAFC] rounded-full mb-4">
+              <div className="h-full bg-[#0066FF] rounded-full" style={{ width: `${Math.min(metricas.progressoMetaMensal, 100)}%` }}></div>
             </div>
             <p className="text-gray-medium font-outfit text-base">
               {metricas.totalContratos} contratos fechados
@@ -293,15 +293,15 @@ const Index = () => {
           </div>
 
           {/* Card 2: Ticket Médio */}
-          <div className="bg-white rounded-2xl p-10 border-2 border-gray-light hover:shadow-xl transition-all duration-300">
+          <div className="bg-white rounded-2xl p-10 border-2 border-[#F8FAFC] hover:shadow-xl transition-all duration-300">
             <p className="text-gray-medium font-outfit text-xs font-semibold uppercase tracking-widest mb-6">
               Ticket Médio
             </p>
-            <p className="text-navy-ultra-dark font-outfit text-8xl font-black mb-4">
+            <p className="text-[#0B1120] font-outfit text-7xl font-black mb-4">
               {formatarValor(metricas.ticketMedio)}
             </p>
-            <div className="h-2 bg-gray-light rounded-full mb-4">
-              <div className="h-full bg-cyan-modern rounded-full" style={{ width: `${Math.min((metricas.ticketMedio / 12000) * 100, 100)}%` }}></div>
+            <div className="h-2 bg-[#F8FAFC] rounded-full mb-4">
+              <div className="h-full bg-[#00E5CC] rounded-full" style={{ width: `${Math.min((metricas.ticketMedio / 12000) * 100, 100)}%` }}></div>
             </div>
             <p className="text-gray-medium font-outfit text-base">
               Meta: R$ 12.000
@@ -309,11 +309,11 @@ const Index = () => {
           </div>
 
           {/* Card 3: Contratos */}
-          <div className="bg-blue-vibrant rounded-2xl p-10 border-2 border-blue-vibrant hover:shadow-xl transition-all duration-300">
+          <div className="bg-[#0066FF] rounded-2xl p-10 border-2 border-[#0066FF] hover:shadow-xl transition-all duration-300">
             <p className="text-white/70 font-outfit text-xs font-semibold uppercase tracking-widest mb-6">
               Contratos
             </p>
-            <p className="text-white font-outfit text-8xl font-black mb-4">
+            <p className="text-white font-outfit text-7xl font-black mb-4">
               {metricas.totalContratos}
             </p>
             <div className="h-2 bg-white/20 rounded-full mb-4">
@@ -325,16 +325,16 @@ const Index = () => {
           </div>
 
           {/* Card 4: Leads Total */}
-          <div className="bg-white rounded-2xl p-10 border-2 border-blue-vibrant hover:shadow-xl transition-all duration-300">
+          <div className="bg-white rounded-2xl p-10 border-2 border-[#0066FF] hover:shadow-xl transition-all duration-300">
             <p className="text-gray-medium font-outfit text-xs font-semibold uppercase tracking-widest mb-6">
               Leads Total
             </p>
-            <p className="text-navy-ultra-dark font-outfit text-8xl font-black mb-4">
+            <p className="text-[#0B1120] font-outfit text-7xl font-black mb-4">
               {metricas.funil.leads}
             </p>
-            <div className="h-2 bg-gray-light rounded-full mb-4">
+            <div className="h-2 bg-[#F8FAFC] rounded-full mb-4">
               <div 
-                className="h-full bg-blue-vibrant rounded-full" 
+                className="h-full bg-[#0066FF] rounded-full"
                 style={{ width: `${metricas.funil.leads > 0 ? Math.min((metricas.funil.mqls / metricas.funil.leads) * 100, 100) : 0}%` }}
               ></div>
             </div>
@@ -344,15 +344,15 @@ const Index = () => {
           </div>
 
           {/* Card 5: Taxa de Show */}
-          <div className="bg-white rounded-2xl p-10 border-2 border-gray-light hover:shadow-xl transition-all duration-300">
+          <div className="bg-white rounded-2xl p-10 border-2 border-[#F8FAFC] hover:shadow-xl transition-all duration-300">
             <p className="text-gray-medium font-outfit text-xs font-semibold uppercase tracking-widest mb-6">
               Taxa de Show
             </p>
-            <p className="text-navy-ultra-dark font-outfit text-8xl font-black mb-4">
+            <p className="text-[#0B1120] font-outfit text-7xl font-black mb-4">
               {metricas.taxaShow.toFixed(1)}%
             </p>
-            <div className="h-2 bg-gray-light rounded-full mb-4">
-              <div className="h-full bg-cyan-modern rounded-full" style={{ width: `${Math.min(metricas.taxaShow, 100)}%` }}></div>
+            <div className="h-2 bg-[#F8FAFC] rounded-full mb-4">
+              <div className="h-full bg-[#00E5CC] rounded-full" style={{ width: `${Math.min(metricas.taxaShow, 100)}%` }}></div>
             </div>
             <p className="text-gray-medium font-outfit text-base">
               {metricas.callsRealizadas} realizadas / {metricas.callsAgendadas} agendadas
@@ -360,17 +360,17 @@ const Index = () => {
           </div>
 
           {/* Card 6: Taxa Conversão */}
-          <div className="bg-cyan-modern rounded-2xl p-10 border-2 border-cyan-modern hover:shadow-xl transition-all duration-300">
-            <p className="text-navy-ultra-dark/70 font-outfit text-xs font-semibold uppercase tracking-widest mb-6">
+          <div className="bg-[#00E5CC] rounded-2xl p-10 border-2 border-[#00E5CC] hover:shadow-xl transition-all duration-300">
+            <p className="text-[#0B1120]/70 font-outfit text-xs font-semibold uppercase tracking-widest mb-6">
               Taxa Conversão
             </p>
-            <p className="text-navy-ultra-dark font-outfit text-8xl font-black mb-4">
+            <p className="text-[#0B1120] font-outfit text-7xl font-black mb-4">
               {metricas.taxaConversao.toFixed(1)}%
             </p>
-            <div className="h-2 bg-navy-ultra-dark/10 rounded-full mb-4">
-              <div className="h-full bg-navy-ultra-dark rounded-full" style={{ width: `${Math.min(metricas.taxaConversao, 100)}%` }}></div>
+            <div className="h-2 bg-[#0B1120]/10 rounded-full mb-4">
+              <div className="h-full bg-[#0B1120] rounded-full" style={{ width: `${Math.min(metricas.taxaConversao, 100)}%` }}></div>
             </div>
-            <p className="text-navy-ultra-dark/80 font-outfit text-base">
+            <p className="text-[#0B1120]/80 font-outfit text-base">
               {metricas.totalContratos} fechados / {metricas.callsQualificadas} qualificados
             </p>
           </div>
@@ -379,7 +379,7 @@ const Index = () => {
       </section>
 
       {/* SEÇÃO 3: FUNIL DE CONVERSÃO */}
-      <section className="bg-navy-ultra-dark py-20 px-12">
+      <section className="bg-[#0B1120] py-20 px-12">
         <h2 className="text-white font-outfit text-5xl font-bold mb-16 text-center tracking-tight">
           Funil de Conversão
         </h2>
@@ -388,7 +388,7 @@ const Index = () => {
           
           {/* Leads (100%) */}
           <div className="relative">
-            <div className="bg-blue-vibrant rounded-2xl p-8">
+            <div className="bg-[#0066FF] rounded-2xl p-8">
               <div className="flex justify-between items-center">
                 <div>
                   <p className="text-white/70 font-outfit text-sm font-semibold uppercase tracking-widest mb-2">Leads</p>

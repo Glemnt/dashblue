@@ -151,7 +151,7 @@ const PerformanceCloser = () => {
 
       {/* SEÇÃO 1: RESUMO GERAL */}
       <section className="bg-[#0B1120] py-20 px-12">
-        <div className="max-w-[1800px] mx-auto">
+        <div className="max-w-[1600px] mx-auto">
           
           <div className="grid grid-cols-2 gap-8">
             
@@ -159,14 +159,14 @@ const PerformanceCloser = () => {
             <div className="bg-[#151E35] rounded-2xl p-12 border border-white/5 hover:shadow-2xl transition-all duration-300">
               <div className="flex items-start justify-between mb-8">
                 <div className="bg-[#0066FF]/20 p-6 rounded-2xl">
-                  <span className="text-6xl">💰</span>
+                  <span className="text-5xl">💰</span>
                 </div>
-                <TrendingUp className="w-12 h-12 text-[#0066FF]" />
+                <TrendingUp className="w-10 h-10 text-[#0066FF]" />
               </div>
               <h3 className="text-[#94A3B8] font-outfit text-lg uppercase tracking-wider mb-3">
                 Receita Total
               </h3>
-              <p className="text-white font-outfit text-6xl font-black mb-4">
+              <p className="text-white font-outfit text-7xl font-black mb-4">
                 {formatarReal(metricas.totais.receitaTotal)}
               </p>
               <p className="text-[#94A3B8] text-lg font-outfit mb-6">
@@ -193,14 +193,14 @@ const PerformanceCloser = () => {
             <div className="bg-[#151E35] rounded-2xl p-12 border border-white/5 hover:shadow-2xl transition-all duration-300">
               <div className="flex items-start justify-between mb-8">
                 <div className="bg-[#00E5CC]/20 p-6 rounded-2xl">
-                  <span className="text-6xl">📊</span>
+                  <span className="text-5xl">📊</span>
                 </div>
-                <Target className="w-12 h-12 text-[#00E5CC]" />
+                <Target className="w-10 h-10 text-[#00E5CC]" />
               </div>
               <h3 className="text-[#94A3B8] font-outfit text-lg uppercase tracking-wider mb-3">
                 Ticket Médio Geral
               </h3>
-              <p className="text-white font-outfit text-6xl font-black mb-4">
+              <p className="text-white font-outfit text-7xl font-black mb-4">
                 {formatarReal(metricas.totais.ticketMedioGeral)}
               </p>
               <p className="text-[#94A3B8] text-lg font-outfit mb-6">
@@ -227,14 +227,14 @@ const PerformanceCloser = () => {
             <div className="bg-[#151E35] rounded-2xl p-12 border border-white/5 hover:shadow-2xl transition-all duration-300">
               <div className="flex items-start justify-between mb-8">
                 <div className="bg-[#FFB800]/20 p-6 rounded-2xl">
-                  <span className="text-6xl">🎯</span>
+                  <span className="text-5xl">🎯</span>
                 </div>
-                <Target className="w-12 h-12 text-[#FFB800]" />
+                <Target className="w-10 h-10 text-[#FFB800]" />
               </div>
               <h3 className="text-[#94A3B8] font-outfit text-lg uppercase tracking-wider mb-3">
                 Taxa de Conversão Média
               </h3>
-              <p className="text-white font-outfit text-6xl font-black mb-4">
+              <p className="text-white font-outfit text-7xl font-black mb-4">
                 {metricas.totais.taxaConversaoMedia.toFixed(1)}%
               </p>
               <p className="text-[#94A3B8] text-lg font-outfit mb-6">
@@ -262,9 +262,9 @@ const PerformanceCloser = () => {
               <div className="bg-gradient-to-br from-[#FFB800] to-[#FF8C00] rounded-2xl p-12 border-4 border-[#FFD700] hover:shadow-2xl hover:scale-105 transition-all duration-300">
                 <div className="flex items-start justify-between mb-8">
                   <div className="bg-white/20 p-6 rounded-2xl">
-                    <Trophy className="w-12 h-12 text-white" />
+                    <Trophy className="w-10 h-10 text-white" />
                   </div>
-                  <span className="text-6xl">{metricas.destaque.emoji}</span>
+                  <span className="text-5xl">{metricas.destaque.emoji}</span>
                 </div>
                 <h3 className="text-white/90 font-outfit text-lg uppercase tracking-wider mb-3">
                   🏆 Closer Destaque
