@@ -10,6 +10,7 @@ import CloserPodium from '@/components/closer/CloserPodium';
 import CloserComparisonTable from '@/components/closer/CloserComparisonTable';
 import CloserDetailCard from '@/components/closer/CloserDetailCard';
 import CloserCharts from '@/components/closer/CloserCharts';
+import TVModeToggle from '@/components/TVModeToggle';
 import { useGoogleSheets } from '@/hooks/useGoogleSheets';
 import { calcularMetricasCloser } from '@/utils/closerMetricsCalculator';
 import { formatarReal } from '@/utils/metricsCalculator';
@@ -21,11 +22,56 @@ const PerformanceCloser = () => {
   
   const [currentPeriod, setCurrentPeriod] = useState<PeriodType>('mes');
   const [currentDateRange, setCurrentDateRange] = useState<DateRange>(getCurrentMonthRange());
+  
+  // Estado do modo TV
+  const [isTVMode, setIsTVMode] = useState(false);
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
-    return () => clearInterval(timer);
-  }, []);
+    
+    // Auto-refresh no modo TV
+    const autoRefresh = isTVMode ? setInterval(() => {
+      refetch();
+    }, 5 * 60 * 1000) : null;
+    
+    return () => {
+      clearInterval(timer);
+      if (autoRefresh) clearInterval(autoRefresh);
+    };
+  }, [isTVMode, refetch]);
+  
+  // Controle de fullscreen
+  useEffect(() => {
+    if (isTVMode) {
+      document.documentElement.requestFullscreen?.();
+    } else {
+      if (document.fullscreenElement) {
+        document.exitFullscreen?.().catch(() => {});
+      }
+    }
+  }, [isTVMode]);
+  
+  // Ocultar cursor no modo TV
+  useEffect(() => {
+    if (!isTVMode) return;
+    
+    let timeout: NodeJS.Timeout;
+    const hideCursor = () => document.body.style.cursor = 'none';
+    const showCursor = () => {
+      document.body.style.cursor = 'default';
+      clearTimeout(timeout);
+      timeout = setTimeout(hideCursor, 3000);
+    };
+    
+    document.addEventListener('mousemove', showCursor);
+    timeout = setTimeout(hideCursor, 3000);
+    
+    return () => {
+      document.removeEventListener('mousemove', showCursor);
+      clearTimeout(timeout);
+      document.body.style.cursor = 'default';
+    };
+  }, [isTVMode]);
 
   const metricas = data.length > 0 ? calcularMetricasCloser(data, currentDateRange) : null;
 
@@ -95,40 +141,55 @@ const PerformanceCloser = () => {
     <div className="min-h-screen bg-[#0B1120] font-outfit">
       
       {/* HEADER */}
-      <header className="bg-[#0B1120] border-b border-white/5 sticky top-0 z-50">
-        <div className="max-w-[1920px] mx-auto px-12 py-8 flex justify-between items-center">
+      <header className={`bg-[#0B1120] border-b border-white/5 ${isTVMode ? '' : 'sticky top-0'} z-50`}>
+        <div className={`max-w-[1920px] mx-auto ${isTVMode ? 'px-16 py-12' : 'px-12 py-8'} flex justify-between items-center`}>
           
           {/* ESQUERDA: Logo */}
-          <div className="flex items-center">
-            <img src={logoWhite} alt="Blue Ocean" className="h-10 w-auto" />
-          </div>
+          {!isTVMode && (
+            <div className="flex items-center">
+              <img src={logoWhite} alt="Blue Ocean" className="h-10 w-auto" />
+            </div>
+          )}
 
           {/* CENTRO: Título + Subtítulo */}
           <div className="text-center">
-            <h1 className="text-white font-outfit text-5xl font-bold tracking-tight">
+            <h1 className={`text-white font-outfit font-bold tracking-tight ${
+              isTVMode ? 'text-7xl' : 'text-5xl'
+            }`}>
               Performance Closer
             </h1>
-            <p className="text-[#94A3B8] font-outfit text-lg mt-2">
-              Análise detalhada da equipe de fechamento
-            </p>
+            {!isTVMode && (
+              <p className="text-[#94A3B8] font-outfit text-lg mt-2">
+                Análise detalhada da equipe de fechamento
+              </p>
+            )}
           </div>
 
           {/* DIREITA: Botão + Data/Hora */}
           <div className="text-right flex flex-col items-end gap-3">
-            <Button
-              onClick={refetch}
-              variant="outline"
-              className="bg-[#0066FF]/10 border-[#0066FF] text-[#0066FF] hover:bg-[#0066FF] hover:text-white"
-            >
-              <RefreshCw className="w-4 h-4 mr-2" />
-              Atualizar
-            </Button>
+            <div className="flex gap-3">
+              <TVModeToggle isTVMode={isTVMode} onToggle={() => setIsTVMode(!isTVMode)} />
+              {!isTVMode && (
+                <Button
+                  onClick={refetch}
+                  variant="outline"
+                  className="bg-[#0066FF]/10 border-[#0066FF] text-[#0066FF] hover:bg-[#0066FF] hover:text-white"
+                >
+                  <RefreshCw className="w-4 h-4 mr-2" />
+                  Atualizar
+                </Button>
+              )}
+            </div>
             <div>
-              <p className="text-white font-outfit text-lg font-semibold capitalize">
+              <p className={`text-white font-outfit font-semibold capitalize ${
+                isTVMode ? 'text-2xl' : 'text-lg'
+              }`}>
                 {formatDate(currentTime)}
               </p>
-              <p className="text-[#94A3B8] font-outfit text-sm">
-                Atualizado: {lastUpdate ? formatTime(lastUpdate) : '--:--'}
+              <p className={`text-[#94A3B8] font-outfit ${
+                isTVMode ? 'text-lg' : 'text-sm'
+              }`}>
+                {isTVMode ? formatTime(currentTime) : `Atualizado: ${lastUpdate ? formatTime(lastUpdate) : '--:--'}`}
               </p>
             </div>
           </div>
@@ -137,18 +198,28 @@ const PerformanceCloser = () => {
       </header>
 
       {/* NAVEGAÇÃO */}
-      <Navigation />
+      {!isTVMode && <Navigation />}
+
+      {/* INDICADOR DE ATUALIZAÇÃO (TV MODE) */}
+      {isTVMode && loading && (
+        <div className="fixed top-4 right-4 bg-[#0066FF] text-white px-6 py-3 rounded-full flex items-center gap-3 animate-pulse z-50">
+          <RefreshCw className="w-5 h-5 animate-spin" />
+          <span className="font-outfit text-lg font-semibold">Atualizando...</span>
+        </div>
+      )}
 
       {/* FILTRO DE PERÍODO */}
-      <section className="bg-[#0B1120] pt-12 px-12">
-        <div className="max-w-[1800px] mx-auto">
-          <PeriodFilter
-            onFilterChange={handleFilterChange}
-            currentPeriod={currentPeriod}
-            currentDateRange={currentDateRange}
-          />
-        </div>
-      </section>
+      {!isTVMode && (
+        <section className="bg-[#0B1120] pt-12 px-12">
+          <div className="max-w-[1800px] mx-auto">
+            <PeriodFilter
+              onFilterChange={handleFilterChange}
+              currentPeriod={currentPeriod}
+              currentDateRange={currentDateRange}
+            />
+          </div>
+        </section>
+      )}
 
       {/* SEÇÃO 1: RESUMO GERAL */}
       <section className="bg-[#0B1120] py-20 px-12">
@@ -333,7 +404,7 @@ const PerformanceCloser = () => {
       </section>
 
       {/* FOOTER */}
-      <Footer />
+      {!isTVMode && <Footer />}
     </div>
   );
 };

@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import PeriodFilter from "@/components/sdr/PeriodFilter";
+import TVModeToggle from "@/components/TVModeToggle";
 import { PeriodType, DateRange, getCurrentMonthRange, filterDataByDateRange } from '@/utils/dateFilters';
 
 // Função auxiliar para interpolar entre duas cores hex
@@ -72,11 +73,56 @@ const Index = () => {
   // Estado do filtro de período
   const [periodType, setPeriodType] = useState<PeriodType>('mes');
   const [dateRange, setDateRange] = useState<DateRange>(getCurrentMonthRange());
+  
+  // Estado do modo TV
+  const [isTVMode, setIsTVMode] = useState(false);
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
-    return () => clearInterval(timer);
-  }, []);
+    
+    // Auto-refresh dos dados a cada 5 minutos no modo TV
+    const autoRefresh = isTVMode ? setInterval(() => {
+      refetch();
+    }, 5 * 60 * 1000) : null;
+    
+    return () => {
+      clearInterval(timer);
+      if (autoRefresh) clearInterval(autoRefresh);
+    };
+  }, [isTVMode, refetch]);
+  
+  // Controle de fullscreen
+  useEffect(() => {
+    if (isTVMode) {
+      document.documentElement.requestFullscreen?.();
+    } else {
+      if (document.fullscreenElement) {
+        document.exitFullscreen?.().catch(() => {});
+      }
+    }
+  }, [isTVMode]);
+  
+  // Ocultar cursor após inatividade no modo TV
+  useEffect(() => {
+    if (!isTVMode) return;
+    
+    let timeout: NodeJS.Timeout;
+    const hideCursor = () => document.body.style.cursor = 'none';
+    const showCursor = () => {
+      document.body.style.cursor = 'default';
+      clearTimeout(timeout);
+      timeout = setTimeout(hideCursor, 3000);
+    };
+    
+    document.addEventListener('mousemove', showCursor);
+    timeout = setTimeout(hideCursor, 3000);
+    
+    return () => {
+      document.removeEventListener('mousemove', showCursor);
+      clearTimeout(timeout);
+      document.body.style.cursor = 'default';
+    };
+  }, [isTVMode]);
   
   // Handler para mudança de filtro
   const handleFilterChange = (type: PeriodType, range: DateRange) => {
@@ -148,31 +194,44 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-[#0B1120] font-outfit">
       {/* HEADER */}
-      <header className="bg-[#0B1120] border-b border-white/5 sticky top-0 z-50">
-        <div className="max-w-[1920px] mx-auto px-12 py-8 flex justify-between items-center">
-          <div className="flex items-center">
-            <img src={logoWhite} alt="Blue Ocean" className="h-10 w-auto" />
-          </div>
+      <header className={`bg-[#0B1120] border-b border-white/5 ${isTVMode ? '' : 'sticky top-0'} z-50`}>
+        <div className={`max-w-[1920px] mx-auto ${isTVMode ? 'px-16 py-12' : 'px-12 py-8'} flex justify-between items-center`}>
+          {!isTVMode && (
+            <div className="flex items-center">
+              <img src={logoWhite} alt="Blue Ocean" className="h-10 w-auto" />
+            </div>
+          )}
           
-          <h1 className="text-white font-outfit text-5xl font-bold tracking-tight">
+          <h1 className={`text-white font-outfit font-bold tracking-tight ${
+            isTVMode ? 'text-7xl' : 'text-5xl'
+          }`}>
             Dashboard Comercial
           </h1>
           
           <div className="text-right flex flex-col items-end gap-3">
-            <Button 
-              onClick={refetch}
-              variant="outline"
-              className="bg-[#0066FF]/10 border-[#0066FF] text-[#0066FF] hover:bg-[#0066FF] hover:text-white"
-            >
-              <RefreshCw className="w-4 h-4 mr-2" />
-              Atualizar
-            </Button>
+            <div className="flex gap-3">
+              <TVModeToggle isTVMode={isTVMode} onToggle={() => setIsTVMode(!isTVMode)} />
+              {!isTVMode && (
+                <Button 
+                  onClick={refetch}
+                  variant="outline"
+                  className="bg-[#0066FF]/10 border-[#0066FF] text-[#0066FF] hover:bg-[#0066FF] hover:text-white"
+                >
+                  <RefreshCw className="w-4 h-4 mr-2" />
+                  Atualizar
+                </Button>
+              )}
+            </div>
             <div>
-              <p className="text-white font-outfit text-lg font-semibold capitalize">
+              <p className={`text-white font-outfit font-semibold capitalize ${
+                isTVMode ? 'text-2xl' : 'text-lg'
+              }`}>
                 {formatDate(currentTime)}
               </p>
-              <p className="text-[#94A3B8] font-outfit text-sm">
-                Atualizado: {lastUpdate ? formatTime(lastUpdate) : '--:--'}
+              <p className={`text-[#94A3B8] font-outfit ${
+                isTVMode ? 'text-lg' : 'text-sm'
+              }`}>
+                {isTVMode ? formatTime(currentTime) : `Atualizado: ${lastUpdate ? formatTime(lastUpdate) : '--:--'}`}
               </p>
             </div>
           </div>
@@ -180,113 +239,161 @@ const Index = () => {
       </header>
 
       {/* NAVEGAÇÃO */}
-      <Navigation />
+      {!isTVMode && <Navigation />}
+
+      {/* INDICADOR DE ATUALIZAÇÃO (TV MODE) */}
+      {isTVMode && loading && (
+        <div className="fixed top-4 right-4 bg-[#0066FF] text-white px-6 py-3 rounded-full flex items-center gap-3 animate-pulse z-50">
+          <RefreshCw className="w-5 h-5 animate-spin" />
+          <span className="font-outfit text-lg font-semibold">Atualizando...</span>
+        </div>
+      )}
 
       {/* FILTRO DE PERÍODO */}
-      <section className="bg-[#0B1120] pt-12 px-12">
-        <div className="max-w-[1600px] mx-auto">
-          <PeriodFilter
-            onFilterChange={handleFilterChange}
-            currentPeriod={periodType}
-            currentDateRange={dateRange}
-          />
-        </div>
-      </section>
+      {!isTVMode && (
+        <section className="bg-[#0B1120] pt-12 px-12">
+          <div className="max-w-[1600px] mx-auto">
+            <PeriodFilter
+              onFilterChange={handleFilterChange}
+              currentPeriod={periodType}
+              currentDateRange={dateRange}
+            />
+          </div>
+        </section>
+      )}
 
       {/* SEÇÃO 1: BARRAS DE META */}
-      <section className="bg-[#0B1120] py-20 px-12">
-        <h2 className="text-white font-outfit text-5xl font-bold mb-16 text-center tracking-tight">
+      <section className={`bg-[#0B1120] ${isTVMode ? 'py-24 px-16' : 'py-20 px-12'}`}>
+        <h2 className={`text-white font-outfit font-bold text-center tracking-tight ${
+          isTVMode ? 'text-6xl mb-20' : 'text-5xl mb-16'
+        }`}>
           Status das Metas
         </h2>
         
-        <div className="max-w-[1600px] mx-auto space-y-8">
+        <div className={`max-w-[1600px] mx-auto ${isTVMode ? 'space-y-12' : 'space-y-8'}`}>
           {/* META MENSAL */}
-          <div className="bg-[#151E35] rounded-2xl p-12 border border-white/5">
+          <div className={`bg-[#151E35] rounded-2xl ${isTVMode ? 'p-16 animate-fade-in' : 'p-12'} border border-white/10`}>
             <div className="flex justify-between items-start mb-8">
               <div>
-                <p className="text-[#94A3B8] font-outfit text-sm font-semibold uppercase tracking-widest mb-3">
+                <p className={`text-[#94A3B8] font-outfit font-semibold uppercase tracking-widest ${
+                  isTVMode ? 'text-base mb-4' : 'text-sm mb-3'
+                }`}>
                   Meta Mensal
                 </p>
-                <p className="text-white font-outfit text-6xl font-black">
+                <p className={`text-white font-outfit font-black ${
+                  isTVMode ? 'text-7xl' : 'text-6xl'
+                }`}>
                   {formatarReal(metricas.metaMensal)}
                 </p>
               </div>
               <div className="text-right">
-                <p className="text-white font-outfit text-8xl font-black">
+                <p 
+                  key={metricas.progressoMetaMensal}
+                  className={`text-white font-outfit font-black ${
+                    isTVMode ? 'text-9xl animate-number-change' : 'text-8xl'
+                  }`}
+                >
                   {metricas.progressoMetaMensal.toFixed(0)}%
                 </p>
-                <p className="text-[#94A3B8] font-outfit text-base">
+                <p className={`text-[#94A3B8] font-outfit ${
+                  isTVMode ? 'text-xl' : 'text-base'
+                }`}>
                   do objetivo
                 </p>
               </div>
             </div>
             
-            <div className="relative h-12 bg-white/5 rounded-full overflow-hidden mb-6">
+            <div className={`relative ${isTVMode ? 'h-16' : 'h-12'} bg-white/5 rounded-full overflow-hidden mb-6`}>
               <div 
-                className="absolute h-full rounded-full transition-all duration-1000"
+                className={`absolute h-full rounded-full transition-all duration-1000 ${
+                  metricas.progressoMetaMensal >= 90 ? 'animate-pulse-glow' : ''
+                }`}
                 style={{ 
                   width: `${Math.min(metricas.progressoMetaMensal, 100)}%`,
                   backgroundColor: getProgressColor(metricas.progressoMetaMensal)
                 }}
               />
               <div className="absolute inset-0 flex items-center justify-center">
-                <span className="text-white font-outfit text-2xl font-bold drop-shadow-lg">
+                <span className={`text-white font-outfit font-bold ${
+                  isTVMode ? 'text-4xl drop-shadow-2xl' : 'text-2xl drop-shadow-lg'
+                }`}>
                   {formatarReal(metricas.receitaTotal)}
                 </span>
               </div>
             </div>
             
             <div className="flex justify-between items-center">
-              <p className="text-[#94A3B8] font-outfit text-lg">
+              <p className={`text-[#94A3B8] font-outfit ${
+                isTVMode ? 'text-2xl' : 'text-lg'
+              }`}>
                 Faltam <span className="text-white font-semibold">{formatarReal(metricas.metaMensal - metricas.receitaTotal)}</span> para a meta
               </p>
-              <p className="text-[#94A3B8] font-outfit text-sm">
-                15 dias úteis restantes
-              </p>
+              {!isTVMode && (
+                <p className="text-[#94A3B8] font-outfit text-sm">
+                  15 dias úteis restantes
+                </p>
+              )}
             </div>
           </div>
 
           {/* META SEMANAL */}
-          <div className="bg-[#151E35] rounded-2xl p-12 border border-white/5">
+          <div className={`bg-[#151E35] rounded-2xl ${isTVMode ? 'p-16 animate-fade-in' : 'p-12'} border border-white/10`}>
             <div className="flex justify-between items-start mb-8">
               <div>
-                <p className="text-[#94A3B8] font-outfit text-sm font-semibold uppercase tracking-widest mb-3">
+                <p className={`text-[#94A3B8] font-outfit font-semibold uppercase tracking-widest ${
+                  isTVMode ? 'text-base mb-4' : 'text-sm mb-3'
+                }`}>
                   Meta Semanal
                 </p>
-                <p className="text-white font-outfit text-6xl font-black">
+                <p className={`text-white font-outfit font-black ${
+                  isTVMode ? 'text-7xl' : 'text-6xl'
+                }`}>
                   {formatarReal(metricas.metaSemanal)}
                 </p>
               </div>
               <div className="text-right">
-                <p className="text-white font-outfit text-8xl font-black">
+                <p 
+                  key={metricas.progressoMetaSemanal}
+                  className={`text-white font-outfit font-black ${
+                    isTVMode ? 'text-9xl animate-number-change' : 'text-8xl'
+                  }`}
+                >
                   {metricas.progressoMetaSemanal.toFixed(0)}%
                 </p>
-                <p className="text-[#94A3B8] font-outfit text-base">
+                <p className={`text-[#94A3B8] font-outfit ${
+                  isTVMode ? 'text-xl' : 'text-base'
+                }`}>
                   do objetivo
                 </p>
               </div>
             </div>
             
-            <div className="relative h-12 bg-white/5 rounded-full overflow-hidden mb-6">
+            <div className={`relative ${isTVMode ? 'h-16' : 'h-12'} bg-white/5 rounded-full overflow-hidden mb-6`}>
               <div 
-                className="absolute h-full rounded-full transition-all duration-1000"
+                className={`absolute h-full rounded-full transition-all duration-1000 ${
+                  metricas.progressoMetaSemanal >= 90 ? 'animate-pulse-glow' : ''
+                }`}
                 style={{ 
                   width: `${Math.min(metricas.progressoMetaSemanal, 100)}%`,
                   backgroundColor: getProgressColor(metricas.progressoMetaSemanal)
                 }}
               />
               <div className="absolute inset-0 flex items-center justify-center">
-                <span className="text-white font-outfit text-2xl font-bold drop-shadow-lg">
+                <span className={`text-white font-outfit font-bold ${
+                  isTVMode ? 'text-4xl drop-shadow-2xl' : 'text-2xl drop-shadow-lg'
+                }`}>
                   {formatarReal(metricas.receitaSemanal)}
                 </span>
               </div>
             </div>
             
             <div className="flex justify-between items-center">
-              <p className="text-[#94A3B8] font-outfit text-lg">
+              <p className={`text-[#94A3B8] font-outfit ${
+                isTVMode ? 'text-2xl' : 'text-lg'
+              }`}>
                 Faltam <span className="text-white font-semibold">{formatarReal(metricas.metaSemanal - metricas.receitaSemanal)}</span> para a meta
               </p>
-              <p className={`font-outfit text-sm font-semibold ${
+              <p className={`font-outfit ${isTVMode ? 'text-xl' : 'text-sm'} font-semibold ${
                 metricas.progressoMetaSemanal >= 70 ? 'text-[#00E5CC]' : 'text-[#94A3B8]'
               }`}>
                 {metricas.progressoMetaSemanal >= 70 ? 'No caminho certo' : 'Atenção'}
@@ -295,46 +402,63 @@ const Index = () => {
           </div>
 
           {/* META DIÁRIA */}
-          <div className="bg-[#151E35] rounded-2xl p-12 border border-white/5">
+          <div className={`bg-[#151E35] rounded-2xl ${isTVMode ? 'p-16 animate-fade-in' : 'p-12'} border border-white/10`}>
             <div className="flex justify-between items-start mb-8">
               <div>
-                <p className="text-[#94A3B8] font-outfit text-sm font-semibold uppercase tracking-widest mb-3">
+                <p className={`text-[#94A3B8] font-outfit font-semibold uppercase tracking-widest ${
+                  isTVMode ? 'text-base mb-4' : 'text-sm mb-3'
+                }`}>
                   Meta Diária
                 </p>
-                <p className="text-white font-outfit text-6xl font-black">
+                <p className={`text-white font-outfit font-black ${
+                  isTVMode ? 'text-7xl' : 'text-6xl'
+                }`}>
                   {formatarReal(metricas.metaDiaria)}
                 </p>
               </div>
               <div className="text-right">
-                <p className="text-white font-outfit text-8xl font-black">
+                <p 
+                  key={metricas.progressoMetaDiaria}
+                  className={`text-white font-outfit font-black ${
+                    isTVMode ? 'text-9xl animate-number-change' : 'text-8xl'
+                  }`}
+                >
                   {metricas.progressoMetaDiaria.toFixed(0)}%
                 </p>
-                <p className="text-[#94A3B8] font-outfit text-base">
+                <p className={`text-[#94A3B8] font-outfit ${
+                  isTVMode ? 'text-xl' : 'text-base'
+                }`}>
                   do objetivo
                 </p>
               </div>
             </div>
             
-            <div className="relative h-12 bg-white/5 rounded-full overflow-hidden mb-6">
+            <div className={`relative ${isTVMode ? 'h-16' : 'h-12'} bg-white/5 rounded-full overflow-hidden mb-6`}>
               <div 
-                className="absolute h-full rounded-full transition-all duration-1000"
+                className={`absolute h-full rounded-full transition-all duration-1000 ${
+                  metricas.progressoMetaDiaria >= 90 ? 'animate-pulse-glow' : ''
+                }`}
                 style={{ 
                   width: `${Math.min(metricas.progressoMetaDiaria, 100)}%`,
                   backgroundColor: getProgressColor(metricas.progressoMetaDiaria)
                 }}
               />
               <div className="absolute inset-0 flex items-center justify-center">
-                <span className="text-white font-outfit text-2xl font-bold drop-shadow-lg">
+                <span className={`text-white font-outfit font-bold ${
+                  isTVMode ? 'text-4xl drop-shadow-2xl' : 'text-2xl drop-shadow-lg'
+                }`}>
                   {formatarReal(metricas.receitaDiaria)}
                 </span>
               </div>
             </div>
             
             <div className="flex justify-between items-center">
-              <p className="text-[#94A3B8] font-outfit text-lg">
+              <p className={`text-[#94A3B8] font-outfit ${
+                isTVMode ? 'text-2xl' : 'text-lg'
+              }`}>
                 Faltam <span className="text-white font-semibold">{formatarReal(metricas.metaDiaria - metricas.receitaDiaria)}</span> para a meta
               </p>
-              <p className={`font-outfit text-sm font-bold ${
+              <p className={`font-outfit ${isTVMode ? 'text-xl' : 'text-sm'} font-bold ${
                 metricas.progressoMetaDiaria >= 90 ? 'text-[#00E5CC]' : 'text-[#94A3B8]'
               }`}>
                 {metricas.progressoMetaDiaria >= 90 ? 'QUASE LÁ' : 'ATENÇÃO'}
@@ -345,12 +469,14 @@ const Index = () => {
       </section>
 
       {/* SEÇÃO 2: KPI CARDS */}
-      <section className="bg-[#F8FAFC] py-20 px-12">
-        <h2 className="text-[#0B1120] font-outfit text-5xl font-bold mb-16 text-center tracking-tight">
+      <section className={`bg-[#F8FAFC] ${isTVMode ? 'py-24 px-16' : 'py-20 px-12'}`}>
+        <h2 className={`text-[#0B1120] font-outfit font-bold text-center tracking-tight ${
+          isTVMode ? 'text-6xl mb-20' : 'text-5xl mb-16'
+        }`}>
           Indicadores Principais
         </h2>
         
-        <div className="grid grid-cols-3 gap-8 max-w-[1600px] mx-auto">
+        <div className={`grid ${isTVMode ? 'grid-cols-3' : 'grid-cols-3'} ${isTVMode ? 'gap-12' : 'gap-8'} max-w-[1600px] mx-auto`}>
           
             {/* Card 1: Receita Total */}
           <div className="bg-white rounded-2xl p-10 border-2 border-[#F8FAFC] hover:shadow-xl transition-all duration-300">
@@ -693,7 +819,7 @@ const Index = () => {
       </section>
 
       {/* FOOTER */}
-      <Footer />
+      {!isTVMode && <Footer />}
     </div>
   );
 };
