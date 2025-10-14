@@ -2,6 +2,7 @@ import { parseValor } from './metricsCalculator';
 
 export interface SDRMetrics {
   nome: string;
+  nomeOriginal: string;
   squad: string;
   squadColor: string;
   emoji: string;
@@ -29,22 +30,22 @@ export interface SDRData {
 }
 
 export const calcularMetricasSDR = (data: any[]): SDRData => {
-  // Lista dos 4 SDRs
-  const sdrsNomes = ['Vinícius', 'Marcos', 'Tiago', 'João Lopes'];
+  // Lista dos 4 SDRs (nomes exatos da planilha)
+  const sdrsNomes = ['VINICIUS MEIRELES', 'MARCOS', 'TIAGO', 'JOÃO LOPES'];
   
-  // Mapear squads e cores
-  const squadMap: Record<string, { squad: string; color: string; emoji: string }> = {
-    'Vinícius': { squad: 'Corvo Azul', color: '#0066FF', emoji: '🔵' },
-    'Marcos': { squad: 'Hot Dogs', color: '#FF4757', emoji: '🔴' },
-    'Tiago': { squad: 'Sem Squad', color: '#64748B', emoji: '⚪' },
-    'João Lopes': { squad: 'RevOps', color: '#94A3B8', emoji: '⚙️' }
+  // Mapear squads, cores e nomes de exibição
+  const squadMap: Record<string, { squad: string; color: string; emoji: string; displayName: string }> = {
+    'VINICIUS MEIRELES': { squad: 'Corvo Azul', color: '#0066FF', emoji: '🔵', displayName: 'Vinícius' },
+    'MARCOS': { squad: 'Hot Dogs', color: '#FF4757', emoji: '🔴', displayName: 'Marcos' },
+    'TIAGO': { squad: 'Sem Squad', color: '#64748B', emoji: '⚪', displayName: 'Tiago' },
+    'JOÃO LOPES': { squad: 'RevOps', color: '#94A3B8', emoji: '⚙️', displayName: 'João Lopes' }
   };
 
   const sdrsMetrics: SDRMetrics[] = sdrsNomes.map(nome => {
     // Filtrar linhas onde SDR = nome do SDR (case-insensitive, trim)
     const callsDoSDR = data.filter(row => {
-      const sdrNome = String(row['SDR'] || '').trim();
-      return sdrNome.toLowerCase() === nome.toLowerCase();
+      const sdrNome = String(row['SDR'] || '').trim().toUpperCase();
+      return sdrNome === nome; // nome já está em uppercase
     });
 
     const totalCalls = callsDoSDR.length;
@@ -60,14 +61,17 @@ export const calcularMetricasSDR = (data: any[]): SDRData => {
     // Calls Agendadas = todas as calls do SDR
     const callsAgendadas = totalCalls;
 
-    // Calls Realizadas = contar onde tem CLOSER preenchido (significa que a call foi realizada)
+    // Calls Realizadas = contar onde tem CLOSER preenchido E não é NO-SHOW
     const callsRealizadas = callsDoSDR.filter(row => {
-      const closer = String(row['CLOSER'] || '').trim();
-      return closer.length > 0;
+      const closer = String(row['CLOSER'] || '').trim().toUpperCase();
+      return closer.length > 0 && closer !== 'NO-SHOW';
     }).length;
 
-    // No-Shows
-    const noShows = callsAgendadas - callsRealizadas;
+    // No-Shows = contar diretamente onde CLOSER = "NO-SHOW"
+    const noShows = callsDoSDR.filter(row => {
+      const closer = String(row['CLOSER'] || '').trim().toUpperCase();
+      return closer === 'NO-SHOW';
+    }).length;
 
     // Taxa de Show
     const taxaShow = callsAgendadas > 0 ? (callsRealizadas / callsAgendadas) * 100 : 0;
@@ -75,8 +79,8 @@ export const calcularMetricasSDR = (data: any[]): SDRData => {
     // Vendas Originadas (somar VALOR onde SDR FECHOU = nome do SDR)
     const vendasOriginadas = data
       .filter(row => {
-        const sdrFechou = String(row['SDR FECHOU'] || '').trim();
-        return sdrFechou.toLowerCase() === nome.toLowerCase();
+        const sdrFechou = String(row['SDR FECHOU'] || '').trim().toUpperCase();
+        return sdrFechou === nome;
       })
       .reduce((acc, row) => {
         const valor = parseValor(row['VALOR']);
@@ -85,12 +89,21 @@ export const calcularMetricasSDR = (data: any[]): SDRData => {
 
     // Número de Contratos Originados
     const contratosOriginados = data.filter(row => {
-      const sdrFechou = String(row['SDR FECHOU'] || '').trim();
-      return sdrFechou.toLowerCase() === nome.toLowerCase();
+      const sdrFechou = String(row['SDR FECHOU'] || '').trim().toUpperCase();
+      return sdrFechou === nome;
     }).length;
 
+    // Log de debug
+    console.log(`📊 SDR: ${nome}`);
+    console.log('  - Total Calls:', totalCalls);
+    console.log('  - Calls Realizadas:', callsRealizadas);
+    console.log('  - No-Shows:', noShows);
+    console.log('  - Vendas Originadas:', vendasOriginadas);
+    console.log('  - Contratos:', contratosOriginados);
+
     return {
-      nome,
+      nome: squadMap[nome]?.displayName || nome, // exibir "Vinícius" no UI
+      nomeOriginal: nome, // guardar "VINICIUS MEIRELES" para filtros
       squad: squadMap[nome]?.squad || 'Sem Squad',
       squadColor: squadMap[nome]?.color || '#64748B',
       emoji: squadMap[nome]?.emoji || '⚪',
