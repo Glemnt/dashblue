@@ -92,19 +92,24 @@ export const useGoogleSheetsCampanhas = (): UseCampanhasReturn => {
     return acc + parseValor(row['Resultado Principal'] || row['RESULTADO PRINCIPAL']);
   }, 0);
 
+  const totalLeads = data.reduce((acc, row) => {
+    return acc + parseValor(row['Conversoes_Dia'] || row['CONVERSOES_DIA'] || row['conversoes_dia']);
+  }, 0);
+
   const cplMedio = totalResultadoPrincipal > 0 ? totalInvestimento / totalResultadoPrincipal : 0;
   const cacMedio = totalFechamentos > 0 ? totalInvestimento / totalFechamentos : 0;
 
   console.log('💰 CAMPANHAS - Totais:');
   console.log('MQLs:', totalMQLs);
   console.log('Investimento:', totalInvestimento);
+  console.log('Leads (Conversoes_Dia):', totalLeads);
   console.log('CPL Médio:', cplMedio.toFixed(2));
   console.log('CAC Médio:', cacMedio.toFixed(2));
 
   return {
     totalInvestimento,
     totalMQLs,
-    totalLeads: 0, // Leads vêm da planilha de formulários
+    totalLeads,
     cplMedio,
     cacMedio,
     loading,

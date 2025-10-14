@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 const Index = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const { data, loading, error, lastUpdate, refetch } = useGoogleSheets();
-  const campanhas = useGoogleSheetsCampanhas();
+  const { totalLeads: leadsCampanhas, totalMQLs: mqlsCampanhas, loading: loadingCampanhas } = useGoogleSheetsCampanhas();
   const leads = useGoogleSheetsLeads();
 
   useEffect(() => {
@@ -20,8 +20,8 @@ const Index = () => {
   
   // Calcular métricas quando os dados mudarem
   const metricas = data.length > 0 ? calcularMetricas(data, {
-    totalLeads: leads.totalLeads,
-    totalMQLs: leads.totalMQLs
+    totalLeads: leadsCampanhas,
+    totalMQLs: mqlsCampanhas
   }) : null;
 
   const formatDate = (date: Date) => {
@@ -41,7 +41,7 @@ const Index = () => {
   };
 
   // Loading State
-  if ((loading || campanhas.loading || leads.loading) && !metricas) {
+  if ((loading || loadingCampanhas || leads.loading) && !metricas) {
     return (
       <div className="min-h-screen bg-navy-ultra-dark font-outfit flex items-center justify-center">
         <div className="text-center">
@@ -54,12 +54,12 @@ const Index = () => {
   }
 
   // Error State
-  if (error || campanhas.error || leads.error) {
+  if (error || leads.error) {
     return (
       <div className="min-h-screen bg-navy-ultra-dark font-outfit flex items-center justify-center">
         <div className="text-center max-w-md">
           <h2 className="text-red-alert text-4xl font-bold mb-4">Erro ao Carregar Dados</h2>
-          <p className="text-white text-lg mb-6">{error || campanhas.error || leads.error}</p>
+          <p className="text-white text-lg mb-6">{error || leads.error}</p>
           <Button 
             onClick={refetch}
             className="bg-blue-vibrant hover:bg-blue-vibrant/90 text-white px-8 py-3 text-lg"
@@ -326,13 +326,16 @@ const Index = () => {
               Leads Total
             </p>
             <p className="text-navy-ultra-dark font-outfit text-8xl font-black mb-4">
-              {metricas.totalCalls}
+              {metricas.funil.leads}
             </p>
             <div className="h-2 bg-gray-light rounded-full mb-4">
-              <div className="h-full bg-blue-vibrant rounded-full" style={{ width: `${Math.min(metricas.taxaQualificacao, 100)}%` }}></div>
+              <div 
+                className="h-full bg-blue-vibrant rounded-full" 
+                style={{ width: `${metricas.funil.leads > 0 ? Math.min((metricas.funil.mqls / metricas.funil.leads) * 100, 100) : 0}%` }}
+              ></div>
             </div>
             <p className="text-gray-medium font-outfit text-base">
-              {metricas.callsQualificadas} MQLs ({metricas.taxaQualificacao.toFixed(1)}%)
+              {metricas.funil.mqls} MQLs ({metricas.funil.leads > 0 ? ((metricas.funil.mqls / metricas.funil.leads) * 100).toFixed(1) : '0'}%)
             </p>
           </div>
 
