@@ -365,8 +365,8 @@ const PerformanceCloser = () => {
       </section>
 
       {/* SEÇÃO 2: PÓDIO DOS TOP 3 */}
-      <section className={`bg-[#F8FAFC] ${isTVMode ? 'py-8 px-12' : 'py-20 px-12'}`}>
-        <h2 className={`text-[#0B1120] font-outfit font-bold text-center tracking-tight ${isTVMode ? 'text-4xl mb-6' : 'text-5xl mb-16'}`}>
+      <section className={`bg-[#F8FAFC] ${isTVMode ? 'py-16 px-12' : 'py-20 px-12'}`}>
+        <h2 className={`text-[#0B1120] font-outfit font-bold text-center tracking-tight ${isTVMode ? 'text-4xl mb-8' : 'text-5xl mb-16'}`}>
           Pódio dos Top 3 Closers
         </h2>
         <div className="max-w-[1600px] mx-auto">

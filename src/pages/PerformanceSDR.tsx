@@ -376,8 +376,8 @@ const PerformanceSDR = () => {
       </section>
 
       {/* SEÇÃO 2: PÓDIO DOS TOP 3 */}
-      <section className={`bg-[#F8FAFC] ${isTVMode ? 'py-8 px-12' : 'py-20 px-12'}`}>
-        <h2 className={`text-[#0B1120] font-outfit font-bold text-center tracking-tight ${isTVMode ? 'text-4xl mb-6' : 'text-5xl mb-16'}`}>
+      <section className={`bg-[#F8FAFC] ${isTVMode ? 'py-16 px-12' : 'py-20 px-12'}`}>
+        <h2 className={`text-[#0B1120] font-outfit font-bold text-center tracking-tight ${isTVMode ? 'text-4xl mb-8' : 'text-5xl mb-16'}`}>
           Pódio dos Top 3 SDRs
         </h2>
         <SDRPodium top3={metricas.top3} />
