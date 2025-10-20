@@ -10,7 +10,7 @@ const Navigation = ({ isTVMode = false }: NavigationProps) => {
     { path: '/sdr', label: 'SDR', enabled: true },
     { path: '/closer', label: 'Closer', enabled: true },
     { path: '/financeiro', label: 'Financeiro', enabled: true },
-    { path: '/squads', label: 'Squads', enabled: false },
+    { path: '/squads', label: 'Squads', enabled: true },
     { path: '/trafego', label: 'Tráfego', enabled: false }
   ];
 
