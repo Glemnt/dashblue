@@ -42,8 +42,8 @@ export const SquadsPlacar = ({ dados, isTVMode }: SquadsPlacarProps) => {
             </h3>
             
             <div className="bg-[#FF4757]/20 rounded-2xl p-4 md:p-6 lg:p-8 mb-4 overflow-hidden">
-              <p className={`text-white font-black mb-2 break-words overflow-hidden leading-tight ${
-                isTVMode ? 'text-4xl md:text-6xl lg:text-7xl' : 'text-3xl md:text-5xl lg:text-6xl'
+              <p className={`text-white font-black mb-2 whitespace-nowrap overflow-hidden text-ellipsis leading-tight ${
+                isTVMode ? 'text-3xl md:text-5xl lg:text-7xl' : 'text-2xl md:text-4xl lg:text-6xl'
               }`}>
                 {formatarReal(dados.hotDogsReceita)}
               </p>
@@ -124,8 +124,8 @@ export const SquadsPlacar = ({ dados, isTVMode }: SquadsPlacarProps) => {
             </h3>
             
             <div className="bg-[#0066FF]/20 rounded-2xl p-4 md:p-6 lg:p-8 mb-4 overflow-hidden">
-              <p className={`text-white font-black mb-2 break-words overflow-hidden leading-tight ${
-                isTVMode ? 'text-4xl md:text-6xl lg:text-7xl' : 'text-3xl md:text-5xl lg:text-6xl'
+              <p className={`text-white font-black mb-2 whitespace-nowrap overflow-hidden text-ellipsis leading-tight ${
+                isTVMode ? 'text-3xl md:text-5xl lg:text-7xl' : 'text-2xl md:text-4xl lg:text-6xl'
               }`}>
                 {formatarReal(dados.corvoAzulReceita)}
               </p>
