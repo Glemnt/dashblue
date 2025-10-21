@@ -71,7 +71,7 @@ export const SquadsComparativo = ({ hotDogs, corvoAzul, comparacao, isTVMode }: 
   
   return (
     <div className="max-w-[1600px] mx-auto">
-      <h2 className={`text-white font-black text-center mb-8 ${
+      <h2 className={`text-[#0B1120] font-black text-center mb-8 ${
         isTVMode ? 'text-5xl' : 'text-4xl'
       }`}>
         Comparação de Métricas

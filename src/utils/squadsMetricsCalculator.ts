@@ -254,10 +254,10 @@ export const calcularMetricasSquads = (data: any[]): SquadsComparison => {
     // Calls
     const totalCalls = calls.length;
     const callsQualificadas = calls.filter(c => 
-      String(c['QUALIFICACAO'] || '').toUpperCase() === 'SIM'
+      String(c['QUALIFICADA (SQL)'] || '').toUpperCase() === 'SIM'
     ).length;
     const callsAgendadas = calls.filter(c => 
-      String(c['AGENDAMENTO'] || '').toUpperCase() === 'SIM'
+      String(c['TIPO DA REUNIÃO'] || c['TIPO DA REUNIAO'] || '').trim() !== ''
     ).length;
     
     // Taxas
