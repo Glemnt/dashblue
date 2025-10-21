@@ -28,7 +28,7 @@ export const SquadsProjecao = ({ projecao, isTVMode }: SquadsProjecaoProps) => {
   
   return (
     <div className="max-w-[1600px] mx-auto">
-      <h2 className={`text-white font-black text-center mb-12 ${
+      <h2 className={`text-[#0B1120] font-black text-center mb-12 ${
         isTVMode ? 'text-5xl' : 'text-4xl'
       }`}>
         Projeções e Cenários
