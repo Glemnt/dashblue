@@ -113,6 +113,7 @@ interface Metricas {
     mqls: number;
     callsAgendadas: number;
     callsRealizadas: number;
+    callsQualificadas: number;
     contratos: number;
     receitaEsperada: number;
   };
@@ -476,6 +477,7 @@ export const calcularMetricas = (
       mqls: dadosMarketing?.totalMQLs || callsQualificadas,
       callsAgendadas: callsAgendadas,
       callsRealizadas: callsRealizadas,
+      callsQualificadas: callsQualificadas,
       contratos: totalContratos,
       receitaEsperada: metaMensal
     }

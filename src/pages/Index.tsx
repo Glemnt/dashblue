@@ -671,7 +671,33 @@ const Index = () => {
             <div className={`flex justify-center ${isTVMode ? 'mt-1' : 'mt-3'}`}>
               <div className="text-center">
                 <p className="text-gray-muted font-outfit text-sm">
-                  {metricas.funil.callsRealizadas > 0 ? ((metricas.funil.contratos / metricas.funil.callsRealizadas) * 100).toFixed(1) : '0'}% conversão ↓
+                  {metricas.funil.callsRealizadas > 0 ? ((metricas.funil.callsQualificadas / metricas.funil.callsRealizadas) * 100).toFixed(1) : '0'}% qualificação ↓
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Calls Qualificadas (65%) */}
+          <div className="relative mx-auto" style={{ width: '65%' }}>
+            <div className={`bg-cyan-modern/90 rounded-2xl ${isTVMode ? 'p-5' : 'p-8'}`}>
+              <div className="flex justify-between items-center">
+                <div>
+                  <p className="text-navy-ultra-dark/70 font-outfit text-sm font-semibold uppercase tracking-widest mb-2">
+                    Calls Qualificadas
+                  </p>
+                  <p className={`text-navy-ultra-dark font-outfit font-black ${isTVMode ? 'text-5xl' : 'text-7xl'}`}>
+                    {formatarValor(metricas.funil.callsQualificadas)}
+                  </p>
+                </div>
+                <p className="text-navy-ultra-dark/60 font-outfit text-lg">
+                  {metricas.funil.leads > 0 ? ((metricas.funil.callsQualificadas / metricas.funil.leads) * 100).toFixed(1) : '0'}% do total
+                </p>
+              </div>
+            </div>
+            <div className={`flex justify-center ${isTVMode ? 'mt-1' : 'mt-3'}`}>
+              <div className="text-center">
+                <p className="text-gray-muted font-outfit text-sm">
+                  {metricas.funil.callsQualificadas > 0 ? ((metricas.funil.contratos / metricas.funil.callsQualificadas) * 100).toFixed(1) : '0'}% conversão ↓
                 </p>
               </div>
             </div>
