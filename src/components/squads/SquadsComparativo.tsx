@@ -1,6 +1,6 @@
 import { formatarReal } from '@/utils/financialMetricsCalculator';
 import { SquadMetrics, MetricaComparacao } from '@/utils/squadsMetricsCalculator';
-import { Card } from '@/components/ui/card';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
 interface SquadsComparativoProps {
   hotDogs: SquadMetrics;
@@ -16,40 +16,6 @@ interface SquadsComparativoProps {
   };
   isTVMode: boolean;
 }
-
-interface MetricaCardProps {
-  label: string;
-  valor: string | number;
-  isVencedor: boolean;
-  isEmpate: boolean;
-  comparacaoTexto?: string;
-  isTVMode: boolean;
-}
-
-const MetricaCard = ({ label, valor, isVencedor, isEmpate, comparacaoTexto, isTVMode }: MetricaCardProps) => {
-  const badgeEmoji = isEmpate ? '🟡' : isVencedor ? '🟢' : '🔴';
-  
-  return (
-    <div className="text-center">
-      <p className={`text-[#94A3B8] mb-2 ${isTVMode ? 'text-xl' : 'text-sm'}`}>
-        {label}
-      </p>
-      <p className={`font-black mb-2 ${isTVMode ? 'text-5xl' : 'text-3xl'} ${
-        isVencedor ? 'text-[#00E5CC]' : 'text-white'
-      }`}>
-        {valor}
-      </p>
-      <div className="flex items-center justify-center gap-2">
-        <span className={isTVMode ? 'text-3xl' : 'text-2xl'}>{badgeEmoji}</span>
-        {comparacaoTexto && (
-          <span className={`text-xs ${isVencedor ? 'text-[#00E5CC]' : 'text-[#94A3B8]'}`}>
-            {comparacaoTexto}
-          </span>
-        )}
-      </div>
-    </div>
-  );
-};
 
 export const SquadsComparativo = ({ hotDogs, corvoAzul, comparacao, isTVMode }: SquadsComparativoProps) => {
   const metricas = [
@@ -105,80 +71,138 @@ export const SquadsComparativo = ({ hotDogs, corvoAzul, comparacao, isTVMode }: 
   
   return (
     <div className="max-w-[1600px] mx-auto">
-      <h2 className={`text-white font-black text-center mb-12 ${
+      <h2 className={`text-white font-black text-center mb-8 ${
         isTVMode ? 'text-5xl' : 'text-4xl'
       }`}>
         Comparação de Métricas
       </h2>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
-        {/* CARD HOT DOGS */}
-        <Card className="bg-white border-l-8 border-[#FF4757] p-6 md:p-12">
-          <div className="text-center mb-8">
-            <div className={isTVMode ? 'text-6xl mb-4' : 'text-5xl mb-4'}>🔴</div>
-            <h3 className={`font-black text-[#FF4757] ${
-              isTVMode ? 'text-4xl' : 'text-3xl'
-            }`}>
-              HOT DOGS
-            </h3>
-          </div>
-          
-          <div className="grid grid-cols-2 gap-6 md:gap-8">
+      <div className="bg-white rounded-2xl overflow-hidden shadow-2xl">
+        <Table>
+          <TableHeader>
+            <TableRow className="bg-gradient-to-r from-gray-50 to-gray-100 hover:from-gray-50 hover:to-gray-100">
+              <TableHead className={`font-black uppercase tracking-wider ${
+                isTVMode ? 'text-2xl py-8' : 'text-lg py-6'
+              } text-gray-700`}>
+                Métrica
+              </TableHead>
+              <TableHead className={`text-center font-black uppercase tracking-wider ${
+                isTVMode ? 'text-2xl py-8' : 'text-lg py-6'
+              }`}>
+                <div className="flex items-center justify-center gap-3">
+                  <span className={isTVMode ? 'text-4xl' : 'text-3xl'}>🔴</span>
+                  <span className="text-[#FF4757]">HOT DOGS</span>
+                </div>
+              </TableHead>
+              <TableHead className={`text-center font-black uppercase tracking-wider ${
+                isTVMode ? 'text-2xl py-8' : 'text-lg py-6'
+              }`}>
+                <div className="flex items-center justify-center gap-3">
+                  <span className={isTVMode ? 'text-4xl' : 'text-3xl'}>🔵</span>
+                  <span className="text-[#0066FF]">CORVO AZUL</span>
+                </div>
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
             {metricas.map((metrica, idx) => {
-              const isVencedor = metrica.comparacao.vencedor === 'Hot Dogs';
-              const isEmpate = metrica.comparacao.vencedor === 'Empate';
-              const comparacaoTexto = isVencedor 
-                ? `+${metrica.comparacao.diferencaPerc.toFixed(0)}%`
-                : isEmpate ? 'empate' : `-${metrica.comparacao.diferencaPerc.toFixed(0)}%`;
+              const hotDogsVencedor = metrica.comparacao.vencedor === 'Hot Dogs';
+              const corvoAzulVencedor = metrica.comparacao.vencedor === 'Corvo Azul';
+              const empate = metrica.comparacao.vencedor === 'Empate';
               
               return (
-                <MetricaCard
+                <TableRow 
                   key={idx}
-                  label={metrica.label}
-                  valor={metrica.hotDogsValor}
-                  isVencedor={isVencedor}
-                  isEmpate={isEmpate}
-                  comparacaoTexto={comparacaoTexto}
-                  isTVMode={isTVMode}
-                />
+                  className={`${
+                    idx % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'
+                  } hover:bg-gray-100/50 transition-colors`}
+                >
+                  <TableCell className={`font-bold ${
+                    isTVMode ? 'text-2xl py-8' : 'text-lg py-6'
+                  } text-gray-700`}>
+                    {metrica.label}
+                  </TableCell>
+                  
+                  <TableCell className={`text-center ${
+                    isTVMode ? 'py-8' : 'py-6'
+                  } ${
+                    hotDogsVencedor ? 'bg-[#FF4757]/5' : ''
+                  }`}>
+                    <div className="flex flex-col items-center gap-2">
+                      <span className={`font-black ${
+                        isTVMode ? 'text-3xl' : 'text-2xl'
+                      } ${
+                        hotDogsVencedor ? 'text-[#FF4757]' : 'text-gray-600'
+                      }`}>
+                        {metrica.hotDogsValor}
+                      </span>
+                      {!empate && (
+                        <div className="flex items-center gap-2">
+                          <span className={isTVMode ? 'text-2xl' : 'text-xl'}>
+                            {hotDogsVencedor ? '🟢' : '🔴'}
+                          </span>
+                          <span className={`text-sm font-semibold ${
+                            hotDogsVencedor ? 'text-[#FF4757]' : 'text-gray-400'
+                          }`}>
+                            {hotDogsVencedor 
+                              ? `+${metrica.comparacao.diferencaPerc.toFixed(0)}%`
+                              : `-${metrica.comparacao.diferencaPerc.toFixed(0)}%`
+                            }
+                          </span>
+                        </div>
+                      )}
+                      {empate && (
+                        <span className={`text-sm font-semibold text-yellow-600 ${
+                          isTVMode ? 'text-xl' : ''
+                        }`}>
+                          🟡 Empate
+                        </span>
+                      )}
+                    </div>
+                  </TableCell>
+                  
+                  <TableCell className={`text-center ${
+                    isTVMode ? 'py-8' : 'py-6'
+                  } ${
+                    corvoAzulVencedor ? 'bg-[#0066FF]/5' : ''
+                  }`}>
+                    <div className="flex flex-col items-center gap-2">
+                      <span className={`font-black ${
+                        isTVMode ? 'text-3xl' : 'text-2xl'
+                      } ${
+                        corvoAzulVencedor ? 'text-[#0066FF]' : 'text-gray-600'
+                      }`}>
+                        {metrica.corvoAzulValor}
+                      </span>
+                      {!empate && (
+                        <div className="flex items-center gap-2">
+                          <span className={isTVMode ? 'text-2xl' : 'text-xl'}>
+                            {corvoAzulVencedor ? '🟢' : '🔴'}
+                          </span>
+                          <span className={`text-sm font-semibold ${
+                            corvoAzulVencedor ? 'text-[#0066FF]' : 'text-gray-400'
+                          }`}>
+                            {corvoAzulVencedor 
+                              ? `+${metrica.comparacao.diferencaPerc.toFixed(0)}%`
+                              : `-${metrica.comparacao.diferencaPerc.toFixed(0)}%`
+                            }
+                          </span>
+                        </div>
+                      )}
+                      {empate && (
+                        <span className={`text-sm font-semibold text-yellow-600 ${
+                          isTVMode ? 'text-xl' : ''
+                        }`}>
+                          🟡 Empate
+                        </span>
+                      )}
+                    </div>
+                  </TableCell>
+                </TableRow>
               );
             })}
-          </div>
-        </Card>
-        
-        {/* CARD CORVO AZUL */}
-        <Card className="bg-white border-l-8 border-[#0066FF] p-6 md:p-12">
-          <div className="text-center mb-8">
-            <div className={isTVMode ? 'text-6xl mb-4' : 'text-5xl mb-4'}>🔵</div>
-            <h3 className={`font-black text-[#0066FF] ${
-              isTVMode ? 'text-4xl' : 'text-3xl'
-            }`}>
-              CORVO AZUL
-            </h3>
-          </div>
-          
-          <div className="grid grid-cols-2 gap-6 md:gap-8">
-            {metricas.map((metrica, idx) => {
-              const isVencedor = metrica.comparacao.vencedor === 'Corvo Azul';
-              const isEmpate = metrica.comparacao.vencedor === 'Empate';
-              const comparacaoTexto = isVencedor 
-                ? `+${metrica.comparacao.diferencaPerc.toFixed(0)}%`
-                : isEmpate ? 'empate' : `-${metrica.comparacao.diferencaPerc.toFixed(0)}%`;
-              
-              return (
-                <MetricaCard
-                  key={idx}
-                  label={metrica.label}
-                  valor={metrica.corvoAzulValor}
-                  isVencedor={isVencedor}
-                  isEmpate={isEmpate}
-                  comparacaoTexto={comparacaoTexto}
-                  isTVMode={isTVMode}
-                />
-              );
-            })}
-          </div>
-        </Card>
+          </TableBody>
+        </Table>
       </div>
     </div>
   );
