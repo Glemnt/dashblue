@@ -134,39 +134,56 @@ const GuerraSquads = () => {
   return (
     <div className="min-h-screen bg-[#0B1120] font-outfit">
       {/* HEADER */}
-      <header className="sticky top-0 z-50 bg-[#0B1120] border-b border-white/10 px-6 py-4">
-        <div className="max-w-[1800px] mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-6">
-            <img src={logoWhite} alt="Blue Ocean" className="h-10" />
-            <div>
-              <h1 className={`text-white font-black ${isTVMode ? 'text-4xl' : 'text-2xl'}`}>
-                Guerra de Squads
-              </h1>
-              <p className={`text-[#94A3B8] ${isTVMode ? 'text-xl' : 'text-sm'}`}>
+      <header className={`bg-[#0B1120] border-b border-white/5 ${isTVMode ? '' : 'sticky top-0'} z-50`}>
+        <div className={`max-w-[1920px] mx-auto ${isTVMode ? 'px-16 py-12' : 'px-12 py-8'} flex justify-between items-center`}>
+          {/* ESQUERDA: Logo (oculto no TV Mode) */}
+          {!isTVMode && (
+            <div className="flex items-center">
+              <img src={logoWhite} alt="Blue Ocean" className="h-10 w-auto" />
+            </div>
+          )}
+
+          {/* CENTRO: Título + Subtítulo */}
+          <div className={`text-center ${isTVMode ? 'flex-1' : ''}`}>
+            <h1 className={`text-white font-outfit font-bold tracking-tight ${
+              isTVMode ? 'text-7xl' : 'text-5xl'
+            }`}>
+              Guerra de Squads
+            </h1>
+            {!isTVMode && (
+              <p className="text-[#94A3B8] font-outfit text-lg mt-2">
                 Hot Dogs 🔴 vs Corvo Azul 🔵
               </p>
-            </div>
+            )}
           </div>
 
-          <div className="flex items-center gap-4">
-            <Button
-              onClick={handleRefresh}
-              variant="outline"
-              size={isTVMode ? 'lg' : 'default'}
-              disabled={isRefreshing}
-              className={isTVMode ? 'text-lg px-6 py-6' : ''}
-            >
-              <RefreshCw className={`mr-2 ${isTVMode ? 'h-6 w-6' : 'h-4 w-4'} ${isRefreshing ? 'animate-spin' : ''}`} />
-              Atualizar
-            </Button>
-
-            <div className="text-right">
-              <div className={`text-white font-semibold ${isTVMode ? 'text-2xl' : 'text-sm'}`}>
+          {/* DIREITA: Botões + Data/Hora */}
+          <div className="text-right flex flex-col items-end gap-3">
+            <div className={`flex ${isTVMode ? 'gap-6' : 'gap-3'}`}>
+              <TVModeToggle isTVMode={isTVMode} onToggle={() => setIsTVMode(!isTVMode)} />
+              <Button
+                onClick={handleRefresh}
+                variant="outline"
+                disabled={isRefreshing}
+                className={`bg-[#0066FF]/10 border-2 border-[#0066FF] text-[#0066FF] hover:bg-[#0066FF] hover:text-white transition-all ${
+                  isTVMode ? 'px-8 py-6 text-2xl' : 'px-6 py-3 text-lg'
+                }`}
+              >
+                <RefreshCw className={`${isTVMode ? 'w-8 h-8 mr-4' : 'w-5 h-5 mr-2'} ${isRefreshing ? 'animate-spin' : ''}`} />
+                <span className="font-outfit font-semibold">Atualizar</span>
+              </Button>
+            </div>
+            <div>
+              <p className={`text-white font-outfit font-semibold capitalize ${
+                isTVMode ? 'text-2xl' : 'text-lg'
+              }`}>
                 {formatDate(currentTime)}
-              </div>
-              <div className={`text-[#00E5CC] font-mono ${isTVMode ? 'text-3xl' : 'text-lg'}`}>
-                {formatTime(currentTime)}
-              </div>
+              </p>
+              <p className={`text-[#94A3B8] font-outfit ${
+                isTVMode ? 'text-lg' : 'text-sm'
+              }`}>
+                {isTVMode ? formatTime(currentTime) : `Atualizado: ${lastUpdate ? formatTime(lastUpdate) : '--:--'}`}
+              </p>
             </div>
           </div>
         </div>
@@ -174,13 +191,6 @@ const GuerraSquads = () => {
 
       {/* NAVIGATION */}
       <Navigation isTVMode={isTVMode} />
-
-      {/* TV MODE TOGGLE */}
-      {!isTVMode && (
-        <div className="fixed bottom-6 right-6 z-50">
-          <TVModeToggle isTVMode={isTVMode} onToggle={() => setIsTVMode(!isTVMode)} />
-        </div>
-      )}
 
       {/* INDICADOR DE ATUALIZAÇÃO EM TEMPO REAL (TV MODE) */}
       {isTVMode && (
