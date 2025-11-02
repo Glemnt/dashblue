@@ -113,6 +113,14 @@ const PeriodFilter = ({ onFilterChange, currentPeriod, currentDateRange }: Perio
                     onSelect={setCustomStart}
                     initialFocus
                     className="pointer-events-auto"
+                    classNames={{
+                      caption_label: "text-white text-base font-semibold",
+                      head_cell: "text-white/70 font-medium",
+                      day: "text-white hover:bg-[#0066FF]/20 hover:text-white",
+                      day_selected: "bg-[#0066FF] text-white hover:bg-[#0066FF] hover:text-white",
+                      day_today: "bg-white/10 text-white font-bold",
+                      nav_button: "text-white hover:bg-white/10 border-white/20"
+                    }}
                   />
                 </div>
                 <div>
@@ -122,6 +130,14 @@ const PeriodFilter = ({ onFilterChange, currentPeriod, currentDateRange }: Perio
                     selected={customEnd}
                     onSelect={setCustomEnd}
                     className="pointer-events-auto"
+                    classNames={{
+                      caption_label: "text-white text-base font-semibold",
+                      head_cell: "text-white/70 font-medium",
+                      day: "text-white hover:bg-[#0066FF]/20 hover:text-white",
+                      day_selected: "bg-[#0066FF] text-white hover:bg-[#0066FF] hover:text-white",
+                      day_today: "bg-white/10 text-white font-bold",
+                      nav_button: "text-white hover:bg-white/10 border-white/20"
+                    }}
                   />
                 </div>
                 <Button
