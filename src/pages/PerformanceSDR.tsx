@@ -21,7 +21,7 @@ import { PeriodType, DateRange, getCurrentMonthRange } from '@/utils/dateFilters
 
 const PerformanceSDR = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
-  const { data, loading, error, lastUpdate, refetch } = useGoogleSheets();
+  const { data, loading, error, lastUpdate, refetch, isRefetching } = useGoogleSheets();
   const { 
     kpis: sdrKPIs, 
     total: totalKPI,
@@ -39,18 +39,8 @@ const PerformanceSDR = () => {
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
-    
-    // Auto-refresh a cada 10 segundos
-    const autoRefresh = setInterval(() => {
-      refetch();
-      refetchKPIs();
-    }, 10000);
-    
-    return () => {
-      clearInterval(timer);
-      clearInterval(autoRefresh);
-    };
-  }, [refetch, refetchKPIs]);
+    return () => clearInterval(timer);
+  }, []);
   
   // Controle de fullscreen
   useEffect(() => {
@@ -216,11 +206,11 @@ const PerformanceSDR = () => {
       {/* NAVEGAÇÃO */}
       <Navigation isTVMode={isTVMode} />
 
-      {/* INDICADOR DE ATUALIZAÇÃO (TV MODE) */}
-      {isTVMode && (loading || loadingKPIs) && (
-        <div className="fixed top-4 right-4 bg-[#0066FF] text-white px-6 py-3 rounded-full flex items-center gap-3 animate-pulse z-50">
-          <RefreshCw className="w-5 h-5 animate-spin" />
-          <span className="font-outfit text-lg font-semibold">Atualizando...</span>
+      {/* Indicador discreto de atualização */}
+      {isRefetching && (
+        <div className="bg-[#0066FF]/20 text-[#0066FF] py-2 px-8 flex items-center justify-center gap-2 border-b border-[#0066FF]/30">
+          <div className="w-2 h-2 bg-[#0066FF] rounded-full animate-pulse"></div>
+          <span className="font-semibold text-sm">Atualizando...</span>
         </div>
       )}
 

@@ -7,6 +7,7 @@ interface UseLeadsReturn {
   totalDesqualificados: number;
   loading: boolean;
   error: string | null;
+  isRefetching: boolean;
 }
 
 const LEADS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSMYk5K5k39Apo7zd4z5xhi3aS9C_YE5FGgGJfhcLaCSlfh4YZp1AlAyjPw8PQho9fDlUYHSgofKyuj/pub?gid=167032865&single=true&output=csv";
@@ -16,11 +17,17 @@ export const useGoogleSheetsLeads = (): UseLeadsReturn => {
   const [totalMQLs, setTotalMQLs] = useState<number>(0);
   const [totalDesqualificados, setTotalDesqualificados] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);
+  const [isRefetching, setIsRefetching] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchData = useCallback(async () => {
+  const fetchData = useCallback(async (isInitialLoad = false) => {
     try {
       setError(null);
+      if (isInitialLoad) {
+        setLoading(true);
+      } else {
+        setIsRefetching(true);
+      }
       const response = await fetch(LEADS_CSV_URL);
       
       if (!response.ok) {
@@ -81,25 +88,28 @@ export const useGoogleSheetsLeads = (): UseLeadsReturn => {
           setTotalMQLs(mqls.length);
           setTotalDesqualificados(desqualificados.length);
           setLoading(false);
+          setIsRefetching(false);
         },
         error: (err) => {
           console.error('❌ Erro no parsing CSV leads:', err);
           setError(`Erro ao processar CSV: ${err.message}`);
           setLoading(false);
+          setIsRefetching(false);
         }
       });
     } catch (err) {
       console.error('❌ Erro no fetch leads:', err);
       setError(err instanceof Error ? err.message : 'Erro desconhecido');
       setLoading(false);
+      setIsRefetching(false);
     }
   }, []);
 
   useEffect(() => {
-    fetchData();
+    fetchData(true);
     
     const interval = setInterval(() => {
-      fetchData();
+      fetchData(false);
     }, 10000);
     
     return () => clearInterval(interval);
@@ -110,6 +120,7 @@ export const useGoogleSheetsLeads = (): UseLeadsReturn => {
     totalMQLs,
     totalDesqualificados,
     loading,
-    error
+    error,
+    isRefetching
   };
 };

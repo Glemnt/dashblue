@@ -7,6 +7,7 @@ interface UseGoogleSheetsReturn {
   error: string | null;
   lastUpdate: Date | null;
   refetch: () => void;
+  isRefetching: boolean;
 }
 
 const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSMYk5K5k39Apo7zd4z5xhi3aS9C_YE5FGgGJfhcLaCSlfh4YZp1AlAyjPw8PQho9fDlUYHSgofKyuj/pub?gid=2010777326&single=true&output=csv";
@@ -14,12 +15,18 @@ const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSMYk5K5k39Apo7
 export const useGoogleSheets = (): UseGoogleSheetsReturn => {
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [isRefetching, setIsRefetching] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
 
-  const fetchData = useCallback(async () => {
+  const fetchData = useCallback(async (isInitialLoad = false) => {
     try {
       setError(null);
+      if (isInitialLoad) {
+        setLoading(true);
+      } else {
+        setIsRefetching(true);
+      }
       
       const response = await fetch(CSV_URL);
       
@@ -50,34 +57,36 @@ export const useGoogleSheets = (): UseGoogleSheetsReturn => {
           setData(results.data);
           setLastUpdate(new Date());
           setLoading(false);
+          setIsRefetching(false);
         },
         error: (err) => {
           console.error('❌ Erro no parsing CSV:', err);
           setError(`Erro ao processar CSV: ${err.message}`);
           setLoading(false);
+          setIsRefetching(false);
         }
       });
     } catch (err) {
       console.error('❌ Erro no fetch:', err);
       setError(err instanceof Error ? err.message : 'Erro desconhecido ao buscar dados');
       setLoading(false);
+      setIsRefetching(false);
     }
   }, []);
 
   useEffect(() => {
-    fetchData();
+    fetchData(true); // Carregamento inicial
     
-    // Auto-refresh a cada 10 segundos para atualização em tempo real
+    // Auto-refresh a cada 10 segundos (silencioso)
     const interval = setInterval(() => {
-      fetchData();
+      fetchData(false); // Refresh sem loading completo
     }, 10000);
     
     return () => clearInterval(interval);
   }, [fetchData]);
 
   const refetch = useCallback(() => {
-    setLoading(true);
-    fetchData();
+    fetchData(false); // Refresh manual também é silencioso
   }, [fetchData]);
 
   return {
@@ -85,6 +94,7 @@ export const useGoogleSheets = (): UseGoogleSheetsReturn => {
     loading,
     error,
     lastUpdate,
-    refetch
+    refetch,
+    isRefetching
   };
 };

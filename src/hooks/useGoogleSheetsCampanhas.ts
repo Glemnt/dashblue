@@ -9,6 +9,7 @@ interface UseCampanhasReturn {
   cacMedio: number;
   loading: boolean;
   error: string | null;
+  isRefetching: boolean;
 }
 
 const CAMPANHAS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSMYk5K5k39Apo7zd4z5xhi3aS9C_YE5FGgGJfhcLaCSlfh4YZp1AlAyjPw8PQho9fDlUYHSgofKyuj/pub?gid=1359887700&single=true&output=csv";
@@ -16,6 +17,7 @@ const CAMPANHAS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSMYk
 export const useGoogleSheetsCampanhas = (): UseCampanhasReturn => {
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [isRefetching, setIsRefetching] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
   const parseValor = (valor: any): number => {
@@ -32,9 +34,14 @@ export const useGoogleSheetsCampanhas = (): UseCampanhasReturn => {
     return isNaN(parsed) ? 0 : parsed;
   };
 
-  const fetchData = useCallback(async () => {
+  const fetchData = useCallback(async (isInitialLoad = false) => {
     try {
       setError(null);
+      if (isInitialLoad) {
+        setLoading(true);
+      } else {
+        setIsRefetching(true);
+      }
       const response = await fetch(CAMPANHAS_CSV_URL);
       
       if (!response.ok) {
@@ -51,25 +58,28 @@ export const useGoogleSheetsCampanhas = (): UseCampanhasReturn => {
           console.log('📊 CAMPANHAS: Total de linhas:', results.data.length);
           setData(results.data);
           setLoading(false);
+          setIsRefetching(false);
         },
         error: (err) => {
           console.error('❌ Erro no parsing CSV campanhas:', err);
           setError(`Erro ao processar CSV: ${err.message}`);
           setLoading(false);
+          setIsRefetching(false);
         }
       });
     } catch (err) {
       console.error('❌ Erro no fetch campanhas:', err);
       setError(err instanceof Error ? err.message : 'Erro desconhecido');
       setLoading(false);
+      setIsRefetching(false);
     }
   }, []);
 
   useEffect(() => {
-    fetchData();
+    fetchData(true);
     
     const interval = setInterval(() => {
-      fetchData();
+      fetchData(false);
     }, 10000);
     
     return () => clearInterval(interval);
@@ -113,6 +123,7 @@ export const useGoogleSheetsCampanhas = (): UseCampanhasReturn => {
     cplMedio,
     cacMedio,
     loading,
-    error
+    error,
+    isRefetching
   };
 };

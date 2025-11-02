@@ -16,7 +16,7 @@ import { PieChart, Pie, Cell, Legend, ResponsiveContainer, BarChart, Bar, XAxis,
 
 const Financeiro = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
-  const { data, loading, error, lastUpdate, refetch } = useGoogleSheets();
+  const { data, loading, error, lastUpdate, refetch, isRefetching } = useGoogleSheets();
   const { isTVMode, setIsTVMode } = useTVMode();
 
   // Calcular métricas
@@ -26,15 +26,6 @@ const Financeiro = () => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
-
-  // Auto-refresh a cada 10 segundos
-  useEffect(() => {
-    const interval = setInterval(() => {
-      refetch();
-    }, 10000);
-
-    return () => clearInterval(interval);
-  }, [refetch]);
 
   // Fullscreen no modo TV
   useEffect(() => {
@@ -183,11 +174,11 @@ const Financeiro = () => {
       {/* NAVEGAÇÃO */}
       <Navigation isTVMode={isTVMode} />
 
-      {/* TV Mode Indicator */}
-      {isTVMode && loading && (
-        <div className="bg-[#0066FF] text-white py-3 px-12 flex items-center justify-center gap-3">
-          <div className="w-3 h-3 bg-white rounded-full animate-pulse"></div>
-          <span className="font-semibold text-lg">Atualizando dados...</span>
+      {/* Indicador discreto de atualização */}
+      {isRefetching && (
+        <div className="bg-[#0066FF]/20 text-[#0066FF] py-2 px-8 flex items-center justify-center gap-2 border-b border-[#0066FF]/30">
+          <div className="w-2 h-2 bg-[#0066FF] rounded-full animate-pulse"></div>
+          <span className="font-semibold text-sm">Atualizando...</span>
         </div>
       )}
 

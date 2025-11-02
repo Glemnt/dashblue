@@ -19,7 +19,7 @@ import { ptBR } from 'date-fns/locale';
 import logoWhite from '@/assets/logo-white.png';
 
 const GuerraSquads = () => {
-  const { data, loading, error, refetch, lastUpdate } = useGoogleSheets();
+  const { data, loading, error, refetch, lastUpdate, isRefetching } = useGoogleSheets();
   const { isTVMode, setIsTVMode } = useTVMode();
   const [currentTime, setCurrentTime] = useState(new Date());
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -31,14 +31,6 @@ const GuerraSquads = () => {
     }, 1000);
     return () => clearInterval(timer);
   }, []);
-
-  // Auto-refresh a cada 10 segundos
-  useEffect(() => {
-    const interval = setInterval(() => {
-      refetch();
-    }, 10000);
-    return () => clearInterval(interval);
-  }, [refetch]);
 
   // Controle de fullscreen no TV Mode
   useEffect(() => {
@@ -190,13 +182,11 @@ const GuerraSquads = () => {
       {/* NAVIGATION */}
       <Navigation isTVMode={isTVMode} />
 
-      {/* INDICADOR DE ATUALIZAÇÃO EM TEMPO REAL (TV MODE) */}
-      {isTVMode && (
-        <div className="fixed top-24 right-6 z-40 bg-[#151E35] px-6 py-3 rounded-full border border-[#00E5CC] flex items-center gap-3">
-          <Wifi className="h-5 w-5 text-[#00E5CC] animate-pulse" />
-          <span className="text-white font-semibold text-sm">
-            Atualização automática a cada 60s
-          </span>
+      {/* Indicador discreto de atualização */}
+      {isRefetching && (
+        <div className="bg-[#0066FF]/20 text-[#0066FF] py-2 px-8 flex items-center justify-center gap-2 border-b border-[#0066FF]/30">
+          <div className="w-2 h-2 bg-[#0066FF] rounded-full animate-pulse"></div>
+          <span className="font-semibold text-sm">Atualizando...</span>
         </div>
       )}
 
