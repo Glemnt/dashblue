@@ -27,16 +27,14 @@ const Financeiro = () => {
     return () => clearInterval(timer);
   }, []);
 
-  // Auto-refresh no modo TV
+  // Auto-refresh a cada 10 segundos
   useEffect(() => {
-    if (isTVMode) {
-      const interval = setInterval(() => {
-        refetch();
-      }, 60000); // 60 segundos
+    const interval = setInterval(() => {
+      refetch();
+    }, 10000);
 
-      return () => clearInterval(interval);
-    }
-  }, [isTVMode, refetch]);
+    return () => clearInterval(interval);
+  }, [refetch]);
 
   // Fullscreen no modo TV
   useEffect(() => {

@@ -31,16 +31,16 @@ const PerformanceCloser = () => {
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     
-    // Auto-refresh no modo TV
-    const autoRefresh = isTVMode ? setInterval(() => {
+    // Auto-refresh a cada 10 segundos
+    const autoRefresh = setInterval(() => {
       refetch();
-    }, 5 * 60 * 1000) : null;
+    }, 10000);
     
     return () => {
       clearInterval(timer);
-      if (autoRefresh) clearInterval(autoRefresh);
+      clearInterval(autoRefresh);
     };
-  }, [isTVMode, refetch]);
+  }, [refetch]);
   
   // Controle de fullscreen
   useEffect(() => {

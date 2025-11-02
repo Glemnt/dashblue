@@ -32,15 +32,13 @@ const GuerraSquads = () => {
     return () => clearInterval(timer);
   }, []);
 
-  // Auto-refresh no TV Mode (60 segundos)
+  // Auto-refresh a cada 10 segundos
   useEffect(() => {
-    if (isTVMode) {
-      const interval = setInterval(() => {
-        refetch();
-      }, 60000);
-      return () => clearInterval(interval);
-    }
-  }, [isTVMode, refetch]);
+    const interval = setInterval(() => {
+      refetch();
+    }, 10000);
+    return () => clearInterval(interval);
+  }, [refetch]);
 
   // Controle de fullscreen no TV Mode
   useEffect(() => {
