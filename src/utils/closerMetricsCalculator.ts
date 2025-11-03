@@ -114,12 +114,28 @@ export const calcularMetricasCloser = (data: any[], dateRange?: DateRange): Clos
   )];
   console.log('📊 Nomes em CLOSER FECHOU:', nomesClosers);
 
-  const closersNomes = [
-    { original: 'BRUNO', display: 'Bruno', squad: 'Hot Dogs', color: '#FF4757', emoji: '🔴' },
-    { original: 'CAUÃ', display: 'Cauã', squad: 'Hot Dogs', color: '#FF4757', emoji: '🔴' },
-    { original: 'GABRIEL FERNANDES', display: 'Gabriel Fernandes', squad: 'Corvo Azul', color: '#0066FF', emoji: '🔵' },
-    { original: 'GABRIEL FRANKLIN', display: 'Gabriel Franklin', squad: 'Corvo Azul', color: '#0066FF', emoji: '🔵' }
-  ];
+  // Determinar equipe baseada no período
+  const isOutubro = dateRange && dateRange.start.getMonth() === 9 && dateRange.start.getFullYear() === 2024;
+
+  let closersNomes: Array<{ original: string; display: string; squad: string; color: string; emoji: string }>;
+
+  if (isOutubro) {
+    // OUTUBRO: Gabriel Fernandes como Closer, sem Marcos
+    closersNomes = [
+      { original: 'BRUNO', display: 'Bruno', squad: 'Hot Dogs', color: '#FF4757', emoji: '🔴' },
+      { original: 'CAUÃ', display: 'Cauã', squad: 'Hot Dogs', color: '#FF4757', emoji: '🔴' },
+      { original: 'GABRIEL FERNANDES', display: 'Gabriel Fernandes', squad: 'Corvo Azul', color: '#0066FF', emoji: '🔵' },
+      { original: 'GABRIEL FRANKLIN', display: 'Gabriel Franklin', squad: 'Corvo Azul', color: '#0066FF', emoji: '🔵' }
+    ];
+  } else {
+    // NOVEMBRO: Marcos como Closer, sem Gabriel Fernandes
+    closersNomes = [
+      { original: 'BRUNO', display: 'Bruno', squad: 'Hot Dogs', color: '#FF4757', emoji: '🔴' },
+      { original: 'CAUÃ', display: 'Cauã', squad: 'Hot Dogs', color: '#FF4757', emoji: '🔴' },
+      { original: 'GABRIEL FRANKLIN', display: 'Gabriel Franklin', squad: 'Corvo Azul', color: '#0066FF', emoji: '🔵' },
+      { original: 'MARCOS', display: 'Marcos', squad: 'Hot Dogs', color: '#FF4757', emoji: '🔴' }
+    ];
+  }
 
   const closersMetrics: CloserMetrics[] = closersNomes.map(closer => {
     // Calls Realizadas: contar linhas onde CLOSER = nome (com matching de abreviações)

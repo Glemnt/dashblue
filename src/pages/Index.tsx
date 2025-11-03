@@ -67,13 +67,14 @@ const getProgressColor = (percentage: number): string => {
 
 const Index = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
-  const { data, loading, error, lastUpdate, refetch, isRefetching } = useGoogleSheets();
-  const { totalLeads: leadsCampanhas, totalMQLs: mqlsCampanhas, loading: loadingCampanhas } = useGoogleSheetsCampanhas();
-  const leads = useGoogleSheetsLeads();
   
   // Estado do filtro de período
   const [periodType, setPeriodType] = useState<PeriodType>('mes');
   const [dateRange, setDateRange] = useState<DateRange>(getCurrentMonthRange());
+  
+  const { data, loading, error, lastUpdate, refetch, isRefetching } = useGoogleSheets(dateRange);
+  const { totalLeads: leadsCampanhas, totalMQLs: mqlsCampanhas, loading: loadingCampanhas } = useGoogleSheetsCampanhas();
+  const leads = useGoogleSheetsLeads();
   
   // Estado do modo TV
   const { isTVMode, setIsTVMode } = useTVMode();
@@ -82,8 +83,6 @@ const Index = () => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
-  
-  // Controle de fullscreen
   useEffect(() => {
     if (isTVMode) {
       document.documentElement.requestFullscreen?.();

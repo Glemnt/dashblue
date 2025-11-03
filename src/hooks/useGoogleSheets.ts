@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import Papa from 'papaparse';
+import { getCurrentMonthSheetUrl, getSheetUrlForPeriod } from '@/utils/sheetUrlManager';
+import { DateRange } from '@/utils/dateFilters';
 
 interface UseGoogleSheetsReturn {
   data: any[];
@@ -10,9 +12,7 @@ interface UseGoogleSheetsReturn {
   isRefetching: boolean;
 }
 
-const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSMYk5K5k39Apo7zd4z5xhi3aS9C_YE5FGgGJfhcLaCSlfh4YZp1AlAyjPw8PQho9fDlUYHSgofKyuj/pub?gid=2010777326&single=true&output=csv";
-
-export const useGoogleSheets = (): UseGoogleSheetsReturn => {
+export const useGoogleSheets = (dateRange?: DateRange): UseGoogleSheetsReturn => {
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [isRefetching, setIsRefetching] = useState<boolean>(false);
@@ -28,7 +28,14 @@ export const useGoogleSheets = (): UseGoogleSheetsReturn => {
         setIsRefetching(true);
       }
       
-      const response = await fetch(CSV_URL);
+      // URL dinâmica baseada no período
+      const csvUrl = dateRange 
+        ? getSheetUrlForPeriod(dateRange)
+        : getCurrentMonthSheetUrl();
+      
+      console.log('📊 Buscando planilha:', csvUrl);
+      
+      const response = await fetch(csvUrl);
       
       if (!response.ok) {
         throw new Error(`Erro ao buscar dados: ${response.status} ${response.statusText}`);
@@ -72,7 +79,7 @@ export const useGoogleSheets = (): UseGoogleSheetsReturn => {
       setLoading(false);
       setIsRefetching(false);
     }
-  }, []);
+  }, [dateRange]);
 
   useEffect(() => {
     fetchData(true); // Carregamento inicial

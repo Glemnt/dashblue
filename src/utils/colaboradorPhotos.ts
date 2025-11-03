@@ -1,6 +1,7 @@
 // Imports das fotos
 import fotoBruno from '@/assets/colaboradores/bruno.png';
 import fotoCaua from '@/assets/colaboradores/caua.png';
+import fotoDavi from '@/assets/colaboradores/davi.png';
 import fotoFernandes from '@/assets/colaboradores/fernandes.png';
 import fotoFranklin from '@/assets/colaboradores/franklin.png';
 import fotoMarcos from '@/assets/colaboradores/marcos.png';
@@ -13,6 +14,8 @@ const colaboradorPhotos: Record<string, string> = {
   'Bruno': fotoBruno,
   'Cauã': fotoCaua,
   'Caua': fotoCaua, // variação sem acento
+  'Davi': fotoDavi,
+  'DAVI': fotoDavi,
   'Fernandes': fotoFernandes,
   'Gabriel Fernandes': fotoFernandes,
   'Franklin': fotoFranklin,

@@ -20,10 +20,11 @@ import { PeriodType, DateRange, getCurrentMonthRange } from '@/utils/dateFilters
 
 const PerformanceCloser = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
-  const { data, loading, error, lastUpdate, refetch, isRefetching } = useGoogleSheets();
   
   const [currentPeriod, setCurrentPeriod] = useState<PeriodType>('mes');
   const [currentDateRange, setCurrentDateRange] = useState<DateRange>(getCurrentMonthRange());
+  
+  const { data, loading, error, lastUpdate, refetch, isRefetching } = useGoogleSheets(currentDateRange);
   
   // Estado do modo TV
   const { isTVMode, setIsTVMode } = useTVMode();

@@ -74,16 +74,31 @@ export const calcularMetricasSDR = (data: any[], dateRange?: DateRange): SDRData
     });
   }
 
-  // Lista dos 4 SDRs (nomes exatos da planilha)
-  const sdrsNomes = ['VINICIUS MEIRELES', 'MARCOS', 'TIAGO', 'JOÃO LOPES'];
-  
-  // Mapear squads, cores e nomes de exibição
-  const squadMap: Record<string, { squad: string; color: string; emoji: string; displayName: string }> = {
-    'VINICIUS MEIRELES': { squad: 'Corvo Azul', color: '#0066FF', emoji: '🔵', displayName: 'Vinícius' },
-    'MARCOS': { squad: 'Hot Dogs', color: '#FF4757', emoji: '🔴', displayName: 'Marcos' },
-    'TIAGO': { squad: 'Sem Squad', color: '#64748B', emoji: '⚪', displayName: 'Tiago' },
-    'JOÃO LOPES': { squad: 'RevOps', color: '#94A3B8', emoji: '⚙️', displayName: 'João Lopes' }
-  };
+  // Determinar equipe baseada no período
+  const isOutubro = dateRange && dateRange.start.getMonth() === 9 && dateRange.start.getFullYear() === 2024;
+
+  let sdrsNomes: string[];
+  let squadMap: Record<string, { squad: string; color: string; emoji: string; displayName: string }>;
+
+  if (isOutubro) {
+    // OUTUBRO: Marcos como SDR
+    sdrsNomes = ['VINICIUS MEIRELES', 'MARCOS', 'TIAGO', 'JOÃO LOPES'];
+    squadMap = {
+      'VINICIUS MEIRELES': { squad: 'Corvo Azul', color: '#0066FF', emoji: '🔵', displayName: 'Vinícius' },
+      'MARCOS': { squad: 'Hot Dogs', color: '#FF4757', emoji: '🔴', displayName: 'Marcos' },
+      'TIAGO': { squad: 'Sem Squad', color: '#64748B', emoji: '⚪', displayName: 'Tiago' },
+      'JOÃO LOPES': { squad: 'RevOps', color: '#94A3B8', emoji: '⚙️', displayName: 'João Lopes' }
+    };
+  } else {
+    // NOVEMBRO: Davi como SDR, sem Marcos
+    sdrsNomes = ['VINICIUS MEIRELES', 'TIAGO', 'JOÃO LOPES', 'DAVI'];
+    squadMap = {
+      'VINICIUS MEIRELES': { squad: 'Corvo Azul', color: '#0066FF', emoji: '🔵', displayName: 'Vinícius' },
+      'TIAGO': { squad: 'Sem Squad', color: '#64748B', emoji: '⚪', displayName: 'Tiago' },
+      'JOÃO LOPES': { squad: 'RevOps', color: '#94A3B8', emoji: '⚙️', displayName: 'João Lopes' },
+      'DAVI': { squad: 'Sem Squad', color: '#10B981', emoji: '🟢', displayName: 'Davi' }
+    };
+  }
 
   const sdrsMetrics: SDRMetrics[] = sdrsNomes.map(nome => {
     // Filtrar linhas onde SDR = nome do SDR (case-insensitive, trim)

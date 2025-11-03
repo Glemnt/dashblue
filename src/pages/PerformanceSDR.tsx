@@ -21,7 +21,12 @@ import { PeriodType, DateRange, getCurrentMonthRange } from '@/utils/dateFilters
 
 const PerformanceSDR = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
-  const { data, loading, error, lastUpdate, refetch, isRefetching } = useGoogleSheets();
+  
+  // State para filtro de período
+  const [currentPeriod, setCurrentPeriod] = useState<PeriodType>('mes');
+  const [currentDateRange, setCurrentDateRange] = useState<DateRange>(getCurrentMonthRange());
+  
+  const { data, loading, error, lastUpdate, refetch, isRefetching } = useGoogleSheets(currentDateRange);
   const { 
     kpis: sdrKPIs, 
     total: totalKPI,
@@ -29,10 +34,6 @@ const PerformanceSDR = () => {
     error: errorKPIs,
     refetch: refetchKPIs
   } = useSDRKPIs();
-
-  // State para filtro de período
-  const [currentPeriod, setCurrentPeriod] = useState<PeriodType>('mes');
-  const [currentDateRange, setCurrentDateRange] = useState<DateRange>(getCurrentMonthRange());
   
   // Estado do modo TV
   const { isTVMode, setIsTVMode } = useTVMode();
@@ -41,8 +42,6 @@ const PerformanceSDR = () => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
-  
-  // Controle de fullscreen
   useEffect(() => {
     if (isTVMode) {
       document.documentElement.requestFullscreen?.();
