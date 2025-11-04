@@ -1,6 +1,7 @@
 import { format, startOfMonth, endOfMonth } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { DateRange } from './dateFilters';
+import { getMetasPorMes } from './metasConfig';
 
 export interface SquadMemberMetrics {
   nome: string;
@@ -49,6 +50,11 @@ export interface SquadMetrics {
   
   // Conquistas
   badges: string[];
+  
+  // Meta Individual
+  metaSquad: number;
+  progressoMetaIndividual: number;
+  faltaParaMeta: number;
 }
 
 export interface MetricaComparacao {
@@ -155,7 +161,7 @@ const compararMetrica = (valor1: number, valor2: number, tipo: 'maior' | 'menor'
   return { vencedor, diferenca, diferencaPerc };
 };
 
-export const calcularMetricasSquads = (data: any[], dateRange?: DateRange): SquadsComparison => {
+export const calcularMetricasSquads = (data: any[], dateRange?: DateRange, monthKey?: string): SquadsComparison => {
   // Determinar período
   const isOutubro = dateRange && dateRange.start.getMonth() === 9 && dateRange.start.getFullYear() === 2025;
   
@@ -282,11 +288,14 @@ export const calcularMetricasSquads = (data: any[], dateRange?: DateRange): Squa
     const taxaAssinatura = numeroContratos > 0 ? (contratos.filter(c => c.assinado).length / numeroContratos) * 100 : 0;
     const taxaPagamento = numeroContratos > 0 ? (contratos.filter(c => c.pago).length / numeroContratos) * 100 : 0;
     
-    // Performance
-    const metaReceita = 325000;
+    // Performance - Metas Dinâmicas
+    const configMeta = getMetasPorMes(monthKey || 'novembro-2025');
+    const metaReceita = configMeta.squads.metaPorSquad;
     const metaContratos = 27;
     const progressoMeta = (receitaTotal / metaReceita) * 100;
     const contratosMeta = (numeroContratos / metaContratos) * 100;
+    const progressoMetaIndividual = (receitaTotal / metaReceita) * 100;
+    const faltaParaMeta = metaReceita - receitaTotal;
     
     // Membros (usando configuração dinâmica)
     const membrosNomes = nomeSquad === 'Hot Dogs' 
@@ -355,7 +364,10 @@ export const calcularMetricasSquads = (data: any[], dateRange?: DateRange): Squa
       mediaVendasPorMembro,
       membros,
       mvp,
-      badges
+      badges,
+      metaSquad: metaReceita,
+      progressoMetaIndividual,
+      faltaParaMeta
     };
   };
   
@@ -450,7 +462,8 @@ export const calcularMetricasSquads = (data: any[], dateRange?: DateRange): Squa
   const projecaoFinalHotDogs = hotDogs.receitaTotal + (mediaDiariaHotDogs * diasRestantes);
   const projecaoFinalCorvoAzul = corvoAzul.receitaTotal + (mediaDiariaCorvoAzul * diasRestantes);
   
-  const metaReceita = 325000;
+  const configMetaProjecao = getMetasPorMes(monthKey || 'novembro-2025');
+  const metaReceita = configMetaProjecao.squads.metaPorSquad;
   
   const projecao = {
     hotDogs: {

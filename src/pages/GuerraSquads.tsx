@@ -15,6 +15,7 @@ import { SquadsMembros } from '@/components/squads/SquadsMembros';
 import { SquadsGraficos } from '@/components/squads/SquadsGraficos';
 import { SquadsHistorico } from '@/components/squads/SquadsHistorico';
 import { SquadsProjecao } from '@/components/squads/SquadsProjecao';
+import { SquadsMetaIndividual } from '@/components/squads/SquadsMetaIndividual';
 import { Button } from '@/components/ui/button';
 import { RefreshCw, Wifi } from 'lucide-react';
 import { format } from 'date-fns';
@@ -89,7 +90,7 @@ const GuerraSquads = () => {
 
   // Filtrar dados por período e calcular métricas dos squads
   const filteredData = data ? filterDataByDateRange(data, dateRange) : [];
-  const metricas = filteredData.length > 0 ? calcularMetricasSquads(filteredData, dateRange) : null;
+  const metricas = filteredData.length > 0 ? calcularMetricasSquads(filteredData, dateRange, selectedMonthKey) : null;
 
   if (loading && !data) {
     return (
@@ -215,6 +216,26 @@ const GuerraSquads = () => {
       {/* SEÇÃO 1: PLACAR GIGANTE */}
       <section className="bg-[#0B1120] py-12 md:py-20 px-6 md:px-12">
         <SquadsPlacar dados={metricas.placar} isTVMode={isTVMode} />
+      </section>
+
+      {/* SEÇÃO 1.5: META INDIVIDUAL POR SQUAD */}
+      <section className="bg-[#F8FAFC] py-12 md:py-20 px-6 md:px-12">
+        <SquadsMetaIndividual
+          hotDogs={{
+            receitaTotal: metricas.hotDogs.receitaTotal,
+            metaSquad: metricas.hotDogs.metaSquad,
+            progressoMetaIndividual: metricas.hotDogs.progressoMetaIndividual,
+            faltaParaMeta: metricas.hotDogs.faltaParaMeta
+          }}
+          corvoAzul={{
+            receitaTotal: metricas.corvoAzul.receitaTotal,
+            metaSquad: metricas.corvoAzul.metaSquad,
+            progressoMetaIndividual: metricas.corvoAzul.progressoMetaIndividual,
+            faltaParaMeta: metricas.corvoAzul.faltaParaMeta
+          }}
+          isTVMode={isTVMode}
+          monthKey={selectedMonthKey}
+        />
       </section>
 
       {/* SEÇÃO 2: PAINEL COMPARATIVO */}
