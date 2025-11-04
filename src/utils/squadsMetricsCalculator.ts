@@ -1,5 +1,6 @@
 import { format, startOfMonth, endOfMonth } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { DateRange } from './dateFilters';
 
 export interface SquadMemberMetrics {
   nome: string;
@@ -108,17 +109,7 @@ export interface SquadsComparison {
   };
 }
 
-// Membros dos Squads
-const SQUADS_MEMBERS = {
-  hotDogs: {
-    sdr: ['MARCOS'],
-    closers: ['BRUNO', 'CAUÃ', 'CAUA']
-  },
-  corvoAzul: {
-    sdr: ['VINICIUS MEIRELES', 'VINÍCIUS', 'VINICIUS'],
-    closers: ['GABRIEL FERNANDES', 'FERNANDES', 'GABRIEL FRANKLIN', 'FRANKLIN']
-  }
-};
+// Membros dos Squads - REMOVIDO (agora é dinâmico por período)
 
 const parseValor = (valor: any): number => {
   if (typeof valor === 'number') return valor;
@@ -132,29 +123,6 @@ const parseValor = (valor: any): number => {
   return isNaN(num) ? 0 : num;
 };
 
-const identificarSquad = (nome: string): 'Hot Dogs' | 'Corvo Azul' | null => {
-  if (!nome) return null;
-  const nomeUpper = nome.toUpperCase().trim();
-  
-  // Hot Dogs
-  if (nomeUpper.includes('MARCOS') || 
-      nomeUpper.includes('BRUNO') || 
-      nomeUpper.includes('CAUA') || 
-      nomeUpper.includes('CAUÃ')) {
-    return 'Hot Dogs';
-  }
-  
-  // Corvo Azul
-  if (nomeUpper.includes('VINICIUS') || 
-      nomeUpper.includes('VINÍCIUS') ||
-      nomeUpper.includes('FERNANDES') || 
-      nomeUpper.includes('FRANKLIN')) {
-    return 'Corvo Azul';
-  }
-  
-  return null;
-};
-
 const normalizarNome = (nome: string): string => {
   if (!nome) return '';
   const nomeUpper = nome.toUpperCase().trim();
@@ -165,18 +133,9 @@ const normalizarNome = (nome: string): string => {
   if (nomeUpper.includes('VINICIUS') || nomeUpper.includes('VINÍCIUS')) return 'Vinícius';
   if (nomeUpper.includes('FERNANDES')) return 'Gabriel Fernandes';
   if (nomeUpper.includes('FRANKLIN')) return 'Gabriel Franklin';
+  if (nomeUpper.includes('TIAGO')) return 'Tiago';
   
   return nome;
-};
-
-const identificarFuncao = (nome: string): 'SDR' | 'Closer' => {
-  const nomeUpper = nome.toUpperCase().trim();
-  
-  if (nomeUpper.includes('MARCOS') || nomeUpper.includes('VINICIUS') || nomeUpper.includes('VINÍCIUS')) {
-    return 'SDR';
-  }
-  
-  return 'Closer';
 };
 
 const compararMetrica = (valor1: number, valor2: number, tipo: 'maior' | 'menor' = 'maior'): MetricaComparacao => {
@@ -196,7 +155,63 @@ const compararMetrica = (valor1: number, valor2: number, tipo: 'maior' | 'menor'
   return { vencedor, diferenca, diferencaPerc };
 };
 
-export const calcularMetricasSquads = (data: any[]): SquadsComparison => {
+export const calcularMetricasSquads = (data: any[], dateRange?: DateRange): SquadsComparison => {
+  // Determinar período
+  const isOutubro = dateRange && dateRange.start.getMonth() === 9 && dateRange.start.getFullYear() === 2024;
+  
+  // Configuração dinâmica dos squads por período
+  const SQUADS_CONFIG = isOutubro ? {
+    hotDogs: {
+      sdr: ['MARCOS'],
+      closers: ['BRUNO', 'CAUÃ', 'CAUA'],
+      membrosNomes: ['Marcos', 'Bruno', 'Cauã']
+    },
+    corvoAzul: {
+      sdr: ['VINICIUS MEIRELES', 'VINÍCIUS', 'VINICIUS'],
+      closers: ['GABRIEL FERNANDES', 'FERNANDES', 'GABRIEL FRANKLIN', 'FRANKLIN'],
+      membrosNomes: ['Vinícius', 'Gabriel Fernandes', 'Gabriel Franklin']
+    }
+  } : {
+    hotDogs: {
+      sdr: ['TIAGO'],
+      closers: ['BRUNO', 'GABRIEL FRANKLIN', 'FRANKLIN'],
+      membrosNomes: ['Tiago', 'Bruno', 'Gabriel Franklin']
+    },
+    corvoAzul: {
+      sdr: ['VINICIUS MEIRELES', 'VINÍCIUS', 'VINICIUS'],
+      closers: ['MARCOS', 'CAUÃ', 'CAUA'],
+      membrosNomes: ['Vinícius', 'Marcos', 'Cauã']
+    }
+  };
+  
+  // Função identificarSquad dinâmica
+  const identificarSquad = (nome: string): 'Hot Dogs' | 'Corvo Azul' | null => {
+    if (!nome) return null;
+    const nomeUpper = nome.toUpperCase().trim();
+    
+    // Hot Dogs
+    const isHotDog = SQUADS_CONFIG.hotDogs.sdr.some(s => nomeUpper.includes(s)) ||
+                     SQUADS_CONFIG.hotDogs.closers.some(c => nomeUpper.includes(c));
+    if (isHotDog) return 'Hot Dogs';
+    
+    // Corvo Azul
+    const isCorvoAzul = SQUADS_CONFIG.corvoAzul.sdr.some(s => nomeUpper.includes(s)) ||
+                        SQUADS_CONFIG.corvoAzul.closers.some(c => nomeUpper.includes(c));
+    if (isCorvoAzul) return 'Corvo Azul';
+    
+    return null;
+  };
+  
+  // Função identificarFuncao dinâmica
+  const identificarFuncao = (nome: string): 'SDR' | 'Closer' => {
+    const nomeUpper = nome.toUpperCase().trim();
+    
+    const isSdr = SQUADS_CONFIG.hotDogs.sdr.some(s => nomeUpper.includes(s)) ||
+                  SQUADS_CONFIG.corvoAzul.sdr.some(s => nomeUpper.includes(s));
+    
+    return isSdr ? 'SDR' : 'Closer';
+  };
+  
   // Filtrar contratos ganhos
   const contratosGanhos = data.filter(row => {
     const fechamento = String(row['FECHAMENTO'] || '').trim().toUpperCase();
@@ -273,10 +288,10 @@ export const calcularMetricasSquads = (data: any[]): SquadsComparison => {
     const progressoMeta = (receitaTotal / metaReceita) * 100;
     const contratosMeta = (numeroContratos / metaContratos) * 100;
     
-    // Membros
+    // Membros (usando configuração dinâmica)
     const membrosNomes = nomeSquad === 'Hot Dogs' 
-      ? ['Marcos', 'Bruno', 'Cauã']
-      : ['Vinícius', 'Gabriel Fernandes', 'Gabriel Franklin'];
+      ? SQUADS_CONFIG.hotDogs.membrosNomes
+      : SQUADS_CONFIG.corvoAzul.membrosNomes;
     
     const membros: SquadMemberMetrics[] = membrosNomes.map(nome => {
       const contratosDoMembro = contratos.filter(c => 

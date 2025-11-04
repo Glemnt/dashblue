@@ -94,7 +94,7 @@ export const calcularMetricasSDR = (data: any[], dateRange?: DateRange): SDRData
     sdrsNomes = ['VINICIUS MEIRELES', 'TIAGO', 'JOÃO LOPES', 'DAVI'];
     squadMap = {
       'VINICIUS MEIRELES': { squad: 'Corvo Azul', color: '#0066FF', emoji: '🔵', displayName: 'Vinícius' },
-      'TIAGO': { squad: 'Sem Squad', color: '#64748B', emoji: '⚪', displayName: 'Tiago' },
+      'TIAGO': { squad: 'Hot Dogs', color: '#FF4757', emoji: '🔴', displayName: 'Tiago' },
       'JOÃO LOPES': { squad: 'RevOps', color: '#94A3B8', emoji: '⚙️', displayName: 'João Lopes' },
       'DAVI': { squad: 'Sem Squad', color: '#10B981', emoji: '🟢', displayName: 'Davi' }
     };

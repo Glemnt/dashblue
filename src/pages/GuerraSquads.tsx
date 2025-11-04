@@ -84,7 +84,7 @@ const GuerraSquads = () => {
   };
 
   // Calcular métricas dos squads
-  const metricas = data ? calcularMetricasSquads(data) : null;
+  const metricas = data ? calcularMetricasSquads(data, currentDateRange) : null;
 
   if (loading && !data) {
     return (
