@@ -125,7 +125,7 @@ const Index = () => {
   const metricas = filteredData.length > 0 ? calcularMetricas(filteredData, {
     totalLeads: leadsCampanhas,
     totalMQLs: leads.totalMQLs
-  }) : null;
+  }, selectedMonthKey) : null;
 
   const formatDate = (date: Date) => {
     return date.toLocaleDateString('pt-BR', { 

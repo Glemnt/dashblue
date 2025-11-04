@@ -119,12 +119,15 @@ interface Metricas {
   };
 }
 
+import { getMetasPorMes, calcularMetaSemanal, calcularMetaDiaria } from './metasConfig';
+
 export const calcularMetricas = (
   data: any[],
   dadosMarketing?: {
     totalLeads: number;
     totalMQLs: number;
-  }
+  },
+  monthKey?: string
 ): Metricas => {
   console.log('🔄 Calculando métricas com', data.length, 'linhas');
   
@@ -226,10 +229,18 @@ export const calcularMetricas = (
            data.getFullYear() === hoje.getFullYear();
   };
   
-  // Metas fixas
-  const metaMensal = 650000;
-  const metaSemanal = 162500;
-  const metaDiaria = 22000;
+  // Metas dinâmicas baseadas no mês selecionado
+  const configMeta = getMetasPorMes(monthKey || 'novembro-2025');
+  const metaMensal = configMeta.metaMensal;
+  const metaSemanal = calcularMetaSemanal(metaMensal);
+  const metaDiaria = calcularMetaDiaria(metaMensal);
+  
+  console.log('🎯 Metas do mês', monthKey, ':', {
+    mensal: metaMensal,
+    semanal: metaSemanal,
+    diaria: metaDiaria,
+    modelo: configMeta.modelo
+  });
   
   // Filtros básicos (usar dadosValidos ao invés de data)
   const vendasGanhas = dadosValidos.filter(row => {

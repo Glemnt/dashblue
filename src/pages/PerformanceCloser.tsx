@@ -17,6 +17,7 @@ import { useGoogleSheets } from '@/hooks/useGoogleSheets';
 import { calcularMetricasCloser } from '@/utils/closerMetricsCalculator';
 import { formatarReal } from '@/utils/metricsCalculator';
 import { usePeriodFilter } from '@/contexts/PeriodFilterContext';
+import { getMetasPorMes } from '@/utils/metasConfig';
 
 const PerformanceCloser = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -88,10 +89,18 @@ const PerformanceCloser = () => {
     });
   };
 
-  const metaMensalReceita = 650000;
-  const metaIndividualReceita = metaMensalReceita / 4;
+  const configMeta = getMetasPorMes(selectedMonthKey);
+  const metaMensalReceita = configMeta.metaMensal;
+  const metaIndividualReceita = configMeta.metaIndividualCloser;
   const metaTicketMedio = 12000;
   const metaTaxaConversao = 25;
+
+  console.log('🎯 Performance Closer - Metas:', {
+    mes: selectedMonthKey,
+    modelo: configMeta.modelo,
+    metaMensal: metaMensalReceita,
+    metaIndividual: metaIndividualReceita
+  });
 
   if (loading) {
     return (
@@ -353,6 +362,146 @@ const PerformanceCloser = () => {
               </div>
             )}
 
+          </div>
+        </div>
+      </section>
+
+      {/* SEÇÃO 1.5: META INDIVIDUAL POR CLOSER */}
+      <section className={`bg-[#F8FAFC] ${isTVMode ? 'py-12 px-12' : 'py-16 px-12'}`}>
+        <div className="max-w-[1600px] mx-auto">
+          <div className="text-center mb-8">
+            <h2 className={`text-[#0B1120] font-outfit font-bold tracking-tight ${
+              isTVMode ? 'text-3xl mb-2' : 'text-4xl mb-3'
+            }`}>
+              Meta Individual por Closer
+            </h2>
+            <p className={`text-[#64748B] font-outfit ${
+              isTVMode ? 'text-base' : 'text-lg'
+            }`}>
+              Modelo {configMeta.modelo} • {selectedMonthKey.includes('novembro') ? 'Novembro' : 'Outubro'} 2025
+            </p>
+          </div>
+
+          <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 ${
+            isTVMode ? 'gap-4' : 'gap-6'
+          }`}>
+            {metricas.closers.map((closer) => {
+              const progressoMeta = (closer.receitaTotal / metaIndividualReceita) * 100;
+              const faltaParaMeta = metaIndividualReceita - closer.receitaTotal;
+              
+              return (
+                <div 
+                  key={closer.nomeOriginal}
+                  className={`bg-white rounded-2xl border-2 transition-all duration-300 hover:scale-105 hover:shadow-2xl ${
+                    isTVMode ? 'p-5' : 'p-8'
+                  } ${
+                    progressoMeta >= 100 
+                      ? 'border-[#00E5CC] bg-gradient-to-br from-[#00E5CC]/5 to-white' 
+                      : progressoMeta >= 70
+                      ? 'border-[#FFB800]'
+                      : 'border-[#E2E8F0]'
+                  }`}
+                >
+                  {/* Avatar e Nome */}
+                  <div className="flex flex-col items-center mb-4">
+                    <ColaboradorAvatar
+                      nome={closer.nome}
+                      emoji={closer.emoji}
+                      squadColor={closer.squadColor}
+                      size={isTVMode ? 'lg' : 'xl'}
+                      className="mb-3"
+                    />
+                    <h3 className={`text-[#0B1120] font-outfit font-bold text-center ${
+                      isTVMode ? 'text-xl' : 'text-2xl'
+                    }`}>
+                      {closer.nome}
+                    </h3>
+                    <p className={`text-[#64748B] font-outfit ${
+                      isTVMode ? 'text-xs' : 'text-sm'
+                    }`}>
+                      Squad {closer.squad}
+                    </p>
+                  </div>
+
+                  {/* Progresso Visual */}
+                  <div className="mb-4">
+                    <div className="flex justify-between items-end mb-2">
+                      <span className={`text-[#64748B] font-outfit ${
+                        isTVMode ? 'text-xs' : 'text-sm'
+                      }`}>
+                        Meta
+                      </span>
+                      <span className={`font-outfit font-black ${
+                        isTVMode ? 'text-lg' : 'text-2xl'
+                      } ${
+                        progressoMeta >= 100 ? 'text-[#00E5CC]' : 
+                        progressoMeta >= 70 ? 'text-[#FFB800]' : 
+                        'text-[#0B1120]'
+                      }`}>
+                        {progressoMeta.toFixed(0)}%
+                      </span>
+                    </div>
+                    
+                    <div className={`relative ${
+                      isTVMode ? 'h-3' : 'h-4'
+                    } bg-[#E2E8F0] rounded-full overflow-hidden mb-3`}>
+                      <div
+                        className="absolute h-full rounded-full transition-all duration-700"
+                        style={{
+                          width: `${Math.min(progressoMeta, 100)}%`,
+                          backgroundColor: progressoMeta >= 100 ? '#00E5CC' : 
+                                           progressoMeta >= 70 ? '#FFB800' : '#0066FF'
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Valores */}
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span className={`text-[#64748B] font-outfit ${
+                        isTVMode ? 'text-xs' : 'text-sm'
+                      }`}>
+                        Realizado
+                      </span>
+                      <span className={`text-[#0B1120] font-outfit font-bold ${
+                        isTVMode ? 'text-sm' : 'text-base'
+                      }`}>
+                        {formatarReal(closer.receitaTotal)}
+                      </span>
+                    </div>
+                    
+                    <div className="flex justify-between">
+                      <span className={`text-[#64748B] font-outfit ${
+                        isTVMode ? 'text-xs' : 'text-sm'
+                      }`}>
+                        Meta
+                      </span>
+                      <span className={`text-[#64748B] font-outfit font-semibold ${
+                        isTVMode ? 'text-sm' : 'text-base'
+                      }`}>
+                        {formatarReal(metaIndividualReceita)}
+                      </span>
+                    </div>
+
+                    <div className={`pt-2 border-t border-[#E2E8F0] ${
+                      faltaParaMeta > 0 ? '' : 'bg-[#00E5CC]/10 -mx-3 px-3 py-2 rounded-lg'
+                    }`}>
+                      <span className={`font-outfit font-bold block text-center ${
+                        isTVMode ? 'text-sm' : 'text-base'
+                      } ${
+                        faltaParaMeta > 0 ? 'text-[#FF4757]' : 'text-[#00E5CC]'
+                      }`}>
+                        {faltaParaMeta > 0 
+                          ? `Faltam ${formatarReal(faltaParaMeta)}`
+                          : `🎉 Meta batida!`
+                        }
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>
