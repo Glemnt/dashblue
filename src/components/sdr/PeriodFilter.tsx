@@ -6,17 +6,34 @@ import { CalendarIcon } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
-import { PeriodType, DateRange, getCurrentWeekRange, getCurrentMonthRange, formatDateRange } from '@/utils/dateFilters';
+import { PeriodType, DateRange, getCurrentWeekRange, getCurrentMonthRange, formatDateRange, getMonthRange } from '@/utils/dateFilters';
+import { MonthSelector } from './MonthSelector';
+import { AVAILABLE_MONTHS, getCurrentAvailableMonth } from '@/utils/sheetUrlManager';
 
 interface PeriodFilterProps {
   onFilterChange: (type: PeriodType, dateRange: DateRange) => void;
+  onMonthChange?: (monthKey: string) => void;
   currentPeriod: PeriodType;
   currentDateRange: DateRange;
+  selectedMonthKey?: string;
 }
 
-const PeriodFilter = ({ onFilterChange, currentPeriod, currentDateRange }: PeriodFilterProps) => {
+const PeriodFilter = ({ onFilterChange, onMonthChange, currentPeriod, currentDateRange, selectedMonthKey }: PeriodFilterProps) => {
   const [customStart, setCustomStart] = useState<Date | undefined>(undefined);
   const [customEnd, setCustomEnd] = useState<Date | undefined>(undefined);
+  const [internalMonthKey, setInternalMonthKey] = useState<string>(
+    selectedMonthKey || getCurrentAvailableMonth().key
+  );
+
+  const handleMonthSelect = (monthKey: string) => {
+    setInternalMonthKey(monthKey);
+    const month = AVAILABLE_MONTHS.find(m => m.key === monthKey);
+    if (month) {
+      const dateRange = getMonthRange(month.month, month.year);
+      onFilterChange('mes-especifico', dateRange);
+      onMonthChange?.(monthKey);
+    }
+  };
 
   const handlePeriodChange = (type: PeriodType) => {
     let dateRange: DateRange;
@@ -57,7 +74,18 @@ const PeriodFilter = ({ onFilterChange, currentPeriod, currentDateRange }: Perio
           <p className="text-white font-outfit text-lg font-semibold">Filtrar Período:</p>
         </div>
 
-        <div className="flex gap-3 flex-wrap">
+        <div className="flex gap-3 flex-wrap items-center">
+          {/* NOVO: Seletor de mês específico */}
+          <div className="flex items-center gap-2">
+            <span className="text-white/70 text-sm font-outfit">Mês:</span>
+            <MonthSelector 
+              selectedMonthKey={selectedMonthKey || internalMonthKey}
+              onMonthChange={handleMonthSelect}
+            />
+          </div>
+          
+          <div className="h-8 w-px bg-white/20" /> {/* Separador */}
+          
           <Button
             onClick={() => handlePeriodChange('semana')}
             variant={currentPeriod === 'semana' ? 'default' : 'outline'}

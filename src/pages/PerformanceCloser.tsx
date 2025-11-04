@@ -17,14 +17,16 @@ import { useGoogleSheets } from '@/hooks/useGoogleSheets';
 import { calcularMetricasCloser } from '@/utils/closerMetricsCalculator';
 import { formatarReal } from '@/utils/metricsCalculator';
 import { PeriodType, DateRange, getCurrentMonthRange } from '@/utils/dateFilters';
+import { getCurrentAvailableMonth } from '@/utils/sheetUrlManager';
 
 const PerformanceCloser = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
   
   const [currentPeriod, setCurrentPeriod] = useState<PeriodType>('mes');
   const [currentDateRange, setCurrentDateRange] = useState<DateRange>(getCurrentMonthRange());
+  const [selectedMonthKey, setSelectedMonthKey] = useState<string>(getCurrentAvailableMonth().key);
   
-  const { data, loading, error, lastUpdate, refetch, isRefetching } = useGoogleSheets(currentDateRange);
+  const { data, loading, error, lastUpdate, refetch, isRefetching } = useGoogleSheets(currentDateRange, selectedMonthKey);
   
   // Estado do modo TV
   const { isTVMode, setIsTVMode } = useTVMode();
@@ -208,8 +210,10 @@ const PerformanceCloser = () => {
           <div className="max-w-[1800px] mx-auto">
             <PeriodFilter
               onFilterChange={handleFilterChange}
+              onMonthChange={setSelectedMonthKey}
               currentPeriod={currentPeriod}
               currentDateRange={currentDateRange}
+              selectedMonthKey={selectedMonthKey}
             />
           </div>
         </section>

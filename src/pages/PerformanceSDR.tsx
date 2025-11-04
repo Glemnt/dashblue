@@ -18,6 +18,7 @@ import TVModeToggle from '@/components/TVModeToggle';
 import ColaboradorAvatar from '@/components/ColaboradorAvatar';
 import { useTVMode } from '@/hooks/useTVMode';
 import { PeriodType, DateRange, getCurrentMonthRange } from '@/utils/dateFilters';
+import { getCurrentAvailableMonth } from '@/utils/sheetUrlManager';
 
 const PerformanceSDR = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -25,8 +26,9 @@ const PerformanceSDR = () => {
   // State para filtro de período
   const [currentPeriod, setCurrentPeriod] = useState<PeriodType>('mes');
   const [currentDateRange, setCurrentDateRange] = useState<DateRange>(getCurrentMonthRange());
+  const [selectedMonthKey, setSelectedMonthKey] = useState<string>(getCurrentAvailableMonth().key);
   
-  const { data, loading, error, lastUpdate, refetch, isRefetching } = useGoogleSheets(currentDateRange);
+  const { data, loading, error, lastUpdate, refetch, isRefetching } = useGoogleSheets(currentDateRange, selectedMonthKey);
   const { 
     kpis: sdrKPIs, 
     total: totalKPI,
@@ -219,8 +221,10 @@ const PerformanceSDR = () => {
           <div className="max-w-[1800px] mx-auto">
             <PeriodFilter
               onFilterChange={handleFilterChange}
+              onMonthChange={setSelectedMonthKey}
               currentPeriod={currentPeriod}
               currentDateRange={currentDateRange}
+              selectedMonthKey={selectedMonthKey}
             />
           </div>
         </section>

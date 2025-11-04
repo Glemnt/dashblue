@@ -4,6 +4,7 @@ import { useTVMode } from '@/hooks/useTVMode';
 import { calcularMetricasSquads } from '@/utils/squadsMetricsCalculator';
 import { formatarReal } from '@/utils/financialMetricsCalculator';
 import { getCurrentMonthRange } from '@/utils/dateFilters';
+import { getCurrentAvailableMonth } from '@/utils/sheetUrlManager';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 import TVModeToggle from '@/components/TVModeToggle';
@@ -21,7 +22,8 @@ import logoWhite from '@/assets/logo-white.png';
 
 const GuerraSquads = () => {
   const [currentDateRange] = useState(getCurrentMonthRange());
-  const { data, loading, error, refetch, lastUpdate, isRefetching } = useGoogleSheets(currentDateRange);
+  const [selectedMonthKey] = useState<string>(getCurrentAvailableMonth().key);
+  const { data, loading, error, refetch, lastUpdate, isRefetching } = useGoogleSheets(currentDateRange, selectedMonthKey);
   const { isTVMode, setIsTVMode } = useTVMode();
   const [currentTime, setCurrentTime] = useState(new Date());
   const [isRefreshing, setIsRefreshing] = useState(false);

@@ -12,6 +12,7 @@ import PeriodFilter from "@/components/sdr/PeriodFilter";
 import TVModeToggle from "@/components/TVModeToggle";
 import { useTVMode } from "@/hooks/useTVMode";
 import { PeriodType, DateRange, getCurrentMonthRange, filterDataByDateRange } from '@/utils/dateFilters';
+import { getCurrentAvailableMonth } from '@/utils/sheetUrlManager';
 
 // Função auxiliar para interpolar entre duas cores hex
 const interpolateColor = (color1: string, color2: string, ratio: number): string => {
@@ -71,8 +72,9 @@ const Index = () => {
   // Estado do filtro de período
   const [periodType, setPeriodType] = useState<PeriodType>('mes');
   const [dateRange, setDateRange] = useState<DateRange>(getCurrentMonthRange());
+  const [selectedMonthKey, setSelectedMonthKey] = useState<string>(getCurrentAvailableMonth().key);
   
-  const { data, loading, error, lastUpdate, refetch, isRefetching } = useGoogleSheets(dateRange);
+  const { data, loading, error, lastUpdate, refetch, isRefetching } = useGoogleSheets(dateRange, selectedMonthKey);
   const { totalLeads: leadsCampanhas, totalMQLs: mqlsCampanhas, loading: loadingCampanhas } = useGoogleSheetsCampanhas();
   const leads = useGoogleSheetsLeads();
   
@@ -246,8 +248,10 @@ const Index = () => {
           <div className="max-w-[1600px] mx-auto">
             <PeriodFilter
               onFilterChange={handleFilterChange}
+              onMonthChange={setSelectedMonthKey}
               currentPeriod={periodType}
               currentDateRange={dateRange}
+              selectedMonthKey={selectedMonthKey}
             />
           </div>
         </section>

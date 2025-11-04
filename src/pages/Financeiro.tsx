@@ -4,6 +4,7 @@ import logoWhite from "@/assets/logo-white.png";
 import { useGoogleSheets } from "@/hooks/useGoogleSheets";
 import { calcularMetricasFinanceiras, formatarReal } from "@/utils/financialMetricsCalculator";
 import { getCurrentMonthRange } from '@/utils/dateFilters';
+import { getCurrentAvailableMonth } from '@/utils/sheetUrlManager';
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
@@ -18,7 +19,8 @@ import { PieChart, Pie, Cell, Legend, ResponsiveContainer, BarChart, Bar, XAxis,
 const Financeiro = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [currentDateRange] = useState(getCurrentMonthRange());
-  const { data, loading, error, lastUpdate, refetch, isRefetching } = useGoogleSheets(currentDateRange);
+  const [selectedMonthKey] = useState<string>(getCurrentAvailableMonth().key);
+  const { data, loading, error, lastUpdate, refetch, isRefetching } = useGoogleSheets(currentDateRange, selectedMonthKey);
   const { isTVMode, setIsTVMode } = useTVMode();
 
   // Calcular métricas

@@ -1,7 +1,7 @@
 import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, isWithinInterval, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
-export type PeriodType = 'semana' | 'mes' | 'personalizado';
+export type PeriodType = 'semana' | 'mes' | 'mes-especifico' | 'personalizado';
 
 export interface DateRange {
   start: Date;
@@ -57,4 +57,19 @@ export const filterDataByDateRange = (data: any[], dateRange: DateRange): any[] 
 
 export const formatDateRange = (dateRange: DateRange): string => {
   return `${format(dateRange.start, 'dd/MM/yyyy', { locale: ptBR })} - ${format(dateRange.end, 'dd/MM/yyyy', { locale: ptBR })}`;
+};
+
+// Retornar range completo de um mês específico
+export const getMonthRange = (month: number, year: number): DateRange => {
+  const date = new Date(year, month, 1);
+  return {
+    start: startOfMonth(date),
+    end: endOfMonth(date)
+  };
+};
+
+// Formatar nome do mês/ano em português
+export const formatMonthYear = (month: number, year: number): string => {
+  const date = new Date(year, month, 1);
+  return format(date, 'MMMM yyyy', { locale: ptBR });
 };

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import Papa from 'papaparse';
-import { getCurrentMonthSheetUrl, getSheetUrlForPeriod } from '@/utils/sheetUrlManager';
+import { getCurrentMonthSheetUrl, getSheetUrlForPeriod, getSheetUrlByMonthKey } from '@/utils/sheetUrlManager';
 import { DateRange } from '@/utils/dateFilters';
 
 interface UseGoogleSheetsReturn {
@@ -12,7 +12,7 @@ interface UseGoogleSheetsReturn {
   isRefetching: boolean;
 }
 
-export const useGoogleSheets = (dateRange?: DateRange): UseGoogleSheetsReturn => {
+export const useGoogleSheets = (dateRange?: DateRange, monthKey?: string): UseGoogleSheetsReturn => {
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [isRefetching, setIsRefetching] = useState<boolean>(false);
@@ -28,12 +28,18 @@ export const useGoogleSheets = (dateRange?: DateRange): UseGoogleSheetsReturn =>
         setIsRefetching(true);
       }
       
-      // URL dinâmica baseada no período
-      const csvUrl = dateRange 
-        ? getSheetUrlForPeriod(dateRange)
-        : getCurrentMonthSheetUrl();
-      
-      console.log('📊 Buscando planilha:', csvUrl);
+      // URL dinâmica: priorizar monthKey, depois dateRange, depois mês atual
+      let csvUrl: string;
+      if (monthKey) {
+        csvUrl = getSheetUrlByMonthKey(monthKey);
+        console.log('📊 Buscando planilha por monthKey:', monthKey, csvUrl);
+      } else if (dateRange) {
+        csvUrl = getSheetUrlForPeriod(dateRange);
+        console.log('📊 Buscando planilha por dateRange:', csvUrl);
+      } else {
+        csvUrl = getCurrentMonthSheetUrl();
+        console.log('📊 Buscando planilha do mês atual:', csvUrl);
+      }
       
       const response = await fetch(csvUrl);
       
@@ -79,7 +85,7 @@ export const useGoogleSheets = (dateRange?: DateRange): UseGoogleSheetsReturn =>
       setLoading(false);
       setIsRefetching(false);
     }
-  }, [dateRange]);
+  }, [dateRange, monthKey]);
 
   useEffect(() => {
     fetchData(true); // Carregamento inicial

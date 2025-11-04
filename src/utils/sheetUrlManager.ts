@@ -1,6 +1,41 @@
 import { DateRange } from './dateFilters';
 
-// Mapeamento de período → GID da planilha
+// Interface para meses disponíveis
+export interface AvailableMonth {
+  key: string;          // 'outubro-2024'
+  label: string;        // 'Outubro 2024'
+  gid: string;          // '2010777326'
+  month: number;        // 9 (outubro = mês 9, 0-indexed)
+  year: number;         // 2024
+}
+
+// Lista de meses disponíveis (fácil adicionar novos meses aqui)
+export const AVAILABLE_MONTHS: AvailableMonth[] = [
+  {
+    key: 'outubro-2024',
+    label: 'Outubro 2024',
+    gid: '2010777326',
+    month: 9,
+    year: 2024
+  },
+  {
+    key: 'novembro-2024',
+    label: 'Novembro 2024',
+    gid: '548333510',
+    month: 10,
+    year: 2024
+  }
+  // Para adicionar dezembro:
+  // {
+  //   key: 'dezembro-2024',
+  //   label: 'Dezembro 2024',
+  //   gid: 'SEU_GID_AQUI',
+  //   month: 11,
+  //   year: 2024
+  // }
+];
+
+// Mapeamento legado (mantido para compatibilidade)
 const SHEET_GIDS: Record<string, string> = {
   'outubro-2024': '2010777326',
   'novembro-2024': '548333510'
@@ -32,18 +67,26 @@ export const getSheetUrlForPeriod = (dateRange: DateRange): string => {
   return `${BASE_URL}?gid=${gid}&single=true&output=csv`;
 };
 
-export const getCurrentMonthSheetUrl = (): string => {
+// Função para obter o mês atual automaticamente
+export const getCurrentAvailableMonth = (): AvailableMonth => {
   const now = new Date();
-  const month = now.getMonth();
-  const year = now.getFullYear();
+  const currentMonth = now.getMonth();
+  const currentYear = now.getFullYear();
   
-  let periodKey: string;
-  if (month === 9 && year === 2024) {
-    periodKey = 'outubro-2024';
-  } else {
-    periodKey = 'novembro-2024'; // Padrão
-  }
+  const found = AVAILABLE_MONTHS.find(m => m.month === currentMonth && m.year === currentYear);
   
-  const gid = SHEET_GIDS[periodKey];
+  // Se não encontrar o mês atual, retorna o último disponível
+  return found || AVAILABLE_MONTHS[AVAILABLE_MONTHS.length - 1];
+};
+
+// Função para obter URL por chave de mês
+export const getSheetUrlByMonthKey = (monthKey: string): string => {
+  const month = AVAILABLE_MONTHS.find(m => m.key === monthKey);
+  const gid = month?.gid || AVAILABLE_MONTHS[AVAILABLE_MONTHS.length - 1].gid;
   return `${BASE_URL}?gid=${gid}&single=true&output=csv`;
+};
+
+export const getCurrentMonthSheetUrl = (): string => {
+  const currentMonth = getCurrentAvailableMonth();
+  return `${BASE_URL}?gid=${currentMonth.gid}&single=true&output=csv`;
 };
