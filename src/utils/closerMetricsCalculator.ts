@@ -115,7 +115,7 @@ export const calcularMetricasCloser = (data: any[], dateRange?: DateRange): Clos
   console.log('📊 Nomes em CLOSER FECHOU:', nomesClosers);
 
   // Determinar equipe baseada no período
-  const isOutubro = dateRange && dateRange.start.getMonth() === 9 && dateRange.start.getFullYear() === 2024;
+  const isOutubro = dateRange && dateRange.start.getMonth() === 9 && dateRange.start.getFullYear() === 2025;
 
   let closersNomes: Array<{ original: string; display: string; squad: string; color: string; emoji: string }>;
 

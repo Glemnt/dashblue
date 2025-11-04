@@ -157,7 +157,7 @@ const compararMetrica = (valor1: number, valor2: number, tipo: 'maior' | 'menor'
 
 export const calcularMetricasSquads = (data: any[], dateRange?: DateRange): SquadsComparison => {
   // Determinar período
-  const isOutubro = dateRange && dateRange.start.getMonth() === 9 && dateRange.start.getFullYear() === 2024;
+  const isOutubro = dateRange && dateRange.start.getMonth() === 9 && dateRange.start.getFullYear() === 2025;
   
   // Configuração dinâmica dos squads por período
   const SQUADS_CONFIG = isOutubro ? {

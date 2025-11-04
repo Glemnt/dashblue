@@ -75,7 +75,7 @@ export const calcularMetricasSDR = (data: any[], dateRange?: DateRange): SDRData
   }
 
   // Determinar equipe baseada no período
-  const isOutubro = dateRange && dateRange.start.getMonth() === 9 && dateRange.start.getFullYear() === 2024;
+  const isOutubro = dateRange && dateRange.start.getMonth() === 9 && dateRange.start.getFullYear() === 2025;
 
   let sdrsNomes: string[];
   let squadMap: Record<string, { squad: string; color: string; emoji: string; displayName: string }>;

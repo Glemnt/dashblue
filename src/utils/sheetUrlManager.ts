@@ -13,17 +13,17 @@ export interface AvailableMonth {
 export const AVAILABLE_MONTHS: AvailableMonth[] = [
   {
     key: 'outubro-2024',
-    label: 'Outubro 2024',
+    label: 'Outubro 2025',
     gid: '2010777326',
     month: 9,
-    year: 2024
+    year: 2025
   },
   {
     key: 'novembro-2024',
-    label: 'Novembro 2024',
+    label: 'Novembro 2025',
     gid: '548333510',
     month: 10,
-    year: 2024
+    year: 2025
   }
   // Para adicionar dezembro:
   // {
@@ -49,14 +49,14 @@ export const getSheetUrlForPeriod = (dateRange: DateRange): string => {
   
   let periodKey: string;
   
-  if (startMonth === 9 && startYear === 2024) { // outubro
+  if (startMonth === 9 && startYear === 2025) { // outubro
     periodKey = 'outubro-2024';
-  } else if (startMonth === 10 && startYear === 2024) { // novembro
+  } else if (startMonth === 10 && startYear === 2025) { // novembro
     periodKey = 'novembro-2024';
   } else {
     // Padrão: mês atual
     const now = new Date();
-    if (now.getMonth() === 10 && now.getFullYear() === 2024) {
+    if (now.getMonth() === 10 && now.getFullYear() === 2025) {
       periodKey = 'novembro-2024';
     } else {
       periodKey = 'novembro-2024'; // Fallback
