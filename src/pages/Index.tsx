@@ -238,19 +238,18 @@ const Index = () => {
       )}
 
       {/* FILTRO DE PERÍODO */}
-      {!isTVMode && (
-        <section className="bg-[#0B1120] pt-12 px-12">
-          <div className="max-w-[1600px] mx-auto">
-            <PeriodFilter
-              onFilterChange={handleFilterChange}
-              onMonthChange={setSelectedMonthKey}
-              currentPeriod={periodType}
-              currentDateRange={dateRange}
-              selectedMonthKey={selectedMonthKey}
-            />
-          </div>
-        </section>
-      )}
+      <section className={`bg-[#0B1120] ${isTVMode ? 'pt-16 px-16' : 'pt-12 px-12'}`}>
+        <div className="max-w-[1600px] mx-auto">
+          <PeriodFilter
+            onFilterChange={handleFilterChange}
+            onMonthChange={setSelectedMonthKey}
+            currentPeriod={periodType}
+            currentDateRange={dateRange}
+            selectedMonthKey={selectedMonthKey}
+            isTVMode={isTVMode}
+          />
+        </div>
+      </section>
 
       {/* SEÇÃO 1: BARRAS DE META */}
       <section className={`bg-[#0B1120] ${isTVMode ? 'py-6 px-16' : 'py-20 px-12'}`}>

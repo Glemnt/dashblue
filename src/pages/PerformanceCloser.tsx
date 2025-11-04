@@ -210,19 +210,18 @@ const PerformanceCloser = () => {
       )}
 
       {/* FILTRO DE PERÍODO */}
-      {!isTVMode && (
-        <section className="bg-[#0B1120] pt-12 px-12">
-          <div className="max-w-[1800px] mx-auto">
-            <PeriodFilter
-              onFilterChange={handleFilterChange}
-              onMonthChange={setSelectedMonthKey}
-              currentPeriod={currentPeriod}
-              currentDateRange={currentDateRange}
-              selectedMonthKey={selectedMonthKey}
-            />
-          </div>
-        </section>
-      )}
+      <section className={`bg-[#0B1120] ${isTVMode ? 'pt-16 px-16' : 'pt-12 px-12'}`}>
+        <div className="max-w-[1800px] mx-auto">
+          <PeriodFilter
+            onFilterChange={handleFilterChange}
+            onMonthChange={setSelectedMonthKey}
+            currentPeriod={currentPeriod}
+            currentDateRange={currentDateRange}
+            selectedMonthKey={selectedMonthKey}
+            isTVMode={isTVMode}
+          />
+        </div>
+      </section>
 
       {/* SEÇÃO 1: RESUMO GERAL */}
       <section className={`bg-[#0B1120] ${isTVMode ? 'py-8 px-12' : 'py-20 px-12'}`}>

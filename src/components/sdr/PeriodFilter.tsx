@@ -16,9 +16,10 @@ interface PeriodFilterProps {
   currentPeriod: PeriodType;
   currentDateRange: DateRange;
   selectedMonthKey?: string;
+  isTVMode?: boolean;
 }
 
-const PeriodFilter = ({ onFilterChange, onMonthChange, currentPeriod, currentDateRange, selectedMonthKey }: PeriodFilterProps) => {
+const PeriodFilter = ({ onFilterChange, onMonthChange, currentPeriod, currentDateRange, selectedMonthKey, isTVMode = false }: PeriodFilterProps) => {
   const [customStart, setCustomStart] = useState<Date | undefined>(undefined);
   const [customEnd, setCustomEnd] = useState<Date | undefined>(undefined);
   const [internalMonthKey, setInternalMonthKey] = useState<string>(
@@ -66,18 +67,18 @@ const PeriodFilter = ({ onFilterChange, onMonthChange, currentPeriod, currentDat
   };
 
   return (
-    <div className="bg-[#151E35] rounded-2xl p-8 border border-white/5">
-      <div className="flex items-center justify-between gap-6 flex-wrap">
+    <div className={`bg-[#151E35] rounded-2xl border border-white/5 ${isTVMode ? 'p-12' : 'p-8'}`}>
+      <div className={`flex items-center justify-between flex-wrap ${isTVMode ? 'gap-8' : 'gap-6'}`}>
         
         <div className="flex items-center gap-3">
-          <CalendarIcon className="w-6 h-6 text-[#0066FF]" />
-          <p className="text-white font-outfit text-lg font-semibold">Filtrar Período:</p>
+          <CalendarIcon className={`text-[#0066FF] ${isTVMode ? 'w-8 h-8' : 'w-6 h-6'}`} />
+          <p className={`text-white font-outfit font-semibold ${isTVMode ? 'text-2xl' : 'text-lg'}`}>Filtrar Período:</p>
         </div>
 
         <div className="flex gap-3 flex-wrap items-center">
           {/* NOVO: Seletor de mês específico */}
           <div className="flex items-center gap-2">
-            <span className="text-white/70 text-sm font-outfit">Mês:</span>
+            <span className={`text-white/70 font-outfit ${isTVMode ? 'text-lg' : 'text-sm'}`}>Mês:</span>
             <MonthSelector 
               selectedMonthKey={selectedMonthKey || internalMonthKey}
               onMonthChange={handleMonthSelect}
@@ -91,6 +92,7 @@ const PeriodFilter = ({ onFilterChange, onMonthChange, currentPeriod, currentDat
             variant={currentPeriod === 'semana' ? 'default' : 'outline'}
             className={cn(
               'font-outfit font-medium',
+              isTVMode ? 'px-8 py-6 text-xl' : 'px-4 py-2 text-base',
               currentPeriod === 'semana' 
                 ? 'bg-[#0066FF] text-white hover:bg-[#0066FF]/90' 
                 : 'bg-transparent border-white/20 text-white hover:bg-white/10'
@@ -104,6 +106,7 @@ const PeriodFilter = ({ onFilterChange, onMonthChange, currentPeriod, currentDat
             variant={currentPeriod === 'mes' ? 'default' : 'outline'}
             className={cn(
               'font-outfit font-medium',
+              isTVMode ? 'px-8 py-6 text-xl' : 'px-4 py-2 text-base',
               currentPeriod === 'mes' 
                 ? 'bg-[#0066FF] text-white hover:bg-[#0066FF]/90' 
                 : 'bg-transparent border-white/20 text-white hover:bg-white/10'
@@ -117,13 +120,14 @@ const PeriodFilter = ({ onFilterChange, onMonthChange, currentPeriod, currentDat
               <Button
                 variant={currentPeriod === 'personalizado' ? 'default' : 'outline'}
                 className={cn(
-                  'font-outfit font-medium min-w-[240px] justify-start',
+                  'font-outfit font-medium justify-start',
+                  isTVMode ? 'px-8 py-6 text-xl min-w-[320px]' : 'px-4 py-2 text-base min-w-[240px]',
                   currentPeriod === 'personalizado' 
                     ? 'bg-[#0066FF] text-white hover:bg-[#0066FF]/90' 
                     : 'bg-transparent border-white/20 text-white hover:bg-white/10'
                 )}
               >
-                <CalendarIcon className="mr-2 h-4 w-4" />
+                <CalendarIcon className={`mr-2 ${isTVMode ? 'h-6 w-6' : 'h-4 w-4'}`} />
                 {customStart && customEnd ? (
                   `${format(customStart, 'dd/MM/yy')} - ${format(customEnd, 'dd/MM/yy')}`
                 ) : (
@@ -181,8 +185,8 @@ const PeriodFilter = ({ onFilterChange, onMonthChange, currentPeriod, currentDat
         </div>
 
         <div className="text-right">
-          <p className="text-[#94A3B8] text-sm font-outfit">Período:</p>
-          <p className="text-white text-base font-outfit font-semibold">
+          <p className={`text-[#94A3B8] font-outfit ${isTVMode ? 'text-lg' : 'text-sm'}`}>Período:</p>
+          <p className={`text-white font-outfit font-semibold ${isTVMode ? 'text-2xl' : 'text-base'}`}>
             {formatDateRange(currentDateRange)}
           </p>
         </div>

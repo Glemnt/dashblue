@@ -199,19 +199,18 @@ const GuerraSquads = () => {
       )}
 
       {/* FILTRO DE PERÍODO */}
-      {!isTVMode && (
-        <section className="bg-[#0B1120] pt-12 px-12">
-          <div className="max-w-[1600px] mx-auto">
-            <PeriodFilter
-              onFilterChange={updateFilter}
-              onMonthChange={setSelectedMonthKey}
-              currentPeriod={periodType}
-              currentDateRange={dateRange}
-              selectedMonthKey={selectedMonthKey}
-            />
-          </div>
-        </section>
-      )}
+      <section className={`bg-[#0B1120] ${isTVMode ? 'pt-16 px-16' : 'pt-12 px-12'}`}>
+        <div className="max-w-[1600px] mx-auto">
+          <PeriodFilter
+            onFilterChange={updateFilter}
+            onMonthChange={setSelectedMonthKey}
+            currentPeriod={periodType}
+            currentDateRange={dateRange}
+            selectedMonthKey={selectedMonthKey}
+            isTVMode={isTVMode}
+          />
+        </div>
+      </section>
 
       {/* SEÇÃO 1: PLACAR GIGANTE */}
       <section className="bg-[#0B1120] py-12 md:py-20 px-6 md:px-12">
