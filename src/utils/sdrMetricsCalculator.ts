@@ -90,12 +90,11 @@ export const calcularMetricasSDR = (data: any[], dateRange?: DateRange): SDRData
       'JOÃO LOPES': { squad: 'RevOps', color: '#94A3B8', emoji: '⚙️', displayName: 'João Lopes' }
     };
   } else {
-    // NOVEMBRO: Davi como SDR, sem Marcos
-    sdrsNomes = ['VINICIUS MEIRELES', 'TIAGO', 'JOÃO LOPES', 'DAVI'];
+    // NOVEMBRO: Davi como SDR, sem Marcos e sem João Lopes
+    sdrsNomes = ['VINICIUS MEIRELES', 'TIAGO', 'DAVI'];
     squadMap = {
       'VINICIUS MEIRELES': { squad: 'Corvo Azul', color: '#0066FF', emoji: '🔵', displayName: 'Vinícius' },
       'TIAGO': { squad: 'Hot Dogs', color: '#FF4757', emoji: '🔴', displayName: 'Tiago' },
-      'JOÃO LOPES': { squad: 'RevOps', color: '#94A3B8', emoji: '⚙️', displayName: 'João Lopes' },
       'DAVI': { squad: 'Sem Squad', color: '#10B981', emoji: '🟢', displayName: 'Davi' }
     };
   }
