@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useGoogleSheets } from '@/hooks/useGoogleSheets';
 import { useTVMode } from '@/hooks/useTVMode';
+import { usePeriodFilter } from '@/contexts/PeriodFilterContext';
 import { calcularMetricasSquads } from '@/utils/squadsMetricsCalculator';
 import { formatarReal } from '@/utils/financialMetricsCalculator';
-import { getCurrentMonthRange } from '@/utils/dateFilters';
-import { getCurrentAvailableMonth } from '@/utils/sheetUrlManager';
+import { filterDataByDateRange } from '@/utils/dateFilters';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 import TVModeToggle from '@/components/TVModeToggle';
+import PeriodFilter from '@/components/sdr/PeriodFilter';
 import { SquadsPlacar } from '@/components/squads/SquadsPlacar';
 import { SquadsComparativo } from '@/components/squads/SquadsComparativo';
 import { SquadsMembros } from '@/components/squads/SquadsMembros';
@@ -21,9 +22,10 @@ import { ptBR } from 'date-fns/locale';
 import logoWhite from '@/assets/logo-white.png';
 
 const GuerraSquads = () => {
-  const [currentDateRange] = useState(getCurrentMonthRange());
-  const [selectedMonthKey] = useState<string>(getCurrentAvailableMonth().key);
-  const { data, loading, error, refetch, lastUpdate, isRefetching } = useGoogleSheets(currentDateRange, selectedMonthKey);
+  // Estado global do filtro de período
+  const { periodType, dateRange, selectedMonthKey, updateFilter, setSelectedMonthKey } = usePeriodFilter();
+  
+  const { data, loading, error, refetch, lastUpdate, isRefetching } = useGoogleSheets(dateRange, selectedMonthKey);
   const { isTVMode, setIsTVMode } = useTVMode();
   const [currentTime, setCurrentTime] = useState(new Date());
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -85,8 +87,9 @@ const GuerraSquads = () => {
     return format(date, 'HH:mm:ss', { locale: ptBR });
   };
 
-  // Calcular métricas dos squads
-  const metricas = data ? calcularMetricasSquads(data, currentDateRange) : null;
+  // Filtrar dados por período e calcular métricas dos squads
+  const filteredData = data ? filterDataByDateRange(data, dateRange) : [];
+  const metricas = filteredData.length > 0 ? calcularMetricasSquads(filteredData, dateRange) : null;
 
   if (loading && !data) {
     return (
@@ -192,6 +195,21 @@ const GuerraSquads = () => {
           <div className="w-2 h-2 bg-[#0066FF] rounded-full animate-pulse"></div>
           <span className="font-semibold text-sm">Atualizando...</span>
         </div>
+      )}
+
+      {/* FILTRO DE PERÍODO */}
+      {!isTVMode && (
+        <section className="bg-[#0B1120] pt-12 px-12">
+          <div className="max-w-[1600px] mx-auto">
+            <PeriodFilter
+              onFilterChange={updateFilter}
+              onMonthChange={setSelectedMonthKey}
+              currentPeriod={periodType}
+              currentDateRange={dateRange}
+              selectedMonthKey={selectedMonthKey}
+            />
+          </div>
+        </section>
       )}
 
       {/* SEÇÃO 1: PLACAR GIGANTE */}

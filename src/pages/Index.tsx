@@ -11,8 +11,8 @@ import Footer from "@/components/Footer";
 import PeriodFilter from "@/components/sdr/PeriodFilter";
 import TVModeToggle from "@/components/TVModeToggle";
 import { useTVMode } from "@/hooks/useTVMode";
-import { PeriodType, DateRange, getCurrentMonthRange, filterDataByDateRange } from '@/utils/dateFilters';
-import { getCurrentAvailableMonth } from '@/utils/sheetUrlManager';
+import { usePeriodFilter } from "@/contexts/PeriodFilterContext";
+import { filterDataByDateRange } from '@/utils/dateFilters';
 
 // Função auxiliar para interpolar entre duas cores hex
 const interpolateColor = (color1: string, color2: string, ratio: number): string => {
@@ -69,10 +69,8 @@ const getProgressColor = (percentage: number): string => {
 const Index = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
   
-  // Estado do filtro de período
-  const [periodType, setPeriodType] = useState<PeriodType>('mes');
-  const [dateRange, setDateRange] = useState<DateRange>(getCurrentMonthRange());
-  const [selectedMonthKey, setSelectedMonthKey] = useState<string>(getCurrentAvailableMonth().key);
+  // Estado global do filtro de período
+  const { periodType, dateRange, selectedMonthKey, updateFilter, setSelectedMonthKey } = usePeriodFilter();
   
   const { data, loading, error, lastUpdate, refetch, isRefetching } = useGoogleSheets(dateRange, selectedMonthKey);
   const { totalLeads: leadsCampanhas, totalMQLs: mqlsCampanhas, loading: loadingCampanhas } = useGoogleSheetsCampanhas();
@@ -117,11 +115,8 @@ const Index = () => {
     };
   }, [isTVMode]);
   
-  // Handler para mudança de filtro
-  const handleFilterChange = (type: PeriodType, range: DateRange) => {
-    setPeriodType(type);
-    setDateRange(range);
-  };
+  // Handler para mudança de filtro (delega para o context)
+  const handleFilterChange = updateFilter;
   
   // Filtrar dados por período antes de calcular métricas
   const filteredData = data.length > 0 ? filterDataByDateRange(data, dateRange) : [];

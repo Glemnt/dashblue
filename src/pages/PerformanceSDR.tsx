@@ -17,16 +17,13 @@ import SDRCharts from '@/components/sdr/SDRCharts';
 import TVModeToggle from '@/components/TVModeToggle';
 import ColaboradorAvatar from '@/components/ColaboradorAvatar';
 import { useTVMode } from '@/hooks/useTVMode';
-import { PeriodType, DateRange, getCurrentMonthRange } from '@/utils/dateFilters';
-import { getCurrentAvailableMonth } from '@/utils/sheetUrlManager';
+import { usePeriodFilter } from '@/contexts/PeriodFilterContext';
 
 const PerformanceSDR = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
   
-  // State para filtro de período
-  const [currentPeriod, setCurrentPeriod] = useState<PeriodType>('mes');
-  const [currentDateRange, setCurrentDateRange] = useState<DateRange>(getCurrentMonthRange());
-  const [selectedMonthKey, setSelectedMonthKey] = useState<string>(getCurrentAvailableMonth().key);
+  // Estado global do filtro de período
+  const { periodType: currentPeriod, dateRange: currentDateRange, selectedMonthKey, updateFilter, setSelectedMonthKey } = usePeriodFilter();
   
   const { data, loading, error, lastUpdate, refetch, isRefetching } = useGoogleSheets(currentDateRange, selectedMonthKey);
   const { 
@@ -82,11 +79,8 @@ const PerformanceSDR = () => {
     ? mesclarMetricasSDRComDashboard(metricasCalculadas, sdrKPIs)
     : metricasCalculadas;
 
-  // Handler para mudança de filtro
-  const handleFilterChange = (type: PeriodType, dateRange: DateRange) => {
-    setCurrentPeriod(type);
-    setCurrentDateRange(dateRange);
-  };
+  // Handler para mudança de filtro (delega para o context)
+  const handleFilterChange = updateFilter;
 
   const formatDate = (date: Date) => {
     return date.toLocaleDateString('pt-BR', {

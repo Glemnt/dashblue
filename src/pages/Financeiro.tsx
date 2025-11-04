@@ -3,28 +3,32 @@ import { RefreshCw, DollarSign, FileCheck, CheckCircle, Clock, CreditCard, Alert
 import logoWhite from "@/assets/logo-white.png";
 import { useGoogleSheets } from "@/hooks/useGoogleSheets";
 import { calcularMetricasFinanceiras, formatarReal } from "@/utils/financialMetricsCalculator";
-import { getCurrentMonthRange } from '@/utils/dateFilters';
-import { getCurrentAvailableMonth } from '@/utils/sheetUrlManager';
+import { filterDataByDateRange } from '@/utils/dateFilters';
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import TVModeToggle from "@/components/TVModeToggle";
+import PeriodFilter from "@/components/sdr/PeriodFilter";
 import FinancialFunnel from "@/components/financial/FinancialFunnel";
 import ContractsTable from "@/components/financial/ContractsTable";
 import { useTVMode } from "@/hooks/useTVMode";
+import { usePeriodFilter } from "@/contexts/PeriodFilterContext";
 import { PieChart, Pie, Cell, Legend, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, LineChart, Line, ReferenceLine } from 'recharts';
 
 const Financeiro = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
-  const [currentDateRange] = useState(getCurrentMonthRange());
-  const [selectedMonthKey] = useState<string>(getCurrentAvailableMonth().key);
-  const { data, loading, error, lastUpdate, refetch, isRefetching } = useGoogleSheets(currentDateRange, selectedMonthKey);
+  
+  // Estado global do filtro de período
+  const { periodType, dateRange, selectedMonthKey, updateFilter, setSelectedMonthKey } = usePeriodFilter();
+  
+  const { data, loading, error, lastUpdate, refetch, isRefetching } = useGoogleSheets(dateRange, selectedMonthKey);
   const { isTVMode, setIsTVMode } = useTVMode();
 
-  // Calcular métricas
-  const metricas = data.length > 0 ? calcularMetricasFinanceiras(data) : null;
+  // Filtrar dados por período e calcular métricas
+  const filteredData = data.length > 0 ? filterDataByDateRange(data, dateRange) : [];
+  const metricas = filteredData.length > 0 ? calcularMetricasFinanceiras(filteredData) : null;
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
@@ -184,6 +188,21 @@ const Financeiro = () => {
           <div className="w-2 h-2 bg-[#0066FF] rounded-full animate-pulse"></div>
           <span className="font-semibold text-sm">Atualizando...</span>
         </div>
+      )}
+
+      {/* FILTRO DE PERÍODO */}
+      {!isTVMode && (
+        <section className="bg-[#0B1120] pt-12 px-12">
+          <div className="max-w-[1600px] mx-auto">
+            <PeriodFilter
+              onFilterChange={updateFilter}
+              onMonthChange={setSelectedMonthKey}
+              currentPeriod={periodType}
+              currentDateRange={dateRange}
+              selectedMonthKey={selectedMonthKey}
+            />
+          </div>
+        </section>
       )}
 
       {/* SEÇÃO 1: OVERVIEW FINANCEIRO */}

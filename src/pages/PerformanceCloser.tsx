@@ -16,15 +16,13 @@ import { useTVMode } from '@/hooks/useTVMode';
 import { useGoogleSheets } from '@/hooks/useGoogleSheets';
 import { calcularMetricasCloser } from '@/utils/closerMetricsCalculator';
 import { formatarReal } from '@/utils/metricsCalculator';
-import { PeriodType, DateRange, getCurrentMonthRange } from '@/utils/dateFilters';
-import { getCurrentAvailableMonth } from '@/utils/sheetUrlManager';
+import { usePeriodFilter } from '@/contexts/PeriodFilterContext';
 
 const PerformanceCloser = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
   
-  const [currentPeriod, setCurrentPeriod] = useState<PeriodType>('mes');
-  const [currentDateRange, setCurrentDateRange] = useState<DateRange>(getCurrentMonthRange());
-  const [selectedMonthKey, setSelectedMonthKey] = useState<string>(getCurrentAvailableMonth().key);
+  // Estado global do filtro de período
+  const { periodType: currentPeriod, dateRange: currentDateRange, selectedMonthKey, updateFilter, setSelectedMonthKey } = usePeriodFilter();
   
   const { data, loading, error, lastUpdate, refetch, isRefetching } = useGoogleSheets(currentDateRange, selectedMonthKey);
   
@@ -71,10 +69,8 @@ const PerformanceCloser = () => {
 
   const metricas = data.length > 0 ? calcularMetricasCloser(data, currentDateRange) : null;
 
-  const handleFilterChange = (type: PeriodType, dateRange: DateRange) => {
-    setCurrentPeriod(type);
-    setCurrentDateRange(dateRange);
-  };
+  // Handler para mudança de filtro (delega para o context)
+  const handleFilterChange = updateFilter;
 
   const formatDate = (date: Date) => {
     return date.toLocaleDateString('pt-BR', {
