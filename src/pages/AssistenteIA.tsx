@@ -47,6 +47,26 @@ const AssistenteIA = () => {
     ? calcularMetricas(rawData, { totalLeads, totalMQLs: totalMQLs + mqlsLeads }, selectedMonthKey)
     : null;
 
+  // Calcular dias úteis restantes no mês
+  const calcularDiasUteisRestantes = () => {
+    const now = new Date();
+    const brasiliaTime = new Date(now.toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }));
+    const ano = brasiliaTime.getFullYear();
+    const mes = brasiliaTime.getMonth();
+    const dia = brasiliaTime.getDate();
+    const ultimoDiaMes = new Date(ano, mes + 1, 0).getDate();
+    
+    let diasUteis = 0;
+    for (let d = dia + 1; d <= ultimoDiaMes; d++) {
+      const tempDate = new Date(ano, mes, d);
+      const tempDiaSemana = tempDate.getDay();
+      if (tempDiaSemana !== 0 && tempDiaSemana !== 6) {
+        diasUteis++;
+      }
+    }
+    return diasUteis;
+  };
+
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
@@ -273,6 +293,45 @@ const AssistenteIA = () => {
           isTVMode={isTVMode}
         />
       </div>
+
+      {/* Contexto Temporal */}
+      <section className="bg-[#0B1120] py-8 px-6 md:px-12">
+        <Card className="max-w-[1920px] mx-auto bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border-cyan-500/30 p-6">
+          <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+            📅 Contexto Temporal
+          </h3>
+          
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div>
+              <p className="text-gray-400 text-sm">Data Atual</p>
+              <p className="text-white font-bold">
+                {new Date().toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' })}
+              </p>
+            </div>
+            
+            <div>
+              <p className="text-gray-400 text-sm">Dias Úteis Restantes</p>
+              <p className="text-cyan-400 font-bold text-2xl">
+                {calcularDiasUteisRestantes()}
+              </p>
+            </div>
+            
+            <div>
+              <p className="text-gray-400 text-sm">Progresso do Mês</p>
+              <p className="text-white font-bold">
+                {((new Date().getDate() / new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate()) * 100).toFixed(0)}%
+              </p>
+            </div>
+            
+            <div>
+              <p className="text-gray-400 text-sm">Trimestre</p>
+              <p className="text-white font-bold">
+                Q{Math.floor(new Date().getMonth() / 3) + 1} / {new Date().getFullYear()}
+              </p>
+            </div>
+          </div>
+        </Card>
+      </section>
 
       {/* Status do Assistente */}
       <section className="bg-gradient-to-br from-[#0066FF]/20 to-[#00E5CC]/20 py-12 md:py-20 px-6 md:px-12">
