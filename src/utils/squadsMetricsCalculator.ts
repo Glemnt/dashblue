@@ -63,6 +63,19 @@ export interface MetricaComparacao {
   diferencaPerc: number;
 }
 
+export interface CenarioProjecao {
+  projecaoFinal: number;
+  probabilidade: string;
+  premissa: string;
+  vaiAcertarMeta: boolean;
+}
+
+export interface RangeProjecao {
+  min: number;
+  max: number;
+  diferenca: number;
+}
+
 export interface SquadsComparison {
   placar: {
     lider: 'Hot Dogs' | 'Corvo Azul' | 'Empate';
@@ -101,16 +114,28 @@ export interface SquadsComparison {
   
   projecao: {
     hotDogs: {
-      projecaoFinal: number;
-      vaiAcertarMeta: boolean;
+      cenarios: {
+        pessimista: CenarioProjecao;
+        realista: CenarioProjecao;
+        otimista: CenarioProjecao;
+      };
+      range: RangeProjecao;
       mediaDiaria: number;
       diasRestantes: number;
+      metaSquad: number;
+      receitaAtual: number;
     };
     corvoAzul: {
-      projecaoFinal: number;
-      vaiAcertarMeta: boolean;
+      cenarios: {
+        pessimista: CenarioProjecao;
+        realista: CenarioProjecao;
+        otimista: CenarioProjecao;
+      };
+      range: RangeProjecao;
       mediaDiaria: number;
       diasRestantes: number;
+      metaSquad: number;
+      receitaAtual: number;
     };
   };
 }
@@ -450,7 +475,7 @@ export const calcularMetricasSquads = (data: any[], dateRange?: DateRange, month
     empates: 0
   };
   
-  // Projeções
+  // Projeções com Múltiplos Cenários
   const now = new Date();
   const diasNoMes = endOfMonth(now).getDate();
   const diaAtual = now.getDate();
@@ -459,24 +484,68 @@ export const calcularMetricasSquads = (data: any[], dateRange?: DateRange, month
   const mediaDiariaHotDogs = diaAtual > 0 ? hotDogs.receitaTotal / diaAtual : 0;
   const mediaDiariaCorvoAzul = diaAtual > 0 ? corvoAzul.receitaTotal / diaAtual : 0;
   
-  const projecaoFinalHotDogs = hotDogs.receitaTotal + (mediaDiariaHotDogs * diasRestantes);
-  const projecaoFinalCorvoAzul = corvoAzul.receitaTotal + (mediaDiariaCorvoAzul * diasRestantes);
-  
   const configMetaProjecao = getMetasPorMes(monthKey || 'novembro-2025');
   const metaReceita = configMetaProjecao.squads.metaPorSquad;
   
+  // Função para calcular cenários de um squad
+  const calcularCenariosSquad = (receitaAtual: number, mediaDiaria: number, metaSquad: number) => {
+    // CENÁRIO PESSIMISTA: -30% da média (desaceleração)
+    const mediaPessimista = mediaDiaria * 0.7;
+    const projecaoPessimista = receitaAtual + (mediaPessimista * diasRestantes);
+    
+    // CENÁRIO REALISTA: média atual (mantém ritmo)
+    const projecaoRealista = receitaAtual + (mediaDiaria * diasRestantes);
+    
+    // CENÁRIO OTIMISTA: +30% da média (aceleração)
+    const mediaOtimista = mediaDiaria * 1.3;
+    const projecaoOtimista = receitaAtual + (mediaOtimista * diasRestantes);
+    
+    return {
+      cenarios: {
+        pessimista: {
+          projecaoFinal: projecaoPessimista,
+          probabilidade: '30%',
+          premissa: 'Desaceleração de 30%',
+          vaiAcertarMeta: projecaoPessimista >= metaSquad
+        },
+        realista: {
+          projecaoFinal: projecaoRealista,
+          probabilidade: '50%',
+          premissa: 'Mantém ritmo atual',
+          vaiAcertarMeta: projecaoRealista >= metaSquad
+        },
+        otimista: {
+          projecaoFinal: projecaoOtimista,
+          probabilidade: '20%',
+          premissa: 'Aceleração de 30%',
+          vaiAcertarMeta: projecaoOtimista >= metaSquad
+        }
+      },
+      range: {
+        min: projecaoPessimista,
+        max: projecaoOtimista,
+        diferenca: projecaoOtimista - projecaoPessimista
+      }
+    };
+  };
+  
+  const cenariosHotDogs = calcularCenariosSquad(hotDogs.receitaTotal, mediaDiariaHotDogs, metaReceita);
+  const cenariosCorvoAzul = calcularCenariosSquad(corvoAzul.receitaTotal, mediaDiariaCorvoAzul, metaReceita);
+  
   const projecao = {
     hotDogs: {
-      projecaoFinal: projecaoFinalHotDogs,
-      vaiAcertarMeta: projecaoFinalHotDogs >= metaReceita,
+      ...cenariosHotDogs,
       mediaDiaria: mediaDiariaHotDogs,
-      diasRestantes
+      diasRestantes,
+      metaSquad: metaReceita,
+      receitaAtual: hotDogs.receitaTotal
     },
     corvoAzul: {
-      projecaoFinal: projecaoFinalCorvoAzul,
-      vaiAcertarMeta: projecaoFinalCorvoAzul >= metaReceita,
+      ...cenariosCorvoAzul,
       mediaDiaria: mediaDiariaCorvoAzul,
-      diasRestantes
+      diasRestantes,
+      metaSquad: metaReceita,
+      receitaAtual: corvoAzul.receitaTotal
     }
   };
   
