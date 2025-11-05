@@ -9,22 +9,22 @@ interface SquadsProjecaoProps {
       vaiAcertarMeta: boolean;
       mediaDiaria: number;
       diasRestantes: number;
+      metaSquad: number;
     };
     corvoAzul: {
       projecaoFinal: number;
       vaiAcertarMeta: boolean;
       mediaDiaria: number;
       diasRestantes: number;
+      metaSquad: number;
     };
   };
   isTVMode: boolean;
 }
 
 export const SquadsProjecao = ({ projecao, isTVMode }: SquadsProjecaoProps) => {
-  const metaReceita = 325000;
-  
-  const progressoHotDogs = Math.min((projecao.hotDogs.projecaoFinal / metaReceita) * 100, 100);
-  const progressoCorvoAzul = Math.min((projecao.corvoAzul.projecaoFinal / metaReceita) * 100, 100);
+  const progressoHotDogs = Math.min((projecao.hotDogs.projecaoFinal / projecao.hotDogs.metaSquad) * 100, 100);
+  const progressoCorvoAzul = Math.min((projecao.corvoAzul.projecaoFinal / projecao.corvoAzul.metaSquad) * 100, 100);
   
   return (
     <div className="max-w-[1600px] mx-auto">
@@ -65,7 +65,7 @@ export const SquadsProjecao = ({ projecao, isTVMode }: SquadsProjecaoProps) => {
               />
               
               <div className="flex justify-between text-sm text-[#94A3B8]">
-                <span>Meta: {formatarReal(metaReceita)}</span>
+                <span>Meta: {formatarReal(projecao.hotDogs.metaSquad)}</span>
                 <span>{progressoHotDogs.toFixed(1)}% da meta</span>
               </div>
               
@@ -75,7 +75,7 @@ export const SquadsProjecao = ({ projecao, isTVMode }: SquadsProjecaoProps) => {
                 </p>
               ) : (
                 <p className={`text-orange-600 font-semibold mt-2 ${isTVMode ? 'text-lg' : 'text-sm'}`}>
-                  ⚠️ Abaixo da meta ({formatarReal(metaReceita - projecao.hotDogs.projecaoFinal)} faltando)
+                  ⚠️ Abaixo da meta ({formatarReal(projecao.hotDogs.metaSquad - projecao.hotDogs.projecaoFinal)} faltando)
                 </p>
               )}
               
@@ -107,7 +107,7 @@ export const SquadsProjecao = ({ projecao, isTVMode }: SquadsProjecaoProps) => {
               />
               
               <div className="flex justify-between text-sm text-[#94A3B8]">
-                <span>Meta: {formatarReal(metaReceita)}</span>
+                <span>Meta: {formatarReal(projecao.corvoAzul.metaSquad)}</span>
                 <span>{progressoCorvoAzul.toFixed(1)}% da meta</span>
               </div>
               
@@ -117,7 +117,7 @@ export const SquadsProjecao = ({ projecao, isTVMode }: SquadsProjecaoProps) => {
                 </p>
               ) : (
                 <p className={`text-orange-600 font-semibold mt-2 ${isTVMode ? 'text-lg' : 'text-sm'}`}>
-                  ⚠️ Abaixo da meta ({formatarReal(metaReceita - projecao.corvoAzul.projecaoFinal)} faltando)
+                  ⚠️ Abaixo da meta ({formatarReal(projecao.corvoAzul.metaSquad - projecao.corvoAzul.projecaoFinal)} faltando)
                 </p>
               )}
               
@@ -164,10 +164,10 @@ export const SquadsProjecao = ({ projecao, isTVMode }: SquadsProjecaoProps) => {
               </p>
               <p className={`text-white ${isTVMode ? 'text-lg' : 'text-sm'}`}>
                 {!projecao.hotDogs.vaiAcertarMeta && (
-                  <>Hot Dogs precisa de {formatarReal((metaReceita - projecao.hotDogs.projecaoFinal) / projecao.hotDogs.diasRestantes)} extras/dia.</>
+                  <>Hot Dogs precisa de {formatarReal((projecao.hotDogs.metaSquad - projecao.hotDogs.projecaoFinal) / projecao.hotDogs.diasRestantes)} extras/dia.</>
                 )}
                 {!projecao.corvoAzul.vaiAcertarMeta && (
-                  <> Corvo Azul precisa de {formatarReal((metaReceita - projecao.corvoAzul.projecaoFinal) / projecao.corvoAzul.diasRestantes)} extras/dia.</>
+                  <> Corvo Azul precisa de {formatarReal((projecao.corvoAzul.metaSquad - projecao.corvoAzul.projecaoFinal) / projecao.corvoAzul.diasRestantes)} extras/dia.</>
                 )}
                 {projecao.hotDogs.vaiAcertarMeta && projecao.corvoAzul.vaiAcertarMeta && (
                   <>Ambos os squads estão no caminho para bater a meta! 🎉</>

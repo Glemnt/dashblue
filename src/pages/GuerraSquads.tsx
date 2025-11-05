@@ -272,7 +272,19 @@ const GuerraSquads = () => {
 
       {/* SEÇÃO 6: PROJEÇÕES */}
       <section className="bg-[#F8FAFC] py-12 md:py-20 px-6 md:px-12">
-        <SquadsProjecao projecao={metricas.projecao} isTVMode={isTVMode} />
+        <SquadsProjecao 
+          projecao={{
+            hotDogs: {
+              ...metricas.projecao.hotDogs,
+              metaSquad: metricas.hotDogs.metaSquad
+            },
+            corvoAzul: {
+              ...metricas.projecao.corvoAzul,
+              metaSquad: metricas.corvoAzul.metaSquad
+            }
+          }} 
+          isTVMode={isTVMode} 
+        />
       </section>
 
       {/* SEÇÃO 7: TRASH TALK DINÂMICO */}
