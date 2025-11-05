@@ -12,8 +12,6 @@ import PeriodFilter from '@/components/sdr/PeriodFilter';
 import { SquadsPlacar } from '@/components/squads/SquadsPlacar';
 import { SquadsComparativo } from '@/components/squads/SquadsComparativo';
 import { SquadsMembros } from '@/components/squads/SquadsMembros';
-import { SquadsGraficos } from '@/components/squads/SquadsGraficos';
-
 import { SquadsProjecao } from '@/components/squads/SquadsProjecao';
 import { SquadsMetaIndividual } from '@/components/squads/SquadsMetaIndividual';
 import { Button } from '@/components/ui/button';
@@ -255,16 +253,6 @@ const GuerraSquads = () => {
           isTVMode={isTVMode}
         />
       </section>
-
-      {/* SEÇÃO 4: GRÁFICOS COMPARATIVOS */}
-      <section className="bg-[#F8FAFC] py-12 md:py-20 px-6 md:px-12">
-        <SquadsGraficos
-          hotDogs={metricas.hotDogs}
-          corvoAzul={metricas.corvoAzul}
-          isTVMode={isTVMode}
-        />
-      </section>
-
 
       {/* SEÇÃO 6: PROJEÇÕES */}
       <section className="bg-[#F8FAFC] py-12 md:py-20 px-6 md:px-12">
