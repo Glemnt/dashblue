@@ -185,3 +185,17 @@ All colors MUST be HSL.
 .slider-thumb:focus::-webkit-slider-thumb {
   box-shadow: 0 0 0 6px rgba(0, 229, 204, 0.4);
 }
+
+/* Simulator slider gradient */
+.simulator-slider {
+  background: linear-gradient(to right, #FF4757 0%, #FFB800 50%, #00E5CC 100%);
+}
+
+/* Scenario column hover */
+.scenario-column {
+  transition: all 0.3s ease;
+}
+
+.scenario-column:hover {
+  transform: scale(1.02);
+}

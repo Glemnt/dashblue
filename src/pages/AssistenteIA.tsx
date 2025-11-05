@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useGoogleSheets } from '@/hooks/useGoogleSheets';
 import { useGoogleSheetsCampanhas } from '@/hooks/useGoogleSheetsCampanhas';
 import { useGoogleSheetsLeads } from '@/hooks/useGoogleSheetsLeads';
@@ -18,7 +18,13 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/components/ui/use-toast';
 import { RefreshCw, Sparkles, TrendingUp, AlertTriangle, Target, MessageSquare, Calculator, FileText, Loader2, Info, AlertCircle } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
-import { SimulatorSlider } from '@/components/ia/simulator/SimulatorSlider';
+import { SimulatorControls } from '@/components/ia/simulator/SimulatorControls';
+import { ScenariosTable } from '@/components/ia/simulator/ScenariosTable';
+import { ScenariosChart } from '@/components/ia/simulator/ScenariosChart';
+import { SensitivityAnalysis } from '@/components/ia/simulator/SensitivityAnalysis';
+import { SavedScenarios, SavedScenario } from '@/components/ia/simulator/SavedScenarios';
+import { AIAnalysis } from '@/components/ia/simulator/AIAnalysis';
+import { calcularCenario, gerarCenarioRealista, gerarCenarioOtimista, gerarCenarioPessimista, calcularSensibilidade } from '@/utils/scenarioCalculator';
 import logoWhite from '@/assets/logo-white.png';
 
 const AssistenteIA = () => {
@@ -41,6 +47,9 @@ const AssistenteIA = () => {
   });
   const [report, setReport] = useState<any>(null);
   const [reportLoading, setReportLoading] = useState(false);
+  const [savedScenarios, setSavedScenarios] = useState<SavedScenario[]>([]);
+  const [scenariosAnalysis, setScenariosAnalysis] = useState<any>(null);
+  const [analysisLoading, setAnalysisLoading] = useState(false);
 
   const { data: rawData, loading: loadingData, refetch } = useGoogleSheets(undefined, selectedMonthKey);
   const { totalLeads, totalMQLs } = useGoogleSheetsCampanhas();
@@ -96,6 +105,18 @@ const AssistenteIA = () => {
       });
     }
   }, [metricas]);
+
+  // Carregar cenários salvos do localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem('saved_scenarios');
+    if (saved) {
+      try {
+        setSavedScenarios(JSON.parse(saved));
+      } catch (e) {
+        console.error('Erro ao carregar cenários salvos:', e);
+      }
+    }
+  }, []);
 
   const gerarAnaliseCompleta = async () => {
     if (!metricas) return;
@@ -241,6 +262,181 @@ const AssistenteIA = () => {
       setReportLoading(false);
     }
   };
+
+  // Calcular todos os cenários
+  const currentScenario = useMemo(() => {
+    if (!metricas) return null;
+    return calcularCenario(
+      metricas.taxaShow,
+      metricas.taxaConversao,
+      metricas.ticketMedio,
+      metricas.callsAgendadas || 0,
+      metricas.callsQualificadas || 0,
+      metricas.metaMensal
+    );
+  }, [metricas]);
+
+  const simulatedScenario = useMemo(() => {
+    if (!metricas) return null;
+    return calcularCenario(
+      simulationValues.taxaShow,
+      simulationValues.taxaConversao,
+      simulationValues.ticketMedio,
+      metricas.callsAgendadas || 0,
+      metricas.callsQualificadas || 0,
+      metricas.metaMensal
+    );
+  }, [simulationValues, metricas]);
+
+  const realisticScenario = useMemo(() => {
+    if (!currentScenario || !metricas) return null;
+    return gerarCenarioRealista(currentScenario, metricas.callsAgendadas || 0, metricas.callsQualificadas || 0, metricas.metaMensal);
+  }, [currentScenario, metricas]);
+
+  const optimisticScenario = useMemo(() => {
+    if (!metricas) return null;
+    return gerarCenarioOtimista(metricas.callsAgendadas || 0, metricas.callsQualificadas || 0, metricas.metaMensal);
+  }, [metricas]);
+
+  const pessimisticScenario = useMemo(() => {
+    if (!currentScenario || !metricas) return null;
+    return gerarCenarioPessimista(currentScenario, metricas.callsAgendadas || 0, metricas.callsQualificadas || 0, metricas.metaMensal);
+  }, [currentScenario, metricas]);
+
+  const sensitivity = useMemo(() => {
+    if (!metricas || !currentScenario) return null;
+    return calcularSensibilidade(
+      metricas.callsAgendadas || 0,
+      metricas.callsQualificadas || 0,
+      currentScenario.contratos,
+      currentScenario.taxaShow,
+      currentScenario.taxaConversao,
+      currentScenario.ticketMedio
+    );
+  }, [metricas, currentScenario]);
+
+  // Funções de gerenciamento de cenários
+  const salvarCenario = (nome: string) => {
+    if (!simulatedScenario) return;
+    
+    const newScenario: SavedScenario = {
+      id: Date.now().toString(),
+      name: nome,
+      date: new Date().toISOString(),
+      values: simulationValues,
+      projected: {
+        receita: simulatedScenario.receita,
+        contratos: simulatedScenario.contratos,
+        meta: simulatedScenario.progressoMeta
+      }
+    };
+    
+    const updated = [newScenario, ...savedScenarios].slice(0, 5);
+    setSavedScenarios(updated);
+    localStorage.setItem('saved_scenarios', JSON.stringify(updated));
+    toast({ title: "✅ Cenário salvo com sucesso" });
+  };
+
+  const carregarCenario = (scenario: SavedScenario) => {
+    setSimulationValues(scenario.values);
+    toast({ title: "✅ Cenário carregado" });
+  };
+
+  const deletarCenario = (id: string) => {
+    const updated = savedScenarios.filter(s => s.id !== id);
+    setSavedScenarios(updated);
+    localStorage.setItem('saved_scenarios', JSON.stringify(updated));
+    toast({ title: "🗑️ Cenário removido" });
+  };
+
+  const analisarCenarios = async () => {
+    if (!currentScenario || !simulatedScenario || !realisticScenario || !optimisticScenario || !pessimisticScenario) return;
+    
+    setAnalysisLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('ai-assistant', {
+        body: {
+          type: 'analyze-scenarios',
+          metrics: metricas,
+          currentScenario,
+          simulatedScenario,
+          realisticScenario,
+          optimisticScenario,
+          pessimisticScenario
+        }
+      });
+
+      if (error) throw error;
+      setScenariosAnalysis(data.analysis);
+      toast({ title: "✅ Análise concluída" });
+    } catch (error: any) {
+      toast({
+        title: "❌ Erro na análise",
+        description: error.message,
+        variant: "destructive"
+      });
+    } finally {
+      setAnalysisLoading(false);
+    }
+  };
+
+  const aplicarPreset = (preset: string) => {
+    if (!metricas) return;
+    
+    switch (preset) {
+      case 'metas':
+        setSimulationValues({ taxaShow: 75, taxaConversao: 25, ticketMedio: 12000 });
+        break;
+      case 'benchmarks':
+        setSimulationValues({ taxaShow: 75, taxaConversao: 25, ticketMedio: 12000 });
+        break;
+      case 'reset':
+        setSimulationValues({
+          taxaShow: metricas.taxaShow,
+          taxaConversao: metricas.taxaConversao,
+          ticketMedio: metricas.ticketMedio
+        });
+        break;
+      case 'ai':
+        toast({ title: "🤖 Recomendação IA", description: "Aplicando valores recomendados..." });
+        setSimulationValues({ taxaShow: 75, taxaConversao: 25, ticketMedio: 12000 });
+        break;
+    }
+  };
+
+  const impactData = useMemo(() => {
+    if (!currentScenario || !simulatedScenario) {
+      return {
+        callsRealizadas: { atual: 0, projetado: 0, diff: 0 },
+        contratos: { atual: 0, projetado: 0, diff: 0 },
+        receita: { atual: 0, projetado: 0, diff: 0 },
+        progressoMeta: { atual: 0, projetado: 0, diff: 0 }
+      };
+    }
+    
+    return {
+      callsRealizadas: {
+        atual: currentScenario.callsRealizadas,
+        projetado: simulatedScenario.callsRealizadas,
+        diff: simulatedScenario.callsRealizadas - currentScenario.callsRealizadas
+      },
+      contratos: {
+        atual: currentScenario.contratos,
+        projetado: simulatedScenario.contratos,
+        diff: simulatedScenario.contratos - currentScenario.contratos
+      },
+      receita: {
+        atual: currentScenario.receita,
+        projetado: simulatedScenario.receita,
+        diff: simulatedScenario.receita - currentScenario.receita
+      },
+      progressoMeta: {
+        atual: currentScenario.progressoMeta,
+        projetado: simulatedScenario.progressoMeta,
+        diff: simulatedScenario.progressoMeta - currentScenario.progressoMeta
+      }
+    };
+  }, [currentScenario, simulatedScenario]);
 
   if (loadingData || !metricas) {
     return (
@@ -579,232 +775,97 @@ const AssistenteIA = () => {
         </div>
       </section>
 
-      {/* Simulador */}
+      {/* Simulador Avançado */}
       <section className="bg-[#0B1120] py-12 md:py-20 px-6 md:px-12">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-8 flex items-center gap-3">
-            <Calculator className="w-8 h-8 text-[#00E5CC]" />
-            Simulador: E se...
-          </h2>
-
-          <div className="grid md:grid-cols-2 gap-8">
-                <Card className="bg-[#151E35] p-6">
-                  <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-                    🔮 Simular Mudanças
-                    <Badge variant="secondary" className="ml-auto">
-                      Interativo
-                    </Badge>
-                  </h3>
-                  
-                  <div className="space-y-6">
-                    {/* Card de instruções */}
-                    <div className="bg-[#0066FF]/10 border border-[#0066FF]/30 p-4 rounded-lg">
-                      <p className="text-white text-sm flex items-center gap-2">
-                        <Info className="w-4 h-4 text-[#00E5CC]" />
-                        <strong>Como usar:</strong>
-                      </p>
-                      <p className="text-[#94A3B8] text-xs mt-2">
-                        Ajuste os sliders abaixo para simular diferentes cenários. 
-                        Os valores atuais estão marcados para referência.
-                      </p>
-                    </div>
-
-                    <SimulatorSlider
-                      label="Taxa de Show"
-                      value={simulationValues.taxaShow}
-                      currentValue={metricas.taxaShow}
-                      min={0}
-                      max={100}
-                      step={1}
-                      onChange={(val) => setSimulationValues(prev => ({ ...prev, taxaShow: val }))}
-                      format="percentage"
-                      isTVMode={isTVMode}
-                    />
-
-                    <SimulatorSlider
-                      label="Taxa de Conversão"
-                      value={simulationValues.taxaConversao}
-                      currentValue={metricas.taxaConversao}
-                      min={0}
-                      max={50}
-                      step={1}
-                      onChange={(val) => setSimulationValues(prev => ({ ...prev, taxaConversao: val }))}
-                      format="percentage"
-                      isTVMode={isTVMode}
-                    />
-
-                    <SimulatorSlider
-                      label="Ticket Médio"
-                      value={simulationValues.ticketMedio}
-                      currentValue={metricas.ticketMedio}
-                      min={8000}
-                      max={20000}
-                      step={500}
-                      onChange={(val) => setSimulationValues(prev => ({ ...prev, ticketMedio: val }))}
-                      format="currency"
-                      isTVMode={isTVMode}
-                    />
-
-                    {(() => {
-                      const hasChanges = 
-                        simulationValues.taxaShow !== metricas.taxaShow ||
-                        simulationValues.taxaConversao !== metricas.taxaConversao ||
-                        simulationValues.ticketMedio !== metricas.ticketMedio;
-                      
-                      return (
-                        <Button 
-                          onClick={simularCenario} 
-                          disabled={simulationLoading || !hasChanges} 
-                          className={`w-full font-bold ${
-                            hasChanges 
-                              ? 'bg-[#00E5CC] hover:bg-[#00E5CC]/90 text-[#0B1120]' 
-                              : 'bg-gray-600 text-gray-400 cursor-not-allowed'
-                          }`}
-                          size={isTVMode ? "lg" : "default"}
-                        >
-                          {simulationLoading ? (
-                            <>
-                              <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                              Simulando...
-                            </>
-                          ) : !hasChanges ? (
-                            <>
-                              <AlertCircle className="w-5 h-5 mr-2" />
-                              Ajuste os valores para simular
-                            </>
-                          ) : (
-                            <>
-                              <Calculator className="w-5 h-5 mr-2" />
-                              🔮 Simular Impacto
-                            </>
-                          )}
-                        </Button>
-                      );
-                    })()}
-
-                    {/* Info helper */}
-                    <p className="text-xs text-[#94A3B8] text-center">
-                      💡 Ajuste os valores acima para ver o impacto no resultado
-                    </p>
-                  </div>
-                </Card>
-
-            {simulation && (
-              <Card className="bg-[#151E35] p-6 border-2 border-[#00E5CC]/30">
-                <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-                  📊 Resultados da Simulação
-                  <Badge variant="outline" className="ml-auto text-[#00E5CC]">
-                    Projeção
-                  </Badge>
-                </h3>
-                
-                <div className="space-y-4">
-                  {/* Receita Projetada */}
-                  <div className="bg-gradient-to-r from-[#00E5CC]/20 to-[#0066FF]/20 p-4 rounded-lg border border-[#00E5CC]/30">
-                    <p className="text-[#94A3B8] text-sm mb-1">Receita Projetada</p>
-                    <div className="flex items-end justify-between">
-                      <p className="text-3xl font-bold text-[#00E5CC]">
-                        {simulation.receitaProjetada}
-                      </p>
-                      <div className="text-right">
-                        <p className={`text-sm font-semibold ${
-                          simulation.diferencaReceita > 0 ? 'text-green-400' : 'text-red-400'
-                        }`}>
-                          {simulation.diferencaReceita > 0 ? '↗' : '↘'} {simulation.diferencaReceita > 0 ? '+' : ''}{simulation.diferencaReceita.toFixed(1)}%
-                        </p>
-                        <p className="text-xs text-[#94A3B8]">vs atual</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Contratos Projetados */}
-                  {simulation.contratosProjetados && (
-                    <div className="bg-[#0B1120] p-4 rounded-lg">
-                      <p className="text-[#94A3B8] text-sm mb-1">Contratos Projetados</p>
-                      <div className="flex items-end justify-between">
-                        <p className="text-2xl font-bold text-white">
-                          {simulation.contratosProjetados}
-                        </p>
-                        {simulation.diferencaContratos && (
-                          <p className={`text-sm ${
-                            simulation.diferencaContratos > 0 ? 'text-green-400' : 'text-red-400'
-                          }`}>
-                            {simulation.diferencaContratos > 0 ? '+' : ''}{simulation.diferencaContratos}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Meta Projetada */}
-                  {simulation.metaProjetada && (
-                    <div className="bg-[#0B1120] p-4 rounded-lg">
-                      <p className="text-[#94A3B8] text-sm mb-1">% da Meta</p>
-                      <div className="flex items-center gap-3">
-                        <p className="text-2xl font-bold text-white">
-                          {simulation.metaProjetada.toFixed(1)}%
-                        </p>
-                        <Progress 
-                          value={simulation.metaProjetada} 
-                          className="flex-1 h-2"
-                        />
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Viabilidade */}
-                  <div className="bg-yellow-500/10 border border-yellow-500/30 p-4 rounded-lg">
-                    <p className="text-yellow-400 text-sm font-semibold mb-2 flex items-center gap-2">
-                      <AlertTriangle className="w-4 h-4" />
-                      Análise de Viabilidade
-                    </p>
-                    <p className="text-white text-sm leading-relaxed">
-                      {simulation.viabilidade}
-                    </p>
-                  </div>
-
-                  {/* Passos Recomendados */}
-                  {simulation.passos && simulation.passos.length > 0 && (
-                    <div className="bg-[#0B1120] p-4 rounded-lg">
-                      <p className="text-white font-semibold mb-3">🎯 Passos Recomendados:</p>
-                      <ol className="list-decimal list-inside space-y-2 text-sm text-[#94A3B8]">
-                        {simulation.passos.map((passo: string, i: number) => (
-                          <li key={i} className="leading-relaxed">{passo}</li>
-                        ))}
-                      </ol>
-                    </div>
-                  )}
-
-                  {/* Ações */}
-                  <div className="flex gap-2 pt-2">
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      onClick={() => setSimulation(null)}
-                      className="flex-1"
-                    >
-                      Limpar
-                    </Button>
-                    <Button 
-                      variant="default" 
-                      size="sm"
-                      onClick={() => {
-                        // Reset aos valores atuais
-                        setSimulationValues({
-                          taxaShow: metricas.taxaShow,
-                          taxaConversao: metricas.taxaConversao,
-                          ticketMedio: metricas.ticketMedio
-                        });
-                      }}
-                      className="flex-1 bg-[#00E5CC] text-[#0B1120]"
-                    >
-                      Resetar Valores
-                    </Button>
-                  </div>
-                </div>
-              </Card>
-            )}
+        <div className="max-w-[1920px] mx-auto">
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h2 className="text-3xl md:text-4xl font-bold text-white flex items-center gap-3">
+                <Calculator className="w-8 h-8 text-[#00E5CC]" />
+                🔮 Simulador de Cenários
+                <Badge variant="secondary" className="ml-4">Avançado</Badge>
+              </h2>
+              <p className="text-[#94A3B8] text-lg mt-2">
+                Veja o impacto de melhorias nas suas métricas-chave
+              </p>
+            </div>
           </div>
+
+          {currentScenario && simulatedScenario && realisticScenario && optimisticScenario && pessimisticScenario && sensitivity ? (
+            <>
+              <div className="grid lg:grid-cols-2 gap-8 mb-12">
+                <div className="space-y-6">
+                  <SimulatorControls
+                    currentMetrics={{
+                      taxaShow: metricas.taxaShow,
+                      taxaConversao: metricas.taxaConversao,
+                      ticketMedio: metricas.ticketMedio
+                    }}
+                    simulatedValues={simulationValues}
+                    onValuesChange={setSimulationValues}
+                    onApplyPreset={aplicarPreset}
+                    onSimulate={simularCenario}
+                    isLoading={simulationLoading}
+                    isTVMode={isTVMode}
+                    impactData={impactData}
+                  />
+                  
+                  <SensitivityAnalysis
+                    sensitivity={sensitivity}
+                    isTVMode={isTVMode}
+                  />
+                </div>
+
+                <div className="space-y-6">
+                  <ScenariosTable
+                    currentScenario={currentScenario}
+                    simulatedScenario={simulatedScenario}
+                    realisticScenario={realisticScenario}
+                    optimisticScenario={optimisticScenario}
+                    pessimisticScenario={pessimisticScenario}
+                    metaMensal={metricas.metaMensal}
+                    isTVMode={isTVMode}
+                  />
+                  
+                  <AIAnalysis
+                    analysis={scenariosAnalysis}
+                    onAnalyze={analisarCenarios}
+                    isLoading={analysisLoading}
+                    isTVMode={isTVMode}
+                  />
+                </div>
+              </div>
+
+              <Card className="bg-[#F8FAFC] p-8 mb-8">
+                <h3 className="text-2xl font-bold text-[#0B1120] mb-6">
+                  📊 Comparação Visual de Cenários
+                </h3>
+                <ScenariosChart
+                  scenarios={{
+                    current: currentScenario,
+                    simulated: simulatedScenario,
+                    realistic: realisticScenario,
+                    optimistic: optimisticScenario,
+                    pessimistic: pessimisticScenario
+                  }}
+                  metaMensal={metricas.metaMensal}
+                />
+              </Card>
+
+              <SavedScenarios
+                scenarios={savedScenarios}
+                onLoad={carregarCenario}
+                onDelete={deletarCenario}
+                onSave={salvarCenario}
+                isTVMode={isTVMode}
+              />
+            </>
+          ) : (
+            <div className="text-center py-12">
+              <Loader2 className="w-12 h-12 text-[#00E5CC] animate-spin mx-auto mb-4" />
+              <p className="text-white">Carregando simulador...</p>
+            </div>
+          )}
         </div>
       </section>
 
