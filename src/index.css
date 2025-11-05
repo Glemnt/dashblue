@@ -195,7 +195,3 @@ All colors MUST be HSL.
 .scenario-column {
   transition: all 0.3s ease;
 }
-
-.scenario-column:hover {
-  transform: scale(1.02);
-}
