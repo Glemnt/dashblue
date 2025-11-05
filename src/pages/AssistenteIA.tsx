@@ -5,8 +5,7 @@ import Footer from '@/components/Footer';
 import { useGoogleSheetsLeads } from '@/hooks/useGoogleSheetsLeads';
 import { useGoogleSheets } from '@/hooks/useGoogleSheets';
 import { useGoogleSheetsCampanhas } from '@/hooks/useGoogleSheetsCampanhas';
-import { calcularMetricas } from '@/utils/metricsCalculator';
-import { formatarReal } from '@/utils/closerMetricsCalculator';
+import { calcularMetricas, formatarReal } from '@/utils/metricsCalculator';
 import { supabase } from '@/integrations/supabase/client';
 import { useTVMode } from '@/hooks/useTVMode';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -123,11 +122,14 @@ const AssistenteIA = () => {
   const enviarMensagem = async (mensagemUsuario: string) => {
     if (!mensagemUsuario.trim() || isChatLoading || !metricas) return;
     
-    const novasMensagens = [...chatMessages, { 
-      role: 'user', 
-      content: mensagemUsuario,
-      timestamp: new Date()
-    }];
+    const novasMensagens: Array<{role: 'user' | 'assistant'; content: string; timestamp: Date}> = [
+      ...chatMessages, 
+      { 
+        role: 'user' as const, 
+        content: mensagemUsuario,
+        timestamp: new Date()
+      }
+    ];
     setChatMessages(novasMensagens);
     setIsChatLoading(true);
 
@@ -144,11 +146,14 @@ const AssistenteIA = () => {
       if (error) throw error;
 
       if (data?.resposta) {
-        setChatMessages([...novasMensagens, { 
-          role: 'assistant', 
-          content: data.resposta,
-          timestamp: new Date()
-        }]);
+        setChatMessages([
+          ...novasMensagens, 
+          { 
+            role: 'assistant' as const, 
+            content: data.resposta,
+            timestamp: new Date()
+          }
+        ]);
       }
     } catch (error: any) {
       toast({
