@@ -92,7 +92,7 @@ const PerformanceCloser = () => {
   const configMeta = getMetasPorMes(selectedMonthKey);
   const metaMensalReceita = configMeta.metaMensal;
   const metaIndividualReceita = configMeta.metaIndividualCloser;
-  const metaTicketMedio = 12000;
+  const metaTicketMedio = 4000;
   const metaTaxaConversao = 25;
 
   console.log('🎯 Performance Closer - Metas:', {

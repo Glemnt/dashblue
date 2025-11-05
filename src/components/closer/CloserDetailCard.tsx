@@ -235,17 +235,17 @@ const CloserDetailCard = ({ closer, metaIndividual }: CloserDetailCardProps) => 
                 <div>
                   <div className="flex justify-between mb-2">
                     <span className="text-[#64748B] text-sm font-outfit">
-                      Ticket Médio vs Meta (R$ 12.000)
+                      Ticket Médio vs Meta (R$ 4.000)
                     </span>
                     <span className="text-[#0B1120] text-sm font-outfit font-semibold">
                       {formatarReal(closer.ticketMedio)}
                     </span>
                   </div>
                   <Progress 
-                    value={Math.min((closer.ticketMedio / 12000) * 100, 100)} 
+                    value={Math.min((closer.ticketMedio / 4000) * 100, 100)} 
                     className="h-3"
                     style={{ 
-                      '--progress-background': getProgressColor(closer.ticketMedio, 12000) 
+                      '--progress-background': getProgressColor(closer.ticketMedio, 4000) 
                     } as any}
                   />
                 </div>
