@@ -13,7 +13,7 @@ import { SquadsPlacar } from '@/components/squads/SquadsPlacar';
 import { SquadsComparativo } from '@/components/squads/SquadsComparativo';
 import { SquadsMembros } from '@/components/squads/SquadsMembros';
 import { SquadsGraficos } from '@/components/squads/SquadsGraficos';
-import { SquadsHistorico } from '@/components/squads/SquadsHistorico';
+
 import { SquadsProjecao } from '@/components/squads/SquadsProjecao';
 import { SquadsMetaIndividual } from '@/components/squads/SquadsMetaIndividual';
 import { Button } from '@/components/ui/button';
@@ -265,10 +265,6 @@ const GuerraSquads = () => {
         />
       </section>
 
-      {/* SEÇÃO 5: HISTÓRICO */}
-      <section className="bg-[#0B1120] py-12 md:py-20 px-6 md:px-12">
-        <SquadsHistorico historico={metricas.historico} isTVMode={isTVMode} />
-      </section>
 
       {/* SEÇÃO 6: PROJEÇÕES */}
       <section className="bg-[#F8FAFC] py-12 md:py-20 px-6 md:px-12">
