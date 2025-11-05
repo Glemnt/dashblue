@@ -2,6 +2,58 @@ import { Card } from '@/components/ui/card';
 import { formatarReal } from '@/utils/financialMetricsCalculator';
 import { CenarioProjecao } from '@/utils/squadsMetricsCalculator';
 
+// Função auxiliar para interpolar entre duas cores hex
+const interpolateColor = (color1: string, color2: string, ratio: number): string => {
+  const hex = (color: string) => {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(color);
+    return result ? {
+      r: parseInt(result[1], 16),
+      g: parseInt(result[2], 16),
+      b: parseInt(result[3], 16)
+    } : null;
+  };
+
+  const c1 = hex(color1);
+  const c2 = hex(color2);
+  
+  if (!c1 || !c2) return color1;
+
+  const r = Math.round(c1.r + (c2.r - c1.r) * ratio);
+  const g = Math.round(c1.g + (c2.g - c1.g) * ratio);
+  const b = Math.round(c1.b + (c2.b - c1.b) * ratio);
+
+  return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
+};
+
+// Função para calcular a cor da barra de progresso baseada na porcentagem
+const getProgressColor = (percentage: number): string => {
+  const progress = Math.min(percentage, 120);
+  
+  if (progress < 20) {
+    return '#EF4444'; // Vermelho intenso
+  } else if (progress < 35) {
+    const ratio = (progress - 20) / 15;
+    return interpolateColor('#EF4444', '#F97316', ratio);
+  } else if (progress < 50) {
+    const ratio = (progress - 35) / 15;
+    return interpolateColor('#F97316', '#F59E0B', ratio);
+  } else if (progress < 65) {
+    const ratio = (progress - 50) / 15;
+    return interpolateColor('#F59E0B', '#EAB308', ratio);
+  } else if (progress < 80) {
+    const ratio = (progress - 65) / 15;
+    return interpolateColor('#EAB308', '#84CC16', ratio);
+  } else if (progress < 90) {
+    const ratio = (progress - 80) / 10;
+    return interpolateColor('#84CC16', '#22C55E', ratio);
+  } else if (progress < 100) {
+    const ratio = (progress - 90) / 10;
+    return interpolateColor('#22C55E', '#10B981', ratio);
+  } else {
+    return '#00E5CC'; // Verde água brilhante
+  }
+};
+
 interface SquadsProjecaoProps {
   projecao: {
     hotDogs: {
@@ -229,20 +281,20 @@ export const SquadsProjecao = ({ projecao, isTVMode }: SquadsProjecaoProps) => {
 
         {/* Range Visual Comparativo */}
         <div className={`space-y-6 ${isTVMode ? 'mb-10' : 'mb-8'}`}>
-          {/* Hot Dogs Range */}
+          {/* Hot Dogs Projeção Realista */}
           <div>
             <div className="flex items-center justify-between mb-2">
               <span className={`text-white font-semibold ${isTVMode ? 'text-2xl' : 'text-base'}`}>🔴 Hot Dogs</span>
               <span className={`text-gray-400 ${isTVMode ? 'text-xl' : 'text-sm'}`}>
-                {formatarReal(hotDogs.range.min)} - {formatarReal(hotDogs.range.max)}
+                Projeção: {formatarReal(hotDogs.cenarios.realista.projecaoFinal)}
               </span>
             </div>
-            <div className={`relative ${isTVMode ? 'h-10' : 'h-8'} bg-white/10 rounded-full`}>
+            <div className={`relative ${isTVMode ? 'h-10' : 'h-8'} bg-white/10 rounded-full overflow-hidden`}>
               <div 
-                className="absolute h-full bg-gradient-to-r from-red-600 to-red-400 rounded-full"
+                className="absolute h-full rounded-full transition-all duration-1000"
                 style={{ 
-                  left: `${Math.max(0, Math.min(100, (hotDogs.range.min / maxValue) * 100 || 0))}%`,
-                  width: `${Math.max(0, Math.min(100 - Math.max(0, (hotDogs.range.min / maxValue) * 100 || 0), (hotDogs.range.diferenca / maxValue) * 100 || 0))}%`
+                  width: `${Math.max(0, Math.min(100, (hotDogs.cenarios.realista.projecaoFinal / maxValue) * 100 || 0))}%`,
+                  backgroundColor: getProgressColor((hotDogs.cenarios.realista.projecaoFinal / hotDogs.metaSquad) * 100)
                 }} 
               />
               <div 
@@ -252,20 +304,20 @@ export const SquadsProjecao = ({ projecao, isTVMode }: SquadsProjecaoProps) => {
             </div>
           </div>
 
-          {/* Corvo Azul Range */}
+          {/* Corvo Azul Projeção Realista */}
           <div>
             <div className="flex items-center justify-between mb-2">
               <span className={`text-white font-semibold ${isTVMode ? 'text-2xl' : 'text-base'}`}>🔵 Corvo Azul</span>
               <span className={`text-gray-400 ${isTVMode ? 'text-xl' : 'text-sm'}`}>
-                {formatarReal(corvoAzul.range.min)} - {formatarReal(corvoAzul.range.max)}
+                Projeção: {formatarReal(corvoAzul.cenarios.realista.projecaoFinal)}
               </span>
             </div>
-            <div className={`relative ${isTVMode ? 'h-10' : 'h-8'} bg-white/10 rounded-full`}>
+            <div className={`relative ${isTVMode ? 'h-10' : 'h-8'} bg-white/10 rounded-full overflow-hidden`}>
               <div 
-                className="absolute h-full bg-gradient-to-r from-blue-600 to-blue-400 rounded-full"
+                className="absolute h-full rounded-full transition-all duration-1000"
                 style={{ 
-                  left: `${Math.max(0, Math.min(100, (corvoAzul.range.min / maxValue) * 100 || 0))}%`,
-                  width: `${Math.max(0, Math.min(100 - Math.max(0, (corvoAzul.range.min / maxValue) * 100 || 0), (corvoAzul.range.diferenca / maxValue) * 100 || 0))}%`
+                  width: `${Math.max(0, Math.min(100, (corvoAzul.cenarios.realista.projecaoFinal / maxValue) * 100 || 0))}%`,
+                  backgroundColor: getProgressColor((corvoAzul.cenarios.realista.projecaoFinal / corvoAzul.metaSquad) * 100)
                 }} 
               />
               <div 
