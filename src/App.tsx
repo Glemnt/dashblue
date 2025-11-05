@@ -9,6 +9,7 @@ import PerformanceSDR from "./pages/PerformanceSDR";
 import PerformanceCloser from "./pages/PerformanceCloser";
 import Financeiro from "./pages/Financeiro";
 import GuerraSquads from "./pages/GuerraSquads";
+import AssistenteIA from "./pages/AssistenteIA";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -26,6 +27,7 @@ const App = () => (
             <Route path="/closer" element={<PerformanceCloser />} />
             <Route path="/financeiro" element={<Financeiro />} />
             <Route path="/squads" element={<GuerraSquads />} />
+            <Route path="/ia" element={<AssistenteIA />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
