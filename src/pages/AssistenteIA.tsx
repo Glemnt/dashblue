@@ -82,8 +82,9 @@ const AssistenteIA = () => {
     }
   }, [metricas]);
 
+  // Inicializar valores APENAS uma vez quando metricas fica disponível
   useEffect(() => {
-    if (metricas) {
+    if (metricas && simulationValues.taxaShow === 0) {
       console.log('📊 Inicializando simulador com valores:', {
         taxaShow: metricas.taxaShow,
         taxaConversao: metricas.taxaConversao,
@@ -96,7 +97,7 @@ const AssistenteIA = () => {
         ticketMedio: metricas.ticketMedio
       });
     }
-  }, [metricas]);
+  }, [metricas?.taxaShow, metricas?.taxaConversao, metricas?.ticketMedio]);
 
 
   const gerarAnaliseCompleta = async () => {
