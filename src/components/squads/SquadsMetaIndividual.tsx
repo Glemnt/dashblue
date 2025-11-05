@@ -35,7 +35,7 @@ export const SquadsMetaIndividual = ({
       faltaParaMeta: number;
     }
   ) => {
-    const progressoPercent = Math.min(dados.progressoMetaIndividual, 100);
+    const progressoPercent = Math.max(0, Math.min(100, dados.progressoMetaIndividual || 0));
     const metaBatida = dados.progressoMetaIndividual >= 100;
     
     return (

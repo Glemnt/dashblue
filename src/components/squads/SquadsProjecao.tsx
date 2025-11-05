@@ -111,9 +111,9 @@ export const SquadsProjecao = ({ projecao, isTVMode }: SquadsProjecaoProps) => {
     squadData: typeof hotDogs
   ) => {
     const progressoRange = Math.min((squadData.range.max / maxValue) * 100, 100);
-    const posicaoMeta = (squadData.metaSquad / maxValue) * 100;
-    const posicaoMin = (squadData.range.min / maxValue) * 100;
-    const larguraRange = ((squadData.range.diferenca) / maxValue) * 100;
+    const posicaoMeta = Math.max(0, Math.min(100, (squadData.metaSquad / maxValue) * 100 || 0));
+    const posicaoMin = Math.max(0, Math.min(100, (squadData.range.min / maxValue) * 100 || 0));
+    const larguraRange = Math.max(0, Math.min(100 - posicaoMin, ((squadData.range.diferenca) / maxValue) * 100 || 0));
     
     return (
       <Card className={`bg-white ${isTVMode ? 'p-8' : 'p-6'}`}>
@@ -241,13 +241,13 @@ export const SquadsProjecao = ({ projecao, isTVMode }: SquadsProjecaoProps) => {
               <div 
                 className="absolute h-full bg-gradient-to-r from-red-600 to-red-400 rounded-full"
                 style={{ 
-                  left: `${(hotDogs.range.min / maxValue) * 100}%`,
-                  width: `${(hotDogs.range.diferenca / maxValue) * 100}%`
+                  left: `${Math.max(0, Math.min(100, (hotDogs.range.min / maxValue) * 100 || 0))}%`,
+                  width: `${Math.max(0, Math.min(100 - Math.max(0, (hotDogs.range.min / maxValue) * 100 || 0), (hotDogs.range.diferenca / maxValue) * 100 || 0))}%`
                 }} 
               />
               <div 
                 className="absolute h-full border-l-2 border-yellow-400"
-                style={{ left: `${(hotDogs.metaSquad / maxValue) * 100}%` }} 
+                style={{ left: `${Math.max(0, Math.min(100, (hotDogs.metaSquad / maxValue) * 100 || 0))}%` }} 
               />
             </div>
           </div>
@@ -264,13 +264,13 @@ export const SquadsProjecao = ({ projecao, isTVMode }: SquadsProjecaoProps) => {
               <div 
                 className="absolute h-full bg-gradient-to-r from-blue-600 to-blue-400 rounded-full"
                 style={{ 
-                  left: `${(corvoAzul.range.min / maxValue) * 100}%`,
-                  width: `${(corvoAzul.range.diferenca / maxValue) * 100}%`
+                  left: `${Math.max(0, Math.min(100, (corvoAzul.range.min / maxValue) * 100 || 0))}%`,
+                  width: `${Math.max(0, Math.min(100 - Math.max(0, (corvoAzul.range.min / maxValue) * 100 || 0), (corvoAzul.range.diferenca / maxValue) * 100 || 0))}%`
                 }} 
               />
               <div 
                 className="absolute h-full border-l-2 border-yellow-400"
-                style={{ left: `${(corvoAzul.metaSquad / maxValue) * 100}%` }} 
+                style={{ left: `${Math.max(0, Math.min(100, (corvoAzul.metaSquad / maxValue) * 100 || 0))}%` }} 
               />
             </div>
           </div>

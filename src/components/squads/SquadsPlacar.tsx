@@ -150,12 +150,12 @@ export const SquadsPlacar = ({ dados, isTVMode }: SquadsPlacarProps) => {
             {/* Barra Hot Dogs */}
             <div 
               className="absolute left-0 h-full bg-gradient-to-r from-[#FF4757] to-[#FF4757]/80 transition-all duration-1000"
-              style={{ width: `${dados.percentualHotDogs}%` }}
+              style={{ width: `${Math.max(0, Math.min(100, dados.percentualHotDogs || 0))}%` }}
             />
             {/* Barra Corvo Azul */}
             <div 
               className="absolute right-0 h-full bg-gradient-to-l from-[#0066FF] to-[#0066FF]/80 transition-all duration-1000"
-              style={{ width: `${dados.percentualCorvoAzul}%` }}
+              style={{ width: `${Math.max(0, Math.min(100, dados.percentualCorvoAzul || 0))}%` }}
             />
             {/* Marcador do meio */}
             <div className="absolute left-1/2 transform -translate-x-1/2 h-full w-1 bg-white/50" />
