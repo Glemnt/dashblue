@@ -1,45 +1,43 @@
 import { useState, useEffect } from 'react';
-import { usePeriodFilter } from '@/contexts/PeriodFilterContext';
-import Navigation from '@/components/Navigation';
-import Footer from '@/components/Footer';
-import { useGoogleSheetsLeads } from '@/hooks/useGoogleSheetsLeads';
 import { useGoogleSheets } from '@/hooks/useGoogleSheets';
 import { useGoogleSheetsCampanhas } from '@/hooks/useGoogleSheetsCampanhas';
-import { calcularMetricas, formatarReal } from '@/utils/metricsCalculator';
-import { supabase } from '@/integrations/supabase/client';
+import { useGoogleSheetsLeads } from '@/hooks/useGoogleSheetsLeads';
+import { calcularMetricas } from '@/utils/metricsCalculator';
+import { usePeriodFilter } from '@/contexts/PeriodFilterContext';
 import { useTVMode } from '@/hooks/useTVMode';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card } from '@/components/ui/card';
+import { PeriodType, DateRange } from '@/utils/dateFilters';
+import { supabase } from '@/integrations/supabase/client';
+import Navigation from '@/components/Navigation';
+import Footer from '@/components/Footer';
+import PeriodFilter from '@/components/sdr/PeriodFilter';
+import TVModeToggle from '@/components/TVModeToggle';
 import { Button } from '@/components/ui/button';
-import { useToast } from '@/hooks/use-toast';
-import IAHeader from '@/components/ia/IAHeader';
-import IAContextBanner from '@/components/ia/IAContextBanner';
-import IAQuickActions from '@/components/ia/IAQuickActions';
-import StatusCard from '@/components/ia/cards/StatusCard';
-import RecommendationCard from '@/components/ia/cards/RecommendationCard';
-import ChatContainer from '@/components/ia/chat/ChatContainer';
-import AnalysisSkeleton from '@/components/ia/skeletons/AnalysisSkeleton';
-import { Loader2 } from 'lucide-react';
+import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Textarea } from '@/components/ui/textarea';
+import { useToast } from '@/components/ui/use-toast';
+import { RefreshCw, Sparkles, TrendingUp, AlertTriangle, Target, MessageSquare, Calculator, FileText, Loader2 } from 'lucide-react';
+import logoWhite from '@/assets/logo-white.png';
 
 const AssistenteIA = () => {
-  const { selectedMonthKey } = usePeriodFilter();
+  const { toast } = useToast();
+  const { selectedMonthKey, periodType, dateRange, setPeriodType, setDateRange, setSelectedMonthKey } = usePeriodFilter();
   const { isTVMode, setIsTVMode } = useTVMode();
-  const [now, setNow] = useState(new Date());
-  const [analise, setAnalise] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [chatMessages, setChatMessages] = useState<Array<{role: 'user' | 'assistant'; content: string; timestamp: Date}>>([]);
-  const [isChatLoading, setIsChatLoading] = useState(false);
-  const [simulacao, setSimulacao] = useState<any>(null);
-  const [relatorio, setRelatorio] = useState<any>(null);
-  const [isSimulating, setIsSimulating] = useState(false);
-  const [isGeneratingReport, setIsGeneratingReport] = useState(false);
-  const [activeTab, setActiveTab] = useState('overview');
-  const [simulationInputs, setSimulationInputs] = useState({
+  
+  const [currentTime, setCurrentTime] = useState(new Date());
+  const [analysis, setAnalysis] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
+  const [chatMessages, setChatMessages] = useState<any[]>([]);
+  const [chatInput, setChatInput] = useState('');
+  const [chatLoading, setChatLoading] = useState(false);
+  const [simulation, setSimulation] = useState<any>(null);
+  const [simulationValues, setSimulationValues] = useState({
     taxaShow: 0,
     taxaConversao: 0,
     ticketMedio: 0
   });
-  const { toast } = useToast();
+  const [report, setReport] = useState<any>(null);
+  const [reportLoading, setReportLoading] = useState(false);
 
   const { data: rawData, loading: loadingData, refetch } = useGoogleSheets(undefined, selectedMonthKey);
   const { totalLeads, totalMQLs } = useGoogleSheetsCampanhas();
@@ -49,8 +47,9 @@ const AssistenteIA = () => {
     ? calcularMetricas(rawData, { totalLeads, totalMQLs: totalMQLs + mqlsLeads }, selectedMonthKey)
     : null;
 
-  // Calcular dias úteis restantes
+  // Calcular dias úteis restantes no mês
   const calcularDiasUteisRestantes = () => {
+    const now = new Date();
     const brasiliaTime = new Date(now.toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }));
     const ano = brasiliaTime.getFullYear();
     const mes = brasiliaTime.getMonth();
@@ -68,22 +67,20 @@ const AssistenteIA = () => {
     return diasUteis;
   };
 
-  const diasUteisRestantes = calcularDiasUteisRestantes();
-
   useEffect(() => {
-    const timer = setInterval(() => setNow(new Date()), 1000);
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
 
   useEffect(() => {
-    if (metricas && !analise && !isLoading) {
+    if (metricas && !analysis && !loading) {
       gerarAnaliseCompleta();
     }
   }, [metricas]);
 
   useEffect(() => {
     if (metricas) {
-      setSimulationInputs({
+      setSimulationValues({
         taxaShow: metricas.taxaShow,
         taxaConversao: metricas.taxaConversao,
         ticketMedio: metricas.ticketMedio
@@ -94,19 +91,21 @@ const AssistenteIA = () => {
   const gerarAnaliseCompleta = async () => {
     if (!metricas) return;
     
-    setIsLoading(true);
+    setLoading(true);
     try {
       const { data, error } = await supabase.functions.invoke('ai-assistant', {
         body: { type: 'analysis', metrics: metricas }
       });
 
       if (error) throw error;
-      setAnalise(data);
+      setAnalysis(data.analysis);
       
-      toast({ 
-        title: "✅ Análise concluída", 
-        description: "Insights gerados com sucesso" 
-      });
+      localStorage.setItem('lastAnalysis', JSON.stringify({
+        data: data.analysis,
+        timestamp: new Date()
+      }));
+      
+      toast({ title: "✅ Análise concluída", description: "Insights gerados com sucesso" });
     } catch (error: any) {
       console.error('Erro ao gerar análise:', error);
       toast({
@@ -115,23 +114,23 @@ const AssistenteIA = () => {
         variant: "destructive"
       });
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
-  const enviarMensagem = async (mensagemUsuario: string) => {
-    if (!mensagemUsuario.trim() || isChatLoading || !metricas) return;
-    
-    const novasMensagens: Array<{role: 'user' | 'assistant'; content: string; timestamp: Date}> = [
-      ...chatMessages, 
-      { 
-        role: 'user' as const, 
-        content: mensagemUsuario,
-        timestamp: new Date()
-      }
-    ];
-    setChatMessages(novasMensagens);
-    setIsChatLoading(true);
+  const enviarMensagem = async () => {
+    if (!chatInput.trim() || !metricas) return;
+
+    const userMessage = {
+      id: Date.now().toString(),
+      role: 'user',
+      content: chatInput,
+      timestamp: new Date()
+    };
+
+    setChatMessages(prev => [...prev, userMessage]);
+    setChatInput('');
+    setChatLoading(true);
 
     try {
       const { data, error } = await supabase.functions.invoke('ai-assistant', {
@@ -139,22 +138,21 @@ const AssistenteIA = () => {
           type: 'chat',
           metrics: metricas,
           history: chatMessages,
-          question: mensagemUsuario
+          question: chatInput
         }
       });
 
       if (error) throw error;
 
-      if (data?.resposta) {
-        setChatMessages([
-          ...novasMensagens, 
-          { 
-            role: 'assistant' as const, 
-            content: data.resposta,
-            timestamp: new Date()
-          }
-        ]);
-      }
+      const assistantMessage = {
+        id: (Date.now() + 1).toString(),
+        role: 'assistant',
+        content: data.chat,
+        timestamp: new Date()
+      };
+
+      setChatMessages(prev => [...prev, assistantMessage]);
+      localStorage.setItem('chatHistory', JSON.stringify([...chatMessages, assistantMessage]));
     } catch (error: any) {
       toast({
         title: "❌ Erro no chat",
@@ -162,25 +160,25 @@ const AssistenteIA = () => {
         variant: "destructive"
       });
     } finally {
-      setIsChatLoading(false);
+      setChatLoading(false);
     }
   };
 
   const simularCenario = async () => {
     if (!metricas) return;
 
-    setIsSimulating(true);
+    setLoading(true);
     try {
       const { data, error } = await supabase.functions.invoke('ai-assistant', {
         body: {
           type: 'simulation',
           metrics: metricas,
-          changes: simulationInputs
+          changes: simulationValues
         }
       });
 
       if (error) throw error;
-      setSimulacao(data);
+      setSimulation(data.simulation);
       toast({ title: "🔮 Simulação concluída" });
     } catch (error: any) {
       toast({
@@ -189,21 +187,21 @@ const AssistenteIA = () => {
         variant: "destructive"
       });
     } finally {
-      setIsSimulating(false);
+      setLoading(false);
     }
   };
 
   const gerarRelatorio = async () => {
     if (!metricas) return;
 
-    setIsGeneratingReport(true);
+    setReportLoading(true);
     try {
       const { data, error } = await supabase.functions.invoke('ai-assistant', {
         body: { type: 'report', metrics: metricas }
       });
 
       if (error) throw error;
-      setRelatorio(data);
+      setReport(data.report);
       toast({ title: "📄 Relatório gerado" });
     } catch (error: any) {
       toast({
@@ -212,455 +210,456 @@ const AssistenteIA = () => {
         variant: "destructive"
       });
     } finally {
-      setIsGeneratingReport(false);
+      setReportLoading(false);
     }
   };
 
-  // Calculate temporal context
-  const formatDate = (date: Date) => date.toLocaleDateString('pt-BR');
-  const dataAtual = formatDate(now);
-  const trimestre = Math.floor(now.getMonth() / 3) + 1;
-  const percentualMes = ((now.getDate() / new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate()) * 100).toFixed(1);
-  const urgencia = diasUteisRestantes <= 3 ? 'CRÍTICA' : diasUteisRestantes <= 7 ? 'ALTA' : 'MÉDIA';
-  const sazonalidade = 'Alta';
-  
-  // Determine overall status
-  const getOverallStatus = (): 'healthy' | 'warning' | 'critical' => {
-    if (!metricas) return 'warning';
-    const progressoMeta = metricas.progressoMetaMensal;
-    const progressoTempo = parseFloat(percentualMes);
-    const diferenca = progressoMeta - progressoTempo;
-    
-    if (diferenca < -15) return 'critical';
-    if (diferenca < -5) return 'warning';
-    return 'healthy';
-  };
-
   if (loadingData || !metricas) {
-  return (
-    <div className="min-h-screen flex flex-col bg-[#0B1120]">
-      <Navigation isTVMode={isTVMode} />
-        <div className="flex-1 flex items-center justify-center">
-          <div className="text-center">
-            <Loader2 className="w-16 h-16 text-[#0066FF] animate-spin mx-auto mb-4" />
-            <p className="text-white text-xl">Carregando dados...</p>
-          </div>
+    return (
+      <div className="min-h-screen bg-[#0B1120] flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-16 h-16 text-[#0066FF] animate-spin mx-auto mb-4" />
+          <p className="text-white text-xl">Carregando dados...</p>
         </div>
       </div>
     );
   }
 
-    return (
-      <div className="min-h-screen flex flex-col bg-[#0B1120]">
-        <Navigation isTVMode={isTVMode} />
-      
-      <IAHeader
-        isTVMode={isTVMode}
-        onToggleTVMode={() => setIsTVMode(!isTVMode)}
-        onRefresh={() => {
-          refetch();
-          gerarAnaliseCompleta();
-        }}
-        status={getOverallStatus()}
-        diasUteisRestantes={diasUteisRestantes}
-        isLoading={isLoading}
-      />
-      
-      <IAContextBanner
-        isTVMode={isTVMode}
-        dataAtual={dataAtual}
-        trimestre={trimestre}
-        progressoMes={parseFloat(percentualMes)}
-        urgencia={urgencia}
-        sazonalidade={sazonalidade}
-      />
-      
-      <main className="flex-1 container mx-auto px-4 py-8">
-        {/* Quick Actions */}
-        <div className="mb-8">
-          <IAQuickActions
-            isTVMode={isTVMode}
-            onChatClick={() => setActiveTab('chat')}
-            onSimulatorClick={() => setActiveTab('simulator')}
-            onReportClick={() => setActiveTab('report')}
-            onAnalyzeClick={gerarAnaliseCompleta}
-            isAnalyzing={isLoading}
-          />
+  const getStatusColor = () => {
+    if (metricas.progressoMetaMensal >= 80) return 'bg-green-500';
+    if (metricas.progressoMetaMensal >= 50) return 'bg-yellow-500';
+    return 'bg-red-500';
+  };
+
+  const formatDate = (date: Date) => {
+    return date.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' });
+  };
+
+  const formatTime = (date: Date) => {
+    return date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  };
+
+  return (
+    <div className="min-h-screen bg-[#0B1120]">
+      {/* Header */}
+      <header className="bg-[#0B1120] border-b-2 border-white/15 sticky top-0 z-50">
+        <div className="max-w-[1920px] mx-auto px-6 md:px-12 py-6 md:py-8">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-6">
+              <img src={logoWhite} alt="Blue Ocean" className={isTVMode ? "h-20" : "h-12"} />
+              <div>
+                <h1 className={`font-outfit font-bold text-white ${isTVMode ? 'text-6xl' : 'text-3xl md:text-4xl'}`}>
+                  Assistente de IA Comercial
+                </h1>
+                <p className={`text-[#94A3B8] font-outfit ${isTVMode ? 'text-3xl mt-2' : 'text-sm md:text-base'}`}>
+                  Insights estratégicos baseados em dados
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-4">
+              <TVModeToggle isTVMode={isTVMode} onToggle={() => setIsTVMode(!isTVMode)} />
+              <Button
+                onClick={() => {
+                  refetch();
+                  gerarAnaliseCompleta();
+                }}
+                variant="outline"
+                className={isTVMode ? "text-2xl px-8 py-6" : ""}
+              >
+                <RefreshCw className={`${isTVMode ? 'w-8 h-8 mr-4' : 'w-4 h-4 mr-2'}`} />
+                Atualizar
+              </Button>
+              <div className={`text-right ${isTVMode ? 'text-2xl' : 'text-sm'}`}>
+                <p className="text-white font-semibold">{formatDate(currentTime)}</p>
+                <p className="text-[#94A3B8]">{formatTime(currentTime)}</p>
+              </div>
+            </div>
+          </div>
         </div>
+      </header>
 
-        {/* Tabs System */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className={`grid w-full ${isTVMode ? 'grid-cols-3 h-20 text-2xl' : 'grid-cols-5 h-12'} transition-all`}>
-            <TabsTrigger value="overview" className={isTVMode ? 'text-xl' : ''}>
-              📊 Visão Geral
-            </TabsTrigger>
-            <TabsTrigger value="chat" className={isTVMode ? 'text-xl' : ''}>
-              💬 Chat IA
-            </TabsTrigger>
-            <TabsTrigger value="recommendations" className={isTVMode ? 'text-xl' : ''}>
-              🎯 Recomendações
-            </TabsTrigger>
-            <TabsTrigger value="simulator" className={`${isTVMode ? 'text-xl hidden md:block' : ''}`}>
-              🔮 Simulador
-            </TabsTrigger>
-            <TabsTrigger value="report" className={`${isTVMode ? 'text-xl hidden md:block' : ''}`}>
-              📄 Relatório
-            </TabsTrigger>
-          </TabsList>
+      <Navigation isTVMode={isTVMode} />
+      
+      <div className="max-w-[1920px] mx-auto">
+        <PeriodFilter 
+          onFilterChange={(type: PeriodType, range: DateRange) => {
+            setPeriodType(type);
+            setDateRange(range);
+          }}
+          onMonthChange={setSelectedMonthKey}
+          currentPeriod={periodType}
+          currentDateRange={dateRange}
+          selectedMonthKey={selectedMonthKey}
+          isTVMode={isTVMode}
+        />
+      </div>
 
-          {/* TAB 1: VISÃO GERAL */}
-          <TabsContent value="overview" className="space-y-6">
-            {isLoading ? (
-              <AnalysisSkeleton isTVMode={isTVMode} />
-            ) : analise ? (
-              <>
-                {/* Status Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                  <StatusCard
-                    isTVMode={isTVMode}
-                    icon="🎯"
-                    title="Ritmo"
-                    value={metricas.progressoMetaMensal.toFixed(0) + '%'}
-                    subtitle={`Meta: ${percentualMes}% do mês`}
-                    trend={metricas.progressoMetaMensal > parseFloat(percentualMes) ? 'up' : 'down'}
-                    variant={metricas.progressoMetaMensal > parseFloat(percentualMes) ? 'success' : 'warning'}
-                  />
-                  
-                  <StatusCard
-                    isTVMode={isTVMode}
-                    icon="⚠️"
-                    title="Gargalos Críticos"
-                    value={analise.gargalos?.filter((g: any) => g.severidade === 'crítica').length || 0}
-                    subtitle="Requerem ação imediata"
-                    variant="danger"
-                  />
-                  
-                  <StatusCard
-                    isTVMode={isTVMode}
-                    icon="💡"
-                    title="Recomendações"
-                    value={analise.recomendacoes?.length || 0}
-                    subtitle="Ações sugeridas"
-                    variant="default"
-                  />
-                  
-                  <StatusCard
-                    isTVMode={isTVMode}
-                    icon="📊"
-                    title="Projeção"
-                    value={formatarReal(metricas.receitaTotal * (100 / metricas.progressoMetaMensal))}
-                    subtitle={`${((metricas.receitaTotal * (100 / metricas.progressoMetaMensal)) / metricas.metaMensal * 100).toFixed(0)}% da meta`}
-                    trend={metricas.progressoMetaMensal >= parseFloat(percentualMes) ? 'up' : 'down'}
-                    variant={metricas.progressoMetaMensal >= parseFloat(percentualMes) ? 'success' : 'warning'}
-                  />
-                </div>
+      {/* Contexto Temporal */}
+      <section className="bg-[#0B1120] py-8 px-6 md:px-12">
+        <Card className="max-w-[1920px] mx-auto bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border-cyan-500/30 p-6">
+          <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+            📅 Contexto Temporal
+          </h3>
+          
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div>
+              <p className="text-gray-400 text-sm">Data Atual</p>
+              <p className="text-white font-bold">
+                {new Date().toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' })}
+              </p>
+            </div>
+            
+            <div>
+              <p className="text-gray-400 text-sm">Dias Úteis Restantes</p>
+              <p className="text-cyan-400 font-bold text-2xl">
+                {calcularDiasUteisRestantes()}
+              </p>
+            </div>
+            
+            <div>
+              <p className="text-gray-400 text-sm">Progresso do Mês</p>
+              <p className="text-white font-bold">
+                {((new Date().getDate() / new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate()) * 100).toFixed(0)}%
+              </p>
+            </div>
+            
+            <div>
+              <p className="text-gray-400 text-sm">Trimestre</p>
+              <p className="text-white font-bold">
+                Q{Math.floor(new Date().getMonth() / 3) + 1} / {new Date().getFullYear()}
+              </p>
+            </div>
+          </div>
+        </Card>
+      </section>
 
-                {/* Summary */}
-                <Card className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 border-blue-500/30">
-                  <div className={`${isTVMode ? 'p-8' : 'p-6'} transition-all`}>
-                    <h3 className={`font-bold mb-4 transition-all ${isTVMode ? 'text-3xl' : 'text-xl'}`}>
-                      📋 Sumário Executivo
+      {/* Status do Assistente */}
+      <section className="bg-gradient-to-br from-[#0066FF]/20 to-[#00E5CC]/20 py-12 md:py-20 px-6 md:px-12">
+        <Card className="max-w-4xl mx-auto bg-[#151E35] border-2 border-[#0066FF]/30 p-12">
+          <div className="text-center">
+            <div className="w-24 h-24 mx-auto mb-6 relative">
+              <div className="absolute inset-0 rounded-full bg-[#0066FF]/20 animate-pulse" />
+              <div className="absolute inset-2 rounded-full bg-[#0066FF]/40 animate-ping" />
+              <div className="absolute inset-0 flex items-center justify-center">
+                <Sparkles className="w-12 h-12 text-[#00E5CC]" />
+              </div>
+            </div>
+            <h2 className="text-3xl font-bold text-white mb-2">Assistente Online ✅</h2>
+            <p className="text-[#94A3B8] mb-8">
+              {loading ? 'Analisando dados...' : 'Análise completa disponível'}
+            </p>
+            
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+              <div className="bg-[#0B1120] p-4 rounded-lg">
+                <p className="text-[#00E5CC] text-2xl font-bold">{analysis?.recommendations?.length || 0}</p>
+                <p className="text-[#94A3B8] text-sm">Recomendações</p>
+              </div>
+              <div className="bg-[#0B1120] p-4 rounded-lg">
+                <p className="text-[#FFB800] text-2xl font-bold">{analysis?.bottlenecks?.length || 0}</p>
+                <p className="text-[#94A3B8] text-sm">Gargalos</p>
+              </div>
+              <div className="bg-[#0B1120] p-4 rounded-lg">
+                <p className="text-[#0066FF] text-2xl font-bold">{analysis?.opportunities?.length || 0}</p>
+                <p className="text-[#94A3B8] text-sm">Oportunidades</p>
+              </div>
+              <div className="bg-[#0B1120] p-4 rounded-lg">
+                <p className="text-white text-2xl font-bold">98%</p>
+                <p className="text-[#94A3B8] text-sm">Confiança</p>
+              </div>
+            </div>
+
+            <Button onClick={gerarAnaliseCompleta} disabled={loading} className="bg-[#0066FF] hover:bg-[#0066FF]/90">
+              {loading ? (
+                <>
+                  <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                  Analisando...
+                </>
+              ) : (
+                <>
+                  <RefreshCw className="w-5 h-5 mr-2" />
+                  Gerar Nova Análise
+                </>
+              )}
+            </Button>
+          </div>
+        </Card>
+      </section>
+
+      {/* Análise Automática */}
+      {analysis && (
+        <section className="bg-[#F8FAFC] py-12 md:py-20 px-6 md:px-12">
+          <div className="max-w-[1920px] mx-auto">
+            <h2 className="text-3xl md:text-4xl font-bold text-[#0B1120] mb-8 flex items-center gap-3">
+              <TrendingUp className="w-8 h-8 text-[#0066FF]" />
+              Diagnóstico Atual
+            </h2>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* Status Geral */}
+              <Card className={`${getStatusColor()} bg-opacity-10 border-2 p-8`}>
+                <div className="flex items-start gap-4">
+                  <div className={`w-16 h-16 ${getStatusColor()} rounded-full flex items-center justify-center text-3xl`}>
+                    {analysis.status === 'healthy' ? '🟢' : analysis.status === 'warning' ? '🟡' : '🔴'}
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-2xl font-bold text-[#0B1120] mb-2">
+                      {analysis.status === 'healthy' ? 'Saudável' : analysis.status === 'warning' ? 'Atenção' : 'Crítico'}
                     </h3>
-                    <p className={`text-muted-foreground whitespace-pre-wrap transition-all ${isTVMode ? 'text-2xl leading-relaxed' : 'text-base'}`}>
-                      {analise.sumario}
-                    </p>
+                    <p className="text-[#0B1120]/80">{analysis.executiveSummary}</p>
                   </div>
-                </Card>
-
-                {/* Top 3 Recommendations */}
-                <div>
-                  <h3 className={`font-bold mb-4 transition-all ${isTVMode ? 'text-4xl' : 'text-2xl'}`}>
-                    🎯 Top 3 Recomendações Prioritárias
-                  </h3>
-                  <div className="space-y-4">
-                    {analise.recomendacoes?.slice(0, 3).map((rec: any, index: number) => (
-                      <RecommendationCard
-                        key={index}
-                        isTVMode={isTVMode}
-                        priority={rec.prioridade === 'urgente' ? 'critical' : rec.prioridade === 'alta' ? 'high' : 'medium'}
-                        title={rec.acao}
-                        description={rec.justificativa}
-                        impact={rec.impacto}
-                        timeline={rec.prazo}
-                        difficulty={rec.dificuldade}
-                        steps={rec.passos || []}
-                      />
-                    ))}
-                  </div>
-                </div>
-              </>
-            ) : (
-              <Card>
-                <div className={`${isTVMode ? 'p-12' : 'p-8'} text-center transition-all`}>
-                  <div className={`${isTVMode ? 'text-8xl' : 'text-6xl'} mb-4`}>🤖</div>
-                  <h3 className={`font-bold mb-2 transition-all ${isTVMode ? 'text-4xl' : 'text-2xl'}`}>
-                    Análise não disponível
-                  </h3>
-                  <p className={`text-muted-foreground mb-6 transition-all ${isTVMode ? 'text-2xl' : 'text-base'}`}>
-                    Clique em "Analisar" para gerar uma análise completa
-                  </p>
                 </div>
               </Card>
-            )}
-          </TabsContent>
 
-          {/* TAB 2: CHAT IA */}
-          <TabsContent value="chat">
-            <ChatContainer
-              isTVMode={isTVMode}
-              messages={chatMessages}
-              onSendMessage={enviarMensagem}
-              isTyping={isChatLoading}
-            />
-          </TabsContent>
-
-          {/* TAB 3: RECOMENDAÇÕES */}
-          <TabsContent value="recommendations" className="space-y-6">
-            {analise?.recomendacoes && analise.recomendacoes.length > 0 ? (
-              <>
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className={`font-bold transition-all ${isTVMode ? 'text-4xl' : 'text-2xl'}`}>
-                    🎯 Todas as Recomendações
-                  </h2>
-                  <div className={`text-muted-foreground transition-all ${isTVMode ? 'text-xl' : 'text-sm'}`}>
-                    {analise.recomendacoes.length} ações sugeridas
-                  </div>
-                </div>
-                
+              {/* Principais Gargalos */}
+              <Card className="bg-white border-2 border-red-500/30 p-8">
+                <h3 className="text-2xl font-bold text-[#0B1120] mb-4 flex items-center gap-2">
+                  <AlertTriangle className="w-6 h-6 text-red-500" />
+                  Principais Gargalos
+                </h3>
                 <div className="space-y-4">
-                  {analise.recomendacoes.map((rec: any, index: number) => (
-                    <RecommendationCard
-                      key={index}
-                      isTVMode={isTVMode}
-                      priority={rec.prioridade === 'urgente' ? 'critical' : rec.prioridade === 'alta' ? 'high' : rec.prioridade === 'média' ? 'medium' : 'low'}
-                      title={rec.acao}
-                      description={rec.justificativa}
-                      impact={rec.impacto}
-                      timeline={rec.prazo}
-                      difficulty={rec.dificuldade}
-                      steps={rec.passos || []}
-                    />
+                  {analysis.bottlenecks?.slice(0, 3).map((gargalo: any) => (
+                    <div key={gargalo.id} className="border-l-4 border-red-500 pl-4">
+                      <div className="flex items-start justify-between mb-1">
+                        <h4 className="font-bold text-[#0B1120]">{gargalo.titulo}</h4>
+                        <Badge variant={gargalo.severidade === 'alta' ? 'destructive' : 'secondary'}>
+                          {gargalo.severidade}
+                        </Badge>
+                      </div>
+                      <p className="text-sm text-[#0B1120]/70 mb-2">{gargalo.descricao}</p>
+                      <p className="text-xs text-red-600 font-semibold">Impacto: {gargalo.impactoFinanceiro}</p>
+                    </div>
                   ))}
                 </div>
-              </>
-            ) : (
-              <Card>
-                <div className={`${isTVMode ? 'p-12' : 'p-8'} text-center transition-all`}>
-                  <div className={`${isTVMode ? 'text-8xl' : 'text-6xl'} mb-4`}>🎯</div>
-                  <h3 className={`font-bold mb-2 transition-all ${isTVMode ? 'text-4xl' : 'text-2xl'}`}>
-                    Nenhuma recomendação disponível
-                  </h3>
-                  <p className={`text-muted-foreground transition-all ${isTVMode ? 'text-2xl' : 'text-base'}`}>
-                    Gere uma análise primeiro para ver as recomendações
-                  </p>
+              </Card>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Recomendações */}
+      {analysis?.recommendations && (
+        <section className="bg-[#0B1120] py-12 md:py-20 px-6 md:px-12">
+          <div className="max-w-[1920px] mx-auto">
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-8 flex items-center gap-3">
+              <Target className="w-8 h-8 text-[#00E5CC]" />
+              Plano de Ação Recomendado
+            </h2>
+
+            <div className="grid gap-6">
+              {analysis.recommendations.slice(0, 5).map((rec: any) => (
+                <Card key={rec.id} className={`bg-[#151E35] border-l-4 ${
+                  rec.priority === 'alta' ? 'border-red-500' : 
+                  rec.priority === 'media' ? 'border-yellow-500' : 'border-green-500'
+                } p-6`}>
+                  <div className="flex items-start justify-between mb-4">
+                    <h3 className="text-xl font-bold text-white">{rec.titulo}</h3>
+                    <Badge variant={rec.priority === 'alta' ? 'destructive' : 'secondary'}>
+                      {rec.priority}
+                    </Badge>
+                  </div>
+                  <p className="text-[#94A3B8] mb-4">{rec.problemaQueResolve}</p>
+                  
+                  <div className="grid grid-cols-3 gap-4 mb-4">
+                    <div>
+                      <p className="text-xs text-[#94A3B8]">Impacto</p>
+                      <p className="text-[#00E5CC] font-semibold">{rec.melhoriaEsperada}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-[#94A3B8]">Ganho</p>
+                      <p className="text-[#00E5CC] font-semibold">{rec.ganhoFinanceiro}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-[#94A3B8]">Tempo</p>
+                      <p className="text-white font-semibold">{rec.tempoImplementacao} dias</p>
+                    </div>
+                  </div>
+
+                  <div className="mb-4">
+                    <p className="text-sm text-[#94A3B8] mb-2">Passos:</p>
+                    <ol className="list-decimal list-inside space-y-1 text-white text-sm">
+                      {rec.passos.map((passo: string, i: number) => (
+                        <li key={i}>{passo}</li>
+                      ))}
+                    </ol>
+                  </div>
+
+                  <p className="text-xs text-[#94A3B8]">Responsável: <span className="text-white">{rec.responsavel}</span></p>
+                </Card>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Chat Interativo */}
+      <section className="bg-[#F8FAFC] py-12 md:py-20 px-6 md:px-12">
+        <div className="max-w-4xl mx-auto">
+          <h2 className="text-3xl md:text-4xl font-bold text-[#0B1120] mb-8 flex items-center gap-3">
+            <MessageSquare className="w-8 h-8 text-[#0066FF]" />
+            Pergunte ao Assistente
+          </h2>
+
+          <Card className="bg-white p-6">
+            <div className="space-y-4 mb-6 max-h-96 overflow-y-auto">
+              {chatMessages.map((msg) => (
+                <div key={msg.id} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                  <div className={`max-w-[80%] p-4 rounded-lg ${
+                    msg.role === 'user' ? 'bg-[#0066FF] text-white' : 'bg-[#F8FAFC] text-[#0B1120]'
+                  }`}>
+                    <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                  </div>
+                </div>
+              ))}
+              {chatLoading && (
+                <div className="flex justify-start">
+                  <div className="bg-[#F8FAFC] p-4 rounded-lg">
+                    <Loader2 className="w-5 h-5 animate-spin text-[#0066FF]" />
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="space-y-4">
+              <div className="flex flex-wrap gap-2">
+                {['Por que não estou batendo a meta?', 'Como melhorar a taxa de conversão?', 'Previsão para fim do mês?'].map((q) => (
+                  <Button
+                    key={q}
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setChatInput(q)}
+                  >
+                    {q}
+                  </Button>
+                ))}
+              </div>
+
+              <div className="flex gap-2">
+                <Textarea
+                  value={chatInput}
+                  onChange={(e) => setChatInput(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && !e.shiftKey && enviarMensagem()}
+                  placeholder="Pergunte sobre qualquer métrica ou estratégia..."
+                  className="flex-1"
+                  maxLength={500}
+                />
+                <Button onClick={enviarMensagem} disabled={chatLoading || !chatInput.trim()}>
+                  Enviar
+                </Button>
+              </div>
+            </div>
+          </Card>
+        </div>
+      </section>
+
+      {/* Simulador */}
+      <section className="bg-[#0B1120] py-12 md:py-20 px-6 md:px-12">
+        <div className="max-w-6xl mx-auto">
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-8 flex items-center gap-3">
+            <Calculator className="w-8 h-8 text-[#00E5CC]" />
+            Simulador: E se...
+          </h2>
+
+          <div className="grid md:grid-cols-2 gap-8">
+            <Card className="bg-[#151E35] p-6">
+              <h3 className="text-xl font-bold text-white mb-6">Simular Mudanças</h3>
+              
+              <div className="space-y-6">
+                <div>
+                  <label className="text-white mb-2 block">Taxa de Show: {simulationValues.taxaShow.toFixed(1)}%</label>
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    value={simulationValues.taxaShow}
+                    onChange={(e) => setSimulationValues(prev => ({ ...prev, taxaShow: Number(e.target.value) }))}
+                    className="w-full"
+                  />
+                  <p className="text-xs text-[#94A3B8] mt-1">Atual: {metricas.taxaShow.toFixed(1)}%</p>
+                </div>
+
+                <div>
+                  <label className="text-white mb-2 block">Taxa de Conversão: {simulationValues.taxaConversao.toFixed(1)}%</label>
+                  <input
+                    type="range"
+                    min="0"
+                    max="50"
+                    value={simulationValues.taxaConversao}
+                    onChange={(e) => setSimulationValues(prev => ({ ...prev, taxaConversao: Number(e.target.value) }))}
+                    className="w-full"
+                  />
+                  <p className="text-xs text-[#94A3B8] mt-1">Atual: {metricas.taxaConversao.toFixed(1)}%</p>
+                </div>
+
+                <Button onClick={simularCenario} disabled={loading} className="w-full bg-[#00E5CC] text-[#0B1120]">
+                  {loading ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : null}
+                  🔮 Simular Impacto
+                </Button>
+              </div>
+            </Card>
+
+            {simulation && (
+              <Card className="bg-[#151E35] p-6">
+                <h3 className="text-xl font-bold text-white mb-6">Resultados</h3>
+                
+                <div className="space-y-4">
+                  <div className="bg-[#0B1120] p-4 rounded-lg">
+                    <p className="text-[#94A3B8] text-sm">Receita Projetada</p>
+                    <p className="text-2xl font-bold text-[#00E5CC]">{simulation.receitaProjetada}</p>
+                    <p className={`text-sm ${simulation.diferencaReceita > 0 ? 'text-green-500' : 'text-red-500'}`}>
+                      {simulation.diferencaReceita > 0 ? '+' : ''}{simulation.diferencaReceita}%
+                    </p>
+                  </div>
+
+                  <div className="bg-[#0B1120] p-4 rounded-lg">
+                    <p className="text-[#94A3B8] text-sm">Viabilidade</p>
+                    <p className="text-white text-sm">{simulation.viabilidade}</p>
+                  </div>
                 </div>
               </Card>
             )}
-          </TabsContent>
+          </div>
+        </div>
+      </section>
 
-          {/* TAB 4: SIMULADOR */}
-          <TabsContent value="simulator">
-            <Card className="bg-gradient-to-r from-orange-500/20 to-red-500/20 border-orange-500/30">
-              <div className={`${isTVMode ? 'p-8' : 'p-6'} transition-all`}>
-                <h2 className={`font-bold mb-6 transition-all ${isTVMode ? 'text-4xl' : 'text-2xl'}`}>
-                  🔮 Simulador de Cenários
-                </h2>
-                
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                  {/* Inputs */}
-                  <div className="space-y-6">
-                    <h3 className={`font-semibold mb-4 transition-all ${isTVMode ? 'text-2xl' : 'text-lg'}`}>
-                      Ajustar Métricas:
-                    </h3>
-                    
-                    <div>
-                      <label className={`block mb-2 transition-all ${isTVMode ? 'text-xl' : 'text-sm'}`}>
-                        Taxa de Show: {simulationInputs.taxaShow.toFixed(0)}%
-                      </label>
-                      <input
-                        type="range"
-                        min="0"
-                        max="100"
-                        value={simulationInputs.taxaShow}
-                        className="w-full"
-                        onChange={(e) => setSimulationInputs({ ...simulationInputs, taxaShow: parseInt(e.target.value) })}
-                      />
-                    </div>
-                    
-                    <div>
-                      <label className={`block mb-2 transition-all ${isTVMode ? 'text-xl' : 'text-sm'}`}>
-                        Taxa de Conversão: {simulationInputs.taxaConversao.toFixed(0)}%
-                      </label>
-                      <input
-                        type="range"
-                        min="0"
-                        max="50"
-                        value={simulationInputs.taxaConversao}
-                        className="w-full"
-                        onChange={(e) => setSimulationInputs({ ...simulationInputs, taxaConversao: parseInt(e.target.value) })}
-                      />
-                    </div>
-                    
-                    <div>
-                      <label className={`block mb-2 transition-all ${isTVMode ? 'text-xl' : 'text-sm'}`}>
-                        Ticket Médio: R$ {simulationInputs.ticketMedio.toFixed(0)}
-                      </label>
-                      <input
-                        type="range"
-                        min="5000"
-                        max="30000"
-                        step="1000"
-                        value={simulationInputs.ticketMedio}
-                        className="w-full"
-                        onChange={(e) => setSimulationInputs({ ...simulationInputs, ticketMedio: parseInt(e.target.value) })}
-                      />
-                    </div>
-                    
-                    <Button
-                      onClick={simularCenario}
-                      disabled={isSimulating}
-                      className={`w-full transition-all ${isTVMode ? 'py-8 text-2xl' : 'py-6 text-lg'}`}
-                    >
-                      {isSimulating ? 'Simulando...' : '🔮 Simular Cenário'}
-                    </Button>
-                  </div>
-                  
-                  {/* Results */}
-                  <div className={`bg-black/20 rounded-lg ${isTVMode ? 'p-8' : 'p-6'} transition-all`}>
-                    <h3 className={`font-semibold mb-4 transition-all ${isTVMode ? 'text-2xl' : 'text-lg'}`}>
-                      Resultados da Simulação:
-                    </h3>
-                    
-                    {simulacao ? (
-                      <div className="space-y-4">
-                        <div>
-                          <p className={`text-muted-foreground transition-all ${isTVMode ? 'text-xl' : 'text-sm'}`}>
-                            Projeção de Receita:
-                          </p>
-                          <p className={`font-bold text-green-400 transition-all ${isTVMode ? 'text-4xl' : 'text-2xl'}`}>
-                            {simulacao.projecaoReceita}
-                          </p>
-                        </div>
-                        
-                        <div>
-                          <p className={`text-muted-foreground transition-all ${isTVMode ? 'text-xl' : 'text-sm'}`}>
-                            Atingimento de Meta:
-                          </p>
-                          <p className={`font-bold transition-all ${isTVMode ? 'text-4xl' : 'text-2xl'}`}>
-                            {simulacao.percentualMeta}
-                          </p>
-                        </div>
-                        
-                        {simulacao.viabilidade && (
-                          <div>
-                            <p className={`text-muted-foreground transition-all ${isTVMode ? 'text-xl' : 'text-sm'}`}>
-                              Viabilidade:
-                            </p>
-                            <p className={`whitespace-pre-wrap transition-all ${isTVMode ? 'text-xl' : 'text-sm'}`}>
-                              {simulacao.viabilidade}
-                            </p>
-                          </div>
-                        )}
-                      </div>
-                    ) : (
-                      <p className={`text-muted-foreground text-center py-12 transition-all ${isTVMode ? 'text-2xl' : 'text-base'}`}>
-                        Ajuste as métricas e clique em "Simular" para ver os resultados
-                      </p>
-                    )}
-                  </div>
+      {/* Relatório */}
+      <section className="bg-[#F8FAFC] py-12 md:py-20 px-6 md:px-12">
+        <div className="max-w-4xl mx-auto">
+          <h2 className="text-3xl md:text-4xl font-bold text-[#0B1120] mb-8 flex items-center gap-3">
+            <FileText className="w-8 h-8 text-[#0066FF]" />
+            Relatório Executivo
+          </h2>
+
+          <Button onClick={gerarRelatorio} disabled={reportLoading} className="mb-6">
+            {reportLoading ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : null}
+            Gerar Relatório Completo
+          </Button>
+
+          {report && (
+            <Card className="bg-white p-8">
+              <div className="space-y-6">
+                <div>
+                  <h3 className="text-xl font-bold text-[#0B1120] mb-2">📊 Sumário Executivo</h3>
+                  <p className="text-[#0B1120]/80">{report.sumario}</p>
+                </div>
+
+                <div>
+                  <h3 className="text-xl font-bold text-[#0B1120] mb-2">✅ Destaques</h3>
+                  <ul className="list-disc list-inside space-y-1 text-[#0B1120]/80">
+                    {report.destaques?.map((d: string, i: number) => <li key={i}>{d}</li>)}
+                  </ul>
+                </div>
+
+                <div>
+                  <h3 className="text-xl font-bold text-[#0B1120] mb-2">⚠️ Desafios</h3>
+                  <ul className="list-disc list-inside space-y-1 text-[#0B1120]/80">
+                    {report.desafios?.map((d: string, i: number) => <li key={i}>{d}</li>)}
+                  </ul>
                 </div>
               </div>
             </Card>
-          </TabsContent>
-
-          {/* TAB 5: RELATÓRIO */}
-          <TabsContent value="report">
-            <Card className="bg-gradient-to-r from-green-500/20 to-teal-500/20 border-green-500/30">
-              <div className={`${isTVMode ? 'p-8' : 'p-6'} transition-all`}>
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className={`font-bold transition-all ${isTVMode ? 'text-4xl' : 'text-2xl'}`}>
-                    📄 Relatório Executivo
-                  </h2>
-                  <Button
-                    onClick={gerarRelatorio}
-                    disabled={isGeneratingReport}
-                    size={isTVMode ? 'lg' : 'default'}
-                  >
-                    {isGeneratingReport ? 'Gerando...' : '📥 Gerar Relatório'}
-                  </Button>
-                </div>
-                
-                {relatorio ? (
-                  <div className="space-y-6">
-                    {relatorio.sumario && (
-                      <div>
-                        <h3 className={`font-semibold mb-3 transition-all ${isTVMode ? 'text-3xl' : 'text-xl'}`}>
-                          📊 Sumário Executivo
-                        </h3>
-                        <p className={`text-muted-foreground whitespace-pre-wrap transition-all ${isTVMode ? 'text-2xl leading-relaxed' : 'text-base'}`}>
-                          {relatorio.sumario}
-                        </p>
-                      </div>
-                    )}
-                    
-                    {relatorio.destaques && relatorio.destaques.length > 0 && (
-                      <div>
-                        <h3 className={`font-semibold mb-3 transition-all ${isTVMode ? 'text-3xl' : 'text-xl'}`}>
-                          ✅ Destaques Positivos
-                        </h3>
-                        <ul className={`space-y-2 transition-all ${isTVMode ? 'text-xl' : 'text-sm'}`}>
-                          {relatorio.destaques.map((destaque: string, index: number) => (
-                            <li key={index} className="flex items-start gap-2">
-                              <span className="text-green-400">✓</span>
-                              <span>{destaque}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                    
-                    {relatorio.desafios && relatorio.desafios.length > 0 && (
-                      <div>
-                        <h3 className={`font-semibold mb-3 transition-all ${isTVMode ? 'text-3xl' : 'text-xl'}`}>
-                          ⚠️ Desafios
-                        </h3>
-                        <ul className={`space-y-2 transition-all ${isTVMode ? 'text-xl' : 'text-sm'}`}>
-                          {relatorio.desafios.map((desafio: string, index: number) => (
-                            <li key={index} className="flex items-start gap-2">
-                              <span className="text-yellow-400">⚠</span>
-                              <span>{desafio}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                    
-                    {relatorio.acoesChave && relatorio.acoesChave.length > 0 && (
-                      <div>
-                        <h3 className={`font-semibold mb-3 transition-all ${isTVMode ? 'text-3xl' : 'text-xl'}`}>
-                          🎯 Top 5 Ações Prioritárias
-                        </h3>
-                        <ol className={`list-decimal list-inside space-y-2 transition-all ${isTVMode ? 'text-xl' : 'text-sm'}`}>
-                          {relatorio.acoesChave.map((acao: string, index: number) => (
-                            <li key={index}>{acao}</li>
-                          ))}
-                        </ol>
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  <div className="text-center py-12">
-                    <div className={`${isTVMode ? 'text-8xl' : 'text-6xl'} mb-4`}>📄</div>
-                    <p className={`text-muted-foreground transition-all ${isTVMode ? 'text-2xl' : 'text-base'}`}>
-                      Clique em "Gerar Relatório" para criar um relatório executivo completo
-                    </p>
-                  </div>
-                )}
-              </div>
-            </Card>
-          </TabsContent>
-        </Tabs>
-      </main>
+          )}
+        </div>
+      </section>
 
       {!isTVMode && <Footer />}
     </div>
