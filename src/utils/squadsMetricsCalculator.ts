@@ -68,6 +68,12 @@ export interface CenarioProjecao {
   probabilidade: string;
   premissa: string;
   vaiAcertarMeta: boolean;
+  detalhes?: {
+    callsPorDia: number;
+    taxaShow: number;
+    taxaConversao: number;
+    ticketMedio: number;
+  };
 }
 
 export interface RangeProjecao {
@@ -487,38 +493,102 @@ export const calcularMetricasSquads = (data: any[], dateRange?: DateRange, month
   const configMetaProjecao = getMetasPorMes(monthKey || 'novembro-2025');
   const metaReceita = configMetaProjecao.squads.metaPorSquad;
   
-  // Função para calcular cenários de um squad
-  const calcularCenariosSquad = (receitaAtual: number, mediaDiaria: number, metaSquad: number) => {
-    // CENÁRIO PESSIMISTA: -30% da média (desaceleração)
-    const mediaPessimista = mediaDiaria * 0.7;
-    const projecaoPessimista = receitaAtual + (mediaPessimista * diasRestantes);
+  // Função para calcular cenários de um squad baseado em taxas de conversão
+  const calcularCenariosSquad = (
+    receitaAtual: number,
+    mediaDiaria: number,
+    metaSquad: number,
+    totalCalls: number,
+    taxaShow: number,
+    taxaConversao: number,
+    ticketMedio: number
+  ) => {
+    const callsPorDia = diaAtual > 0 ? totalCalls / diaAtual : 0;
     
-    // CENÁRIO REALISTA: média atual (mantém ritmo)
-    const projecaoRealista = receitaAtual + (mediaDiaria * diasRestantes);
+    // CENÁRIO PESSIMISTA: -20% nas taxas, -15% no ticket, -20% nas calls
+    const cenarioPessimista = {
+      callsPorDia: callsPorDia * 0.8,
+      taxaShow: taxaShow * 0.8,
+      taxaConversao: taxaConversao * 0.8,
+      ticketMedio: ticketMedio * 0.85
+    };
     
-    // CENÁRIO OTIMISTA: +30% da média (aceleração)
-    const mediaOtimista = mediaDiaria * 1.3;
-    const projecaoOtimista = receitaAtual + (mediaOtimista * diasRestantes);
+    const receitaPessimistaFutura = (
+      cenarioPessimista.callsPorDia * 
+      diasRestantes * 
+      (cenarioPessimista.taxaShow / 100) * 
+      (cenarioPessimista.taxaConversao / 100) * 
+      cenarioPessimista.ticketMedio
+    );
+    
+    const projecaoPessimista = receitaAtual + receitaPessimistaFutura;
+    
+    // CENÁRIO REALISTA: mantém taxas atuais
+    const receitaRealistaFutura = (
+      callsPorDia * 
+      diasRestantes * 
+      (taxaShow / 100) * 
+      (taxaConversao / 100) * 
+      ticketMedio
+    );
+    
+    const projecaoRealista = receitaAtual + receitaRealistaFutura;
+    
+    // CENÁRIO OTIMISTA: +20% nas taxas, +15% no ticket, +20% nas calls
+    const cenarioOtimista = {
+      callsPorDia: callsPorDia * 1.2,
+      taxaShow: taxaShow * 1.2,
+      taxaConversao: taxaConversao * 1.2,
+      ticketMedio: ticketMedio * 1.15
+    };
+    
+    const receitaOtimistaFutura = (
+      cenarioOtimista.callsPorDia * 
+      diasRestantes * 
+      (cenarioOtimista.taxaShow / 100) * 
+      (cenarioOtimista.taxaConversao / 100) * 
+      cenarioOtimista.ticketMedio
+    );
+    
+    const projecaoOtimista = receitaAtual + receitaOtimistaFutura;
     
     return {
       cenarios: {
         pessimista: {
           projecaoFinal: projecaoPessimista,
           probabilidade: '30%',
-          premissa: 'Desaceleração de 30%',
-          vaiAcertarMeta: projecaoPessimista >= metaSquad
+          premissa: `Show ${cenarioPessimista.taxaShow.toFixed(1)}% • Conv ${cenarioPessimista.taxaConversao.toFixed(1)}% • Ticket ${(cenarioPessimista.ticketMedio/1000).toFixed(0)}k`,
+          vaiAcertarMeta: projecaoPessimista >= metaSquad,
+          detalhes: {
+            callsPorDia: cenarioPessimista.callsPorDia,
+            taxaShow: cenarioPessimista.taxaShow,
+            taxaConversao: cenarioPessimista.taxaConversao,
+            ticketMedio: cenarioPessimista.ticketMedio
+          }
         },
         realista: {
           projecaoFinal: projecaoRealista,
           probabilidade: '50%',
-          premissa: 'Mantém ritmo atual',
-          vaiAcertarMeta: projecaoRealista >= metaSquad
+          premissa: `Show ${taxaShow.toFixed(1)}% • Conv ${taxaConversao.toFixed(1)}% • Ticket ${(ticketMedio/1000).toFixed(0)}k`,
+          vaiAcertarMeta: projecaoRealista >= metaSquad,
+          detalhes: {
+            callsPorDia,
+            taxaShow,
+            taxaConversao,
+            ticketMedio
+          }
         },
         otimista: {
           projecaoFinal: projecaoOtimista,
           probabilidade: '20%',
-          premissa: 'Aceleração de 30%',
-          vaiAcertarMeta: projecaoOtimista >= metaSquad
+          premissa: `Show ${cenarioOtimista.taxaShow.toFixed(1)}% • Conv ${cenarioOtimista.taxaConversao.toFixed(1)}% • Ticket ${(cenarioOtimista.ticketMedio/1000).toFixed(0)}k`,
+          vaiAcertarMeta: projecaoOtimista >= metaSquad,
+          detalhes: {
+            callsPorDia: cenarioOtimista.callsPorDia,
+            taxaShow: cenarioOtimista.taxaShow,
+            taxaConversao: cenarioOtimista.taxaConversao,
+            ticketMedio: cenarioOtimista.ticketMedio
+          }
         }
       },
       range: {
@@ -529,8 +599,25 @@ export const calcularMetricasSquads = (data: any[], dateRange?: DateRange, month
     };
   };
   
-  const cenariosHotDogs = calcularCenariosSquad(hotDogs.receitaTotal, mediaDiariaHotDogs, metaReceita);
-  const cenariosCorvoAzul = calcularCenariosSquad(corvoAzul.receitaTotal, mediaDiariaCorvoAzul, metaReceita);
+  const cenariosHotDogs = calcularCenariosSquad(
+    hotDogs.receitaTotal, 
+    mediaDiariaHotDogs, 
+    metaReceita,
+    hotDogs.callsRealizadas,
+    hotDogs.taxaShow,
+    hotDogs.taxaConversao,
+    hotDogs.ticketMedio
+  );
+  
+  const cenariosCorvoAzul = calcularCenariosSquad(
+    corvoAzul.receitaTotal, 
+    mediaDiariaCorvoAzul, 
+    metaReceita,
+    corvoAzul.callsRealizadas,
+    corvoAzul.taxaShow,
+    corvoAzul.taxaConversao,
+    corvoAzul.ticketMedio
+  );
   
   const projecao = {
     hotDogs: {

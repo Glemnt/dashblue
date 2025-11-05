@@ -284,6 +284,125 @@ export const SquadsProjecao = ({ projecao, isTVMode }: SquadsProjecaoProps) => {
           </div>
         </div>
 
+        {/* Como funcionam as projeções */}
+        <div className={`bg-white/5 rounded-xl ${isTVMode ? 'p-8 mb-8' : 'p-6 mb-6'}`}>
+          <h4 className={`text-[#00E5CC] font-bold mb-4 ${isTVMode ? 'text-3xl' : 'text-lg'}`}>
+            📐 Como funcionam as projeções?
+          </h4>
+          <p className={`text-gray-300 ${isTVMode ? 'text-xl mb-6' : 'text-sm mb-4'}`}>
+            As projeções são calculadas com base no <strong>volume de atividade</strong>, <strong>taxas de conversão reais</strong> e <strong>ticket médio</strong> de cada squad. Os cenários aplicam variações nessas métricas:
+          </p>
+          
+          <div className={`grid ${isTVMode ? 'grid-cols-1 gap-6' : 'grid-cols-1 md:grid-cols-3 gap-4'}`}>
+            {/* Pessimista */}
+            <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <span className={isTVMode ? 'text-3xl' : 'text-2xl'}>😰</span>
+                <h5 className={`text-red-400 font-bold ${isTVMode ? 'text-2xl' : 'text-base'}`}>
+                  Pessimista (30%)
+                </h5>
+              </div>
+              <p className={`text-gray-300 ${isTVMode ? 'text-lg' : 'text-xs'} mb-2`}>
+                <strong>Premissa:</strong> Queda de performance
+              </p>
+              <ul className={`text-gray-400 ${isTVMode ? 'text-base' : 'text-xs'} space-y-1`}>
+                <li>• Taxa de Show: <strong className="text-red-400">-20%</strong></li>
+                <li>• Taxa de Conversão: <strong className="text-red-400">-20%</strong></li>
+                <li>• Ticket Médio: <strong className="text-red-400">-15%</strong></li>
+                <li>• Volume de Calls: <strong className="text-red-400">-20%</strong></li>
+              </ul>
+              <div className={`mt-3 bg-red-500/20 rounded px-3 py-2 ${isTVMode ? 'text-base' : 'text-xs'} font-mono`}>
+                <strong>Fórmula:</strong><br/>
+                Receita Atual + (Calls/dia × 0.8 × Dias × Show × 0.8 × Conv × 0.8 × Ticket × 0.85)
+              </div>
+            </div>
+
+            {/* Realista */}
+            <div className="bg-blue-500/10 border-2 border-blue-500/50 rounded-lg p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <span className={isTVMode ? 'text-3xl' : 'text-2xl'}>😐</span>
+                <h5 className={`text-blue-400 font-bold ${isTVMode ? 'text-2xl' : 'text-base'}`}>
+                  Realista (50%) ⭐
+                </h5>
+              </div>
+              <p className={`text-gray-300 ${isTVMode ? 'text-lg' : 'text-xs'} mb-2`}>
+                <strong>Premissa:</strong> Mantém performance atual
+              </p>
+              <ul className={`text-gray-400 ${isTVMode ? 'text-base' : 'text-xs'} space-y-1`}>
+                <li>• Taxa de Show: <strong className="text-blue-400">Atual</strong></li>
+                <li>• Taxa de Conversão: <strong className="text-blue-400">Atual</strong></li>
+                <li>• Ticket Médio: <strong className="text-blue-400">Atual</strong></li>
+                <li>• Volume de Calls: <strong className="text-blue-400">Atual</strong></li>
+              </ul>
+              <div className={`mt-3 bg-blue-500/20 rounded px-3 py-2 ${isTVMode ? 'text-base' : 'text-xs'} font-mono`}>
+                <strong>Fórmula:</strong><br/>
+                Receita Atual + (Calls/dia × Dias × Taxa Show × Taxa Conv × Ticket Médio)
+              </div>
+            </div>
+
+            {/* Otimista */}
+            <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <span className={isTVMode ? 'text-3xl' : 'text-2xl'}>🤩</span>
+                <h5 className={`text-green-400 font-bold ${isTVMode ? 'text-2xl' : 'text-base'}`}>
+                  Otimista (20%)
+                </h5>
+              </div>
+              <p className={`text-gray-300 ${isTVMode ? 'text-lg' : 'text-xs'} mb-2`}>
+                <strong>Premissa:</strong> Melhora de performance
+              </p>
+              <ul className={`text-gray-400 ${isTVMode ? 'text-base' : 'text-xs'} space-y-1`}>
+                <li>• Taxa de Show: <strong className="text-green-400">+20%</strong></li>
+                <li>• Taxa de Conversão: <strong className="text-green-400">+20%</strong></li>
+                <li>• Ticket Médio: <strong className="text-green-400">+15%</strong></li>
+                <li>• Volume de Calls: <strong className="text-green-400">+20%</strong></li>
+              </ul>
+              <div className={`mt-3 bg-green-500/20 rounded px-3 py-2 ${isTVMode ? 'text-base' : 'text-xs'} font-mono`}>
+                <strong>Fórmula:</strong><br/>
+                Receita Atual + (Calls/dia × 1.2 × Dias × Show × 1.2 × Conv × 1.2 × Ticket × 1.15)
+              </div>
+            </div>
+          </div>
+
+          {/* Exemplo Prático */}
+          <div className="mt-6 bg-[#00E5CC]/10 border border-[#00E5CC]/30 rounded-lg p-4">
+            <h5 className={`text-[#00E5CC] font-bold mb-2 ${isTVMode ? 'text-xl' : 'text-sm'}`}>
+              💡 Exemplo Prático:
+            </h5>
+            <p className={`text-gray-300 ${isTVMode ? 'text-lg' : 'text-xs'}`}>
+              Squad com: <strong>R$ 100k</strong> faturados | <strong>60 calls</strong> em 10 dias | 
+              Taxa Show <strong>70%</strong> | Taxa Conv <strong>5%</strong> | 
+              Ticket <strong>R$ 15k</strong> | <strong>20 dias restantes</strong>
+            </p>
+            <ul className={`mt-3 space-y-2 text-gray-300 ${isTVMode ? 'text-lg' : 'text-xs'}`}>
+              <li className="flex items-start gap-2">
+                <span className="text-red-400">😰</span>
+                <span>
+                  <strong>Pessimista:</strong> R$ 100k + (4.8 calls/dia × 20 dias × 56% show × 4% conv × R$ 12.750) 
+                  = <strong className="text-red-400">~R$ 155k</strong>
+                </span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-blue-400">😐</span>
+                <span>
+                  <strong>Realista:</strong> R$ 100k + (6 calls/dia × 20 dias × 70% show × 5% conv × R$ 15k) 
+                  = <strong className="text-blue-400">~R$ 190k</strong>
+                </span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-green-400">🤩</span>
+                <span>
+                  <strong>Otimista:</strong> R$ 100k + (7.2 calls/dia × 20 dias × 84% show × 6% conv × R$ 17.250) 
+                  = <strong className="text-green-400">~R$ 233k</strong>
+                </span>
+              </li>
+            </ul>
+            <p className={`mt-4 text-[#00E5CC] ${isTVMode ? 'text-base' : 'text-xs'}`}>
+              ✨ <strong>As projeções se ajustam automaticamente</strong> conforme as métricas mudam ao longo do mês!
+            </p>
+          </div>
+        </div>
+
         {/* Insights Dinâmicos */}
         <div className={`bg-white/5 rounded-xl ${isTVMode ? 'p-8' : 'p-6'}`}>
           <h4 className={`text-[#00E5CC] font-bold mb-4 ${isTVMode ? 'text-3xl' : 'text-lg'}`}>
