@@ -60,31 +60,36 @@ export const SimulatorSlider = ({
           max={max}
           step={step}
           value={value}
-          onChange={(e) => onChange(Number(e.target.value))}
+          onChange={(e) => {
+            const newValue = Number(e.target.value);
+            console.log(`${label}: ${value} → ${newValue}`);
+            onChange(newValue);
+          }}
           className="w-full h-3 rounded-lg appearance-none cursor-pointer
+                     bg-gradient-to-r from-red-500 via-yellow-500 to-green-500
                      focus:outline-none focus:ring-4 focus:ring-[#00E5CC]/50
                      slider-thumb"
-          style={{
-            background: `linear-gradient(to right, 
-              #ef4444 0%, 
-              #f59e0b ${percentage/2}%, 
-              #10b981 100%)`
-          }}
         />
         
         {/* Marcador do valor atual */}
         <div 
-          className="absolute top-1/2 -translate-y-1/2 w-1 h-6 bg-white border-2 border-[#0066FF] rounded-full pointer-events-none"
+          className="absolute -top-8 bg-[#0066FF] text-white text-xs px-2 py-1 rounded pointer-events-none"
           style={{ 
             left: `${((currentValue - min) / (max - min)) * 100}%`,
-            transform: 'translateX(-50%) translateY(-50%)'
+            transform: 'translateX(-50%)'
           }}
-        />
+        >
+          ▼ Atual
+        </div>
       </div>
 
-      {/* Legenda */}
+      {/* Legenda com instruções */}
       <div className="flex items-center justify-between text-xs text-[#94A3B8]">
-        <span>Atual: <strong className="text-white">{formatValue(currentValue)}</strong></span>
+        <div className="flex items-center gap-2">
+          <span>👆 Arraste para ajustar</span>
+          <span>•</span>
+          <span>Atual: <strong className="text-white">{formatValue(currentValue)}</strong></span>
+        </div>
         <span>Min: {formatValue(min)} | Max: {formatValue(max)}</span>
       </div>
     </div>

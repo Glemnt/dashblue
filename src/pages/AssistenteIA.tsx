@@ -16,7 +16,7 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/components/ui/use-toast';
-import { RefreshCw, Sparkles, TrendingUp, AlertTriangle, Target, MessageSquare, Calculator, FileText, Loader2 } from 'lucide-react';
+import { RefreshCw, Sparkles, TrendingUp, AlertTriangle, Target, MessageSquare, Calculator, FileText, Loader2, Info, AlertCircle } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { SimulatorSlider } from '@/components/ia/simulator/SimulatorSlider';
 import logoWhite from '@/assets/logo-white.png';
@@ -83,6 +83,12 @@ const AssistenteIA = () => {
 
   useEffect(() => {
     if (metricas) {
+      console.log('📊 Inicializando simulador com valores:', {
+        taxaShow: metricas.taxaShow,
+        taxaConversao: metricas.taxaConversao,
+        ticketMedio: metricas.ticketMedio
+      });
+      
       setSimulationValues({
         taxaShow: metricas.taxaShow,
         taxaConversao: metricas.taxaConversao,
@@ -582,76 +588,106 @@ const AssistenteIA = () => {
           </h2>
 
           <div className="grid md:grid-cols-2 gap-8">
-            <Card className="bg-[#151E35] p-6">
-              <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-                🔮 Simular Mudanças
-                <Badge variant="secondary" className="ml-auto">
-                  Interativo
-                </Badge>
-              </h3>
-              
-              <div className="space-y-6">
-                <SimulatorSlider
-                  label="Taxa de Show"
-                  value={simulationValues.taxaShow}
-                  currentValue={metricas.taxaShow}
-                  min={0}
-                  max={100}
-                  step={1}
-                  onChange={(val) => setSimulationValues(prev => ({ ...prev, taxaShow: val }))}
-                  format="percentage"
-                  isTVMode={isTVMode}
-                />
+                <Card className="bg-[#151E35] p-6">
+                  <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                    🔮 Simular Mudanças
+                    <Badge variant="secondary" className="ml-auto">
+                      Interativo
+                    </Badge>
+                  </h3>
+                  
+                  <div className="space-y-6">
+                    {/* Card de instruções */}
+                    <div className="bg-[#0066FF]/10 border border-[#0066FF]/30 p-4 rounded-lg">
+                      <p className="text-white text-sm flex items-center gap-2">
+                        <Info className="w-4 h-4 text-[#00E5CC]" />
+                        <strong>Como usar:</strong>
+                      </p>
+                      <p className="text-[#94A3B8] text-xs mt-2">
+                        Ajuste os sliders abaixo para simular diferentes cenários. 
+                        Os valores atuais estão marcados para referência.
+                      </p>
+                    </div>
 
-                <SimulatorSlider
-                  label="Taxa de Conversão"
-                  value={simulationValues.taxaConversao}
-                  currentValue={metricas.taxaConversao}
-                  min={0}
-                  max={50}
-                  step={1}
-                  onChange={(val) => setSimulationValues(prev => ({ ...prev, taxaConversao: val }))}
-                  format="percentage"
-                  isTVMode={isTVMode}
-                />
+                    <SimulatorSlider
+                      label="Taxa de Show"
+                      value={simulationValues.taxaShow}
+                      currentValue={metricas.taxaShow}
+                      min={0}
+                      max={100}
+                      step={1}
+                      onChange={(val) => setSimulationValues(prev => ({ ...prev, taxaShow: val }))}
+                      format="percentage"
+                      isTVMode={isTVMode}
+                    />
 
-                <SimulatorSlider
-                  label="Ticket Médio"
-                  value={simulationValues.ticketMedio}
-                  currentValue={metricas.ticketMedio}
-                  min={8000}
-                  max={20000}
-                  step={500}
-                  onChange={(val) => setSimulationValues(prev => ({ ...prev, ticketMedio: val }))}
-                  format="currency"
-                  isTVMode={isTVMode}
-                />
+                    <SimulatorSlider
+                      label="Taxa de Conversão"
+                      value={simulationValues.taxaConversao}
+                      currentValue={metricas.taxaConversao}
+                      min={0}
+                      max={50}
+                      step={1}
+                      onChange={(val) => setSimulationValues(prev => ({ ...prev, taxaConversao: val }))}
+                      format="percentage"
+                      isTVMode={isTVMode}
+                    />
 
-                <Button 
-                  onClick={simularCenario} 
-                  disabled={simulationLoading} 
-                  className="w-full bg-[#00E5CC] hover:bg-[#00E5CC]/90 text-[#0B1120] font-bold"
-                  size={isTVMode ? "lg" : "default"}
-                >
-                  {simulationLoading ? (
-                    <>
-                      <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                      Simulando...
-                    </>
-                  ) : (
-                    <>
-                      <Calculator className="w-5 h-5 mr-2" />
-                      🔮 Simular Impacto
-                    </>
-                  )}
-                </Button>
+                    <SimulatorSlider
+                      label="Ticket Médio"
+                      value={simulationValues.ticketMedio}
+                      currentValue={metricas.ticketMedio}
+                      min={8000}
+                      max={20000}
+                      step={500}
+                      onChange={(val) => setSimulationValues(prev => ({ ...prev, ticketMedio: val }))}
+                      format="currency"
+                      isTVMode={isTVMode}
+                    />
 
-                {/* Info helper */}
-                <p className="text-xs text-[#94A3B8] text-center">
-                  💡 Ajuste os valores acima para ver o impacto no resultado
-                </p>
-              </div>
-            </Card>
+                    {(() => {
+                      const hasChanges = 
+                        simulationValues.taxaShow !== metricas.taxaShow ||
+                        simulationValues.taxaConversao !== metricas.taxaConversao ||
+                        simulationValues.ticketMedio !== metricas.ticketMedio;
+                      
+                      return (
+                        <Button 
+                          onClick={simularCenario} 
+                          disabled={simulationLoading || !hasChanges} 
+                          className={`w-full font-bold ${
+                            hasChanges 
+                              ? 'bg-[#00E5CC] hover:bg-[#00E5CC]/90 text-[#0B1120]' 
+                              : 'bg-gray-600 text-gray-400 cursor-not-allowed'
+                          }`}
+                          size={isTVMode ? "lg" : "default"}
+                        >
+                          {simulationLoading ? (
+                            <>
+                              <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                              Simulando...
+                            </>
+                          ) : !hasChanges ? (
+                            <>
+                              <AlertCircle className="w-5 h-5 mr-2" />
+                              Ajuste os valores para simular
+                            </>
+                          ) : (
+                            <>
+                              <Calculator className="w-5 h-5 mr-2" />
+                              🔮 Simular Impacto
+                            </>
+                          )}
+                        </Button>
+                      );
+                    })()}
+
+                    {/* Info helper */}
+                    <p className="text-xs text-[#94A3B8] text-center">
+                      💡 Ajuste os valores acima para ver o impacto no resultado
+                    </p>
+                  </div>
+                </Card>
 
             {simulation && (
               <Card className="bg-[#151E35] p-6 border-2 border-[#00E5CC]/30">
