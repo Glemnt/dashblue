@@ -5,6 +5,7 @@ import { useGoogleSheets } from "@/hooks/useGoogleSheets";
 import { useGoogleSheetsCampanhas } from "@/hooks/useGoogleSheetsCampanhas";
 import { useGoogleSheetsLeads } from "@/hooks/useGoogleSheetsLeads";
 import { calcularMetricas, formatarValor, formatarReal } from "@/utils/metricsCalculator";
+import { calcularMetricasSquads } from "@/utils/squadsMetricsCalculator";
 import { Button } from "@/components/ui/button";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
@@ -126,6 +127,11 @@ const Index = () => {
     totalLeads: leadsCampanhas,
     totalMQLs: leads.totalMQLs
   }, selectedMonthKey) : null;
+  
+  // Calcular métricas dos squads separadamente
+  const metricasSquads = filteredData.length > 0 
+    ? calcularMetricasSquads(filteredData, dateRange, selectedMonthKey) 
+    : null;
 
   const formatDate = (date: Date) => {
     return date.toLocaleDateString('pt-BR', { 
@@ -727,7 +733,7 @@ const Index = () => {
           
           {/* Squad Hot Dogs */}
           <div className="bg-white rounded-2xl p-12 border-l-8 border-red-alert relative hover:shadow-xl transition-all duration-300">
-            {metricas.squads.lider === 'hotDogs' && (
+            {metricasSquads?.placar.lider === 'Hot Dogs' && (
               <div className="absolute top-6 right-6">
                 <div className="bg-yellow-warning px-6 py-2 rounded-lg">
                   <span className="text-navy-ultra-dark font-outfit text-sm font-bold uppercase tracking-wider">LÍDER</span>
@@ -745,17 +751,17 @@ const Index = () => {
             </div>
             
             <p className="text-navy-ultra-dark font-outfit text-8xl font-black mb-2">
-              {formatarValor(metricas.squads.hotDogs.receita)}
+              {formatarValor(metricasSquads?.hotDogs.receitaTotal || 0)}
             </p>
             <p className="text-gray-medium font-outfit text-xl mb-6">
-              {metricas.squads.hotDogs.contratos} contratos fechados
+              {metricasSquads?.hotDogs.contratos || 0} contratos fechados
             </p>
             
             <div className="h-2 bg-gray-light rounded-full mb-8">
               <div 
                 className="h-full bg-red-alert rounded-full" 
                 style={{ 
-                  width: `${(metricas.squads.hotDogs.receita / (metricas.squads.hotDogs.receita + metricas.squads.corvoAzul.receita)) * 100}%` 
+                  width: `${metricasSquads?.placar.percentualHotDogs || 0}%` 
                 }}
               ></div>
             </div>
@@ -763,16 +769,16 @@ const Index = () => {
             <div className="bg-gray-light rounded-xl p-6">
               <p className="text-gray-medium font-outfit text-xs font-semibold uppercase tracking-widest mb-3">MEMBROS</p>
               <ul className="space-y-2 text-navy-ultra-dark font-outfit text-base">
-                <li>• Marcos (SDR)</li>
-                <li>• Bruno (Closer)</li>
-                <li>• Cauã (Closer)</li>
+                {metricasSquads?.hotDogs.membros.map(membro => (
+                  <li key={membro.nome}>• {membro.nome} ({membro.funcao})</li>
+                ))}
               </ul>
             </div>
           </div>
 
           {/* Squad Corvo Azul */}
           <div className="bg-white rounded-2xl p-12 border-l-8 border-blue-vibrant relative hover:shadow-xl transition-all duration-300">
-            {metricas.squads.lider === 'corvoAzul' && (
+            {metricasSquads?.placar.lider === 'Corvo Azul' && (
               <div className="absolute top-6 right-6">
                 <div className="bg-yellow-warning px-6 py-2 rounded-lg">
                   <span className="text-navy-ultra-dark font-outfit text-sm font-bold uppercase tracking-wider">LÍDER</span>
@@ -790,17 +796,17 @@ const Index = () => {
             </div>
             
             <p className="text-navy-ultra-dark font-outfit text-8xl font-black mb-2">
-              {formatarValor(metricas.squads.corvoAzul.receita)}
+              {formatarValor(metricasSquads?.corvoAzul.receitaTotal || 0)}
             </p>
             <p className="text-gray-medium font-outfit text-xl mb-6">
-              {metricas.squads.corvoAzul.contratos} contratos fechados
+              {metricasSquads?.corvoAzul.contratos || 0} contratos fechados
             </p>
             
             <div className="h-2 bg-gray-light rounded-full mb-8">
               <div 
                 className="h-full bg-blue-vibrant rounded-full" 
                 style={{ 
-                  width: `${(metricas.squads.corvoAzul.receita / (metricas.squads.hotDogs.receita + metricas.squads.corvoAzul.receita)) * 100}%` 
+                  width: `${metricasSquads?.placar.percentualCorvoAzul || 0}%` 
                 }}
               ></div>
             </div>
@@ -808,9 +814,9 @@ const Index = () => {
             <div className="bg-gray-light rounded-xl p-6">
               <p className="text-gray-medium font-outfit text-xs font-semibold uppercase tracking-widest mb-3">MEMBROS</p>
               <ul className="space-y-2 text-navy-ultra-dark font-outfit text-base">
-                <li>• Vinícius (SDR)</li>
-                <li>• Gabriel Fernandes (Closer)</li>
-                <li>• Gabriel Franklin (Closer)</li>
+                {metricasSquads?.corvoAzul.membros.map(membro => (
+                  <li key={membro.nome}>• {membro.nome} ({membro.funcao})</li>
+                ))}
               </ul>
             </div>
           </div>
@@ -820,17 +826,23 @@ const Index = () => {
         {/* Banner Dinâmico */}
         <div 
           className={`rounded-2xl p-10 text-center max-w-[1600px] mx-auto ${
-            metricas.squads.lider === 'hotDogs' ? 'bg-red-alert' : 'bg-blue-vibrant'
+            metricasSquads?.placar.lider === 'Hot Dogs' ? 'bg-red-alert' : 
+            metricasSquads?.placar.lider === 'Corvo Azul' ? 'bg-blue-vibrant' : 'bg-gray-500'
           }`}
         >
           <p className="text-white font-outfit text-4xl font-bold mb-3 tracking-tight">
-            {metricas.squads.lider === 'hotDogs' ? 'SQUAD HOT DOGS' : 'SQUAD CORVO AZUL'} ESTÁ NA LIDERANÇA
+            {metricasSquads?.placar.lider === 'Empate' 
+              ? 'EMPATE TÉCNICO!' 
+              : `SQUAD ${metricasSquads?.placar.lider?.toUpperCase()} ESTÁ NA LIDERANÇA`
+            }
           </p>
           <p className="text-white font-outfit text-2xl mb-1 font-semibold">
-            Vantagem: {formatarReal(metricas.squads.vantagem)} ({metricas.squads.vantagemPercentual.toFixed(1)}%)
+            Vantagem: {formatarReal(metricasSquads?.placar.vantagem || 0)} 
+            ({(metricasSquads?.placar.vantagemPercentual || 0).toFixed(1)}%)
           </p>
           <p className="text-white/80 font-outfit text-lg">
-            Para {metricas.squads.lider === 'hotDogs' ? 'Corvo Azul' : 'Hot Dogs'} virar: +{formatarReal(metricas.squads.vantagem + 0.01)} em vendas
+            Para {metricasSquads?.placar.lider === 'Hot Dogs' ? 'Corvo Azul' : 'Hot Dogs'} virar: 
+            +{formatarReal((metricasSquads?.placar.paraVirar || 0) + 0.01)} em vendas
           </p>
         </div>
       </section>
