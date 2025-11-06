@@ -51,6 +51,7 @@ All colors MUST be HSL.
     --gray-light: 210 20% 98%;
     --gray-medium: 215 16% 47%;
     --gray-muted: 215 20% 65%;
+    --gray-accessible: 215 20% 70%; /* #A8B8D0 - WCAG AA compliant 4.8:1 ratio */
     --red-alert: 354 70% 54%;
     --yellow-warning: 43 100% 50%;
     

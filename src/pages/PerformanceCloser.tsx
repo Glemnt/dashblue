@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { RefreshCw, TrendingUp, Target, Trophy } from 'lucide-react';
 import logoWhite from '@/assets/logo-white.png';
+import DataStaleIndicator from '@/components/DataStaleIndicator';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import Navigation from '@/components/Navigation';
@@ -147,8 +148,9 @@ const PerformanceCloser = () => {
           
           {/* ESQUERDA: Logo */}
           {!isTVMode && (
-            <div className="flex items-center">
+            <div className="flex items-center gap-4">
               <img src={logoWhite} alt="Blue Ocean" className="h-10 w-auto" />
+              <DataStaleIndicator lastUpdate={lastUpdate} isTVMode={isTVMode} />
             </div>
           )}
 
@@ -160,7 +162,7 @@ const PerformanceCloser = () => {
               Performance Closer
             </h1>
             {!isTVMode && (
-              <p className="text-[#94A3B8] font-outfit text-lg mt-2">
+              <p className="text-[#A8B8D0] font-outfit text-lg mt-2">
                 Análise detalhada da equipe de fechamento
               </p>
             )}
@@ -187,7 +189,7 @@ const PerformanceCloser = () => {
               }`}>
                 {formatDate(currentTime)}
               </p>
-              <p className={`text-[#94A3B8] font-outfit ${
+              <p className={`text-[#A8B8D0] font-outfit ${
                 isTVMode ? 'text-lg' : 'text-sm'
               }`}>
                 {isTVMode ? formatTime(currentTime) : `Atualizado: ${lastUpdate ? formatTime(lastUpdate) : '--:--'}`}
@@ -237,13 +239,13 @@ const PerformanceCloser = () => {
                 </div>
                 <TrendingUp className={`text-[#0066FF] ${isTVMode ? 'w-7 h-7' : 'w-10 h-10'}`} />
               </div>
-              <h3 className={`text-[#94A3B8] font-outfit uppercase tracking-wider ${isTVMode ? 'text-sm mb-2' : 'text-lg mb-3'}`}>
+              <h3 className={`text-[#A8B8D0] font-outfit uppercase tracking-wider ${isTVMode ? 'text-sm mb-2' : 'text-lg mb-3'}`}>
                 Receita Total
               </h3>
-              <p className={`text-white font-outfit font-black ${isTVMode ? 'text-5xl mb-2' : 'text-7xl mb-4'}`}>
+              <p className={`text-white font-outfit font-black ${isTVMode ? 'text-4xl md:text-5xl mb-2' : 'text-4xl md:text-5xl lg:text-6xl xl:text-7xl mb-4 break-all leading-tight'}`}>
                 {formatarReal(metricas.totais.receitaTotal)}
               </p>
-              <p className={`text-[#94A3B8] font-outfit ${isTVMode ? 'text-sm mb-3' : 'text-lg mb-6'}`}>
+              <p className={`text-[#A8B8D0] font-outfit ${isTVMode ? 'text-sm mb-3' : 'text-lg mb-6'}`}>
                 {metricas.totais.contratosTotais} contratos fechados
               </p>
               <div className="space-y-2">

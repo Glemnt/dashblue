@@ -9,6 +9,7 @@ import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 import TVModeToggle from '@/components/TVModeToggle';
 import PeriodFilter from '@/components/sdr/PeriodFilter';
+import DataStaleIndicator from '@/components/DataStaleIndicator';
 import { SquadsPlacar } from '@/components/squads/SquadsPlacar';
 import { SquadsComparativo } from '@/components/squads/SquadsComparativo';
 import { SquadsMembros } from '@/components/squads/SquadsMembros';
@@ -134,8 +135,9 @@ const GuerraSquads = () => {
         <div className={`max-w-[1920px] mx-auto ${isTVMode ? 'px-16 py-12' : 'px-12 py-8'} flex justify-between items-center`}>
           {/* ESQUERDA: Logo (oculto no TV Mode) */}
           {!isTVMode && (
-            <div className="flex items-center">
+            <div className="flex items-center gap-4">
               <img src={logoWhite} alt="Blue Ocean" className="h-10 w-auto" />
+              <DataStaleIndicator lastUpdate={lastUpdate} isTVMode={isTVMode} />
             </div>
           )}
 

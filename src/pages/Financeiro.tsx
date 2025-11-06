@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { RefreshCw, DollarSign, FileCheck, CheckCircle, Clock, CreditCard, AlertTriangle } from "lucide-react";
 import logoWhite from "@/assets/logo-white.png";
+import DataStaleIndicator from "@/components/DataStaleIndicator";
 import { useGoogleSheets } from "@/hooks/useGoogleSheets";
 import { calcularMetricasFinanceiras, formatarReal } from "@/utils/financialMetricsCalculator";
 import { filterDataByDateRange } from '@/utils/dateFilters';
@@ -128,8 +129,9 @@ const Financeiro = () => {
           
           {/* ESQUERDA: Logo (oculta no TV mode) */}
           {!isTVMode && (
-            <div className="flex items-center">
+            <div className="flex items-center gap-4">
               <img src={logoWhite} alt="Blue Ocean" className="h-10 w-auto" />
+              <DataStaleIndicator lastUpdate={lastUpdate} isTVMode={isTVMode} />
             </div>
           )}
 
