@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
-import { RefreshCw, TrendingUp, Target, Trophy } from 'lucide-react';
+import { RefreshCw, TrendingUp, Target, Trophy, Info } from 'lucide-react';
 import logoWhite from '@/assets/logo-white.png';
 import DataStaleIndicator from '@/components/DataStaleIndicator';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 import PeriodFilter from '@/components/sdr/PeriodFilter';
@@ -13,8 +14,11 @@ import CloserDetailCard from '@/components/closer/CloserDetailCard';
 import CloserCharts from '@/components/closer/CloserCharts';
 import TVModeToggle from '@/components/TVModeToggle';
 import ColaboradorAvatar from '@/components/ColaboradorAvatar';
+import AlertsBanner from '@/components/AlertsBanner';
+import PageSkeleton from '@/components/skeletons/PageSkeleton';
 import { useTVMode } from '@/hooks/useTVMode';
 import { useGoogleSheets } from '@/hooks/useGoogleSheets';
+import { useMetaAlerts } from '@/hooks/useMetaAlerts';
 import { calcularMetricasCloser } from '@/utils/closerMetricsCalculator';
 import { formatarReal } from '@/utils/metricsCalculator';
 import { usePeriodFilter } from '@/contexts/PeriodFilterContext';
@@ -103,15 +107,45 @@ const PerformanceCloser = () => {
     metaIndividual: metaIndividualReceita
   });
 
+  // Calcular dias úteis restantes
+  const calcularDiasUteisRestantes = () => {
+    const now = new Date();
+    const brasiliaTime = new Date(now.toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }));
+    const ano = brasiliaTime.getFullYear();
+    const mes = brasiliaTime.getMonth();
+    const dia = brasiliaTime.getDate();
+    const ultimoDiaMes = new Date(ano, mes + 1, 0).getDate();
+    
+    let diasUteis = 0;
+    for (let d = dia + 1; d <= ultimoDiaMes; d++) {
+      const tempDate = new Date(ano, mes, d);
+      const tempDiaSemana = tempDate.getDay();
+      if (tempDiaSemana !== 0 && tempDiaSemana !== 6) {
+        diasUteis++;
+      }
+    }
+    return diasUteis;
+  };
+
+  const diasUteisRestantes = calcularDiasUteisRestantes();
+
+  // Alertas de meta
+  const { alerts } = useMetaAlerts({
+    metricas: metricas ? {
+      progressoMetaMensal: (metricas.totais.receitaTotal / metaMensalReceita) * 100,
+      metaMensal: metaMensalReceita,
+      receitaTotal: metricas.totais.receitaTotal,
+      closer: metricas.closers.map(c => ({
+        nome: c.nome,
+        receitaTotal: c.receitaTotal,
+        progressoMeta: (c.receitaTotal / metaIndividualReceita) * 100
+      }))
+    } : undefined,
+    diasUteisRestantes
+  });
+
   if (loading) {
-    return (
-      <div className="min-h-screen bg-[#0B1120] flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-[#0066FF] mx-auto mb-8"></div>
-          <p className="text-white font-outfit text-2xl">Carregando Performance Closer...</p>
-        </div>
-      </div>
-    );
+    return <PageSkeleton isTVMode={isTVMode} type="performance" />;
   }
 
   if (error) {
@@ -172,16 +206,17 @@ const PerformanceCloser = () => {
           <div className="text-right flex flex-col items-end gap-3">
             <div className={`flex ${isTVMode ? 'gap-6' : 'gap-3'}`}>
               <TVModeToggle isTVMode={isTVMode} onToggle={() => setIsTVMode(!isTVMode)} />
-              <Button
-                onClick={refetch}
-                variant="outline"
-                className={`bg-[#0066FF]/10 border-2 border-[#0066FF] text-[#0066FF] hover:bg-[#0066FF] hover:text-white transition-all ${
-                  isTVMode ? 'px-8 py-6 text-2xl' : 'px-6 py-3 text-lg'
-                }`}
-              >
-                <RefreshCw className={`${isTVMode ? 'w-8 h-8 mr-4' : 'w-5 h-5 mr-2'}`} />
-                <span className="font-outfit font-semibold">Atualizar</span>
-              </Button>
+            <Button
+              onClick={refetch}
+              variant="outline"
+              className={`bg-[#0066FF]/10 border-2 border-[#0066FF] text-[#0066FF] hover:bg-[#0066FF] hover:text-white transition-all ${
+                isTVMode ? 'px-8 py-6 text-2xl' : 'px-6 py-3 text-lg'
+              }`}
+              aria-label="Atualizar dados"
+            >
+              <RefreshCw className={`${isTVMode ? 'w-8 h-8 mr-4' : 'w-5 h-5 mr-2'}`} aria-hidden="true" />
+              <span className="font-outfit font-semibold">Atualizar</span>
+            </Button>
             </div>
             <div>
               <p className={`text-white font-outfit font-semibold capitalize ${
@@ -202,6 +237,9 @@ const PerformanceCloser = () => {
 
       {/* NAVEGAÇÃO */}
       <Navigation isTVMode={isTVMode} />
+
+      {/* ALERTAS DE META */}
+      <AlertsBanner alerts={alerts} isTVMode={isTVMode} />
 
       {/* Indicador discreto de atualização */}
       {isRefetching && (

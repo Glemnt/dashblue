@@ -1,15 +1,19 @@
 import { useEffect, useState } from 'react';
-import { RefreshCw, TrendingUp, Target, Trophy, Phone } from 'lucide-react';
+import { RefreshCw, TrendingUp, Target, Trophy, Phone, Info } from 'lucide-react';
 import logoWhite from '@/assets/logo-white.png';
 import DataStaleIndicator from '@/components/DataStaleIndicator';
 import { useGoogleSheets } from '@/hooks/useGoogleSheets';
 import { useSDRKPIs } from '@/hooks/useSDRKPIs';
+import { useMetaAlerts } from '@/hooks/useMetaAlerts';
 import { calcularMetricasSDR, mesclarMetricasSDRComDashboard } from '@/utils/sdrMetricsCalculator';
 import { formatarReal } from '@/utils/metricsCalculator';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
+import AlertsBanner from '@/components/AlertsBanner';
+import PageSkeleton from '@/components/skeletons/PageSkeleton';
 import SDRPodium from '@/components/sdr/SDRPodium';
 import SDRComparisonTable from '@/components/sdr/SDRComparisonTable';
 import PeriodFilter from '@/components/sdr/PeriodFilter';
@@ -99,17 +103,47 @@ const PerformanceSDR = () => {
     });
   };
 
+  // Calcular dias úteis restantes
+  const calcularDiasUteisRestantes = () => {
+    const now = new Date();
+    const brasiliaTime = new Date(now.toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }));
+    const ano = brasiliaTime.getFullYear();
+    const mes = brasiliaTime.getMonth();
+    const dia = brasiliaTime.getDate();
+    const ultimoDiaMes = new Date(ano, mes + 1, 0).getDate();
+    
+    let diasUteis = 0;
+    for (let d = dia + 1; d <= ultimoDiaMes; d++) {
+      const tempDate = new Date(ano, mes, d);
+      const tempDiaSemana = tempDate.getDay();
+      if (tempDiaSemana !== 0 && tempDiaSemana !== 6) {
+        diasUteis++;
+      }
+    }
+    return diasUteis;
+  };
+
+  const diasUteisRestantes = calcularDiasUteisRestantes();
+  const metaCallsMensal = 400;
+
+  // Alertas de meta (usando vendas como métrica principal para SDRs)
+  const { alerts } = useMetaAlerts({
+    metricas: metricas ? {
+      progressoMetaMensal: (metricas.totais.totalCalls / metaCallsMensal) * 100,
+      metaMensal: metaCallsMensal,
+      receitaTotal: metricas.totais.vendasOriginadasTotal,
+      sdr: metricas.sdrs.map(s => ({
+        nome: s.nome,
+        totalCalls: s.totalCalls,
+        progressoMeta: (s.totalCalls / (metaCallsMensal / metricas.sdrs.length)) * 100
+      }))
+    } : undefined,
+    diasUteisRestantes
+  });
+
   // Loading State
   if ((loading || loadingKPIs) && !metricas) {
-    return (
-      <div className="min-h-screen bg-[#0B1120] font-outfit flex items-center justify-center">
-        <div className="text-center">
-          <RefreshCw className="w-16 h-16 text-[#0066FF] mx-auto mb-4 animate-spin" />
-          <h2 className="text-white text-3xl font-bold mb-2">Carregando Performance SDR...</h2>
-          <p className="text-[#94A3B8] text-lg">Buscando dados do Google Sheets</p>
-        </div>
-      </div>
-    );
+    return <PageSkeleton isTVMode={isTVMode} type="performance" />;
   }
 
   // Error State
@@ -202,6 +236,9 @@ const PerformanceSDR = () => {
 
       {/* NAVEGAÇÃO */}
       <Navigation isTVMode={isTVMode} />
+
+      {/* ALERTAS DE META */}
+      <AlertsBanner alerts={alerts} isTVMode={isTVMode} />
 
       {/* Indicador discreto de atualização */}
       {isRefetching && (
