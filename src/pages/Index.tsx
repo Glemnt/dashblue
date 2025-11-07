@@ -225,8 +225,8 @@ const Index = () => {
                     { label: 'Receita Semanal', value: formatarReal(metricas.receitaSemanal) },
                     { label: 'Meta Diária', value: formatarReal(metricas.metaDiaria) },
                     { label: 'Receita Diária', value: formatarReal(metricas.receitaDiaria) },
-                    { label: 'Hot Dogs - Receita', value: formatarReal(metricasSquads?.hotDogs.receitaTotal || 0) },
-                    { label: 'Corvo Azul - Receita', value: formatarReal(metricasSquads?.corvoAzul.receitaTotal || 0) },
+                    { label: 'Hot Dogs - Receita', value: formatarReal(metricasSquads?.hotDogs?.receitaTotal || 0) },
+                    { label: 'Corvo Azul - Receita', value: formatarReal(metricasSquads?.corvoAzul?.receitaTotal || 0) },
                   ]}
                 />
               )}
