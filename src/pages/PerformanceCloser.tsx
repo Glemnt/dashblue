@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { RefreshCw, TrendingUp, Target, Trophy, Info } from 'lucide-react';
 import logoWhite from '@/assets/logo-white.png';
 import DataStaleIndicator from '@/components/DataStaleIndicator';
@@ -28,6 +28,9 @@ import { ExportButton } from '@/components/ExportButton';
 
 const PerformanceCloser = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
+  
+  // Refs para captura de gráficos
+  const chartsContainerRef = useRef<HTMLDivElement>(null);
   
   // Estado global do filtro de período
   const { periodType: currentPeriod, dateRange: currentDateRange, selectedMonthKey, updateFilter, setSelectedMonthKey } = usePeriodFilter();
