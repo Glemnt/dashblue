@@ -2,9 +2,12 @@ import { useEffect, useState } from "react";
 import { RefreshCw } from "lucide-react";
 import logoWhite from "@/assets/logo-white.png";
 import DataStaleIndicator from "@/components/DataStaleIndicator";
+import AlertsBanner from "@/components/AlertsBanner";
+import PageSkeleton from "@/components/skeletons/PageSkeleton";
 import { useGoogleSheets } from "@/hooks/useGoogleSheets";
 import { useGoogleSheetsCampanhas } from "@/hooks/useGoogleSheetsCampanhas";
 import { useGoogleSheetsLeads } from "@/hooks/useGoogleSheetsLeads";
+import { useMetaAlerts } from "@/hooks/useMetaAlerts";
 import { calcularMetricas, formatarValor, formatarReal } from "@/utils/metricsCalculator";
 import { calcularMetricasSquads } from "@/utils/squadsMetricsCalculator";
 import { Button } from "@/components/ui/button";
@@ -150,17 +153,19 @@ const Index = () => {
     });
   };
 
+  // Calcular alertas
+  const { alerts } = useMetaAlerts({ 
+    metricas: metricas ? {
+      progressoMetaMensal: metricas.progressoMetaMensal,
+      metaMensal: metricas.metaMensal,
+      receitaTotal: metricas.receitaTotal
+    } : undefined,
+    diasUteisRestantes: 15
+  });
+
   // Loading State
   if ((loading || loadingCampanhas || leads.loading) && !metricas) {
-    return (
-      <div className="min-h-screen bg-[#0B1120] font-outfit flex items-center justify-center">
-        <div className="text-center">
-          <RefreshCw className="w-16 h-16 text-[#0066FF] mx-auto mb-4 animate-spin" />
-          <h2 className="text-white text-3xl font-bold mb-2">Carregando Dashboard...</h2>
-          <p className="text-[#94A3B8] text-lg">Buscando dados do Google Sheets</p>
-        </div>
-      </div>
-    );
+    return <PageSkeleton isTVMode={isTVMode} type="index" />;
   }
 
   // Error State
@@ -213,8 +218,9 @@ const Index = () => {
                 className={`bg-[#0066FF]/10 border-2 border-[#0066FF] text-[#0066FF] hover:bg-[#0066FF] hover:text-white transition-all ${
                   isTVMode ? 'px-8 py-6 text-2xl' : 'px-6 py-3 text-lg'
                 }`}
+                aria-label="Atualizar dados do dashboard"
               >
-                <RefreshCw className={`${isTVMode ? 'w-8 h-8 mr-4' : 'w-5 h-5 mr-2'}`} />
+                <RefreshCw className={`${isTVMode ? 'w-8 h-8 mr-4' : 'w-5 h-5 mr-2'}`} aria-hidden="true" />
                 <span className="font-outfit font-semibold">Atualizar</span>
               </Button>
             </div>
@@ -235,7 +241,10 @@ const Index = () => {
       </header>
 
       {/* NAVEGAÇÃO */}
-      <Navigation isTVMode={isTVMode} />
+      <Navigation isTVMode={isTVMode} criticalCount={alerts.filter(a => a.severity === 'critical').length} warningCount={alerts.filter(a => a.severity === 'warning').length} />
+
+      {/* ALERTAS */}
+      <AlertsBanner alerts={alerts} isTVMode={isTVMode} />
 
       {/* Indicador discreto de atualização */}
       {isRefetching && (
@@ -300,7 +309,14 @@ const Index = () => {
               </div>
             </div>
             
-            <div className={`relative ${isTVMode ? 'h-8' : 'h-12'} bg-white/5 rounded-full overflow-hidden mb-3`}>
+            <div 
+              className={`relative ${isTVMode ? 'h-8' : 'h-12'} bg-white/5 rounded-full overflow-hidden mb-3`}
+              role="progressbar"
+              aria-valuenow={Math.min(metricas.progressoMetaMensal, 100)}
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-label={`Progresso da meta mensal: ${metricas.progressoMetaMensal.toFixed(0)}%`}
+            >
               <div 
                 className={`absolute h-full rounded-full transition-all duration-1000 ${
                   metricas.progressoMetaMensal >= 90 ? 'animate-pulse-glow' : ''

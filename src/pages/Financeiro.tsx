@@ -2,7 +2,10 @@ import { useEffect, useState } from "react";
 import { RefreshCw, DollarSign, FileCheck, CheckCircle, Clock, CreditCard, AlertTriangle } from "lucide-react";
 import logoWhite from "@/assets/logo-white.png";
 import DataStaleIndicator from "@/components/DataStaleIndicator";
+import AlertsBanner from "@/components/AlertsBanner";
+import PageSkeleton from "@/components/skeletons/PageSkeleton";
 import { useGoogleSheets } from "@/hooks/useGoogleSheets";
+import { useMetaAlerts } from "@/hooks/useMetaAlerts";
 import { calcularMetricasFinanceiras, formatarReal } from "@/utils/financialMetricsCalculator";
 import { filterDataByDateRange } from '@/utils/dateFilters';
 import { Button } from "@/components/ui/button";
@@ -17,6 +20,12 @@ import ContractsTable from "@/components/financial/ContractsTable";
 import { useTVMode } from "@/hooks/useTVMode";
 import { usePeriodFilter } from "@/contexts/PeriodFilterContext";
 import { PieChart, Pie, Cell, Legend, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, LineChart, Line, ReferenceLine } from 'recharts';
+import {
+  TooltipProvider,
+  Tooltip as TooltipUI,
+  TooltipTrigger,
+  TooltipContent,
+} from "@/components/ui/tooltip";
 
 const Financeiro = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -30,6 +39,16 @@ const Financeiro = () => {
   // Filtrar dados por período e calcular métricas
   const filteredData = data.length > 0 ? filterDataByDateRange(data, dateRange) : [];
   const metricas = filteredData.length > 0 ? calcularMetricasFinanceiras(filteredData) : null;
+
+  // Calcular alertas financeiros
+  const { alerts } = useMetaAlerts({ 
+    metricas: metricas ? {
+      progressoMetaMensal: (metricas.receitas.paga / metricas.receitas.total) * 100,
+      metaMensal: metricas.receitas.total,
+      receitaTotal: metricas.receitas.paga
+    } : undefined,
+    diasUteisRestantes: 15
+  });
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
@@ -94,14 +113,7 @@ const Financeiro = () => {
 
   // Loading state
   if (loading) {
-    return (
-      <div className="min-h-screen bg-[#0B1120] flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-[#0066FF] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-white text-xl font-outfit">Carregando Análise Financeira...</p>
-        </div>
-      </div>
-    );
+    return <PageSkeleton isTVMode={isTVMode} type="financial" />;
   }
 
   // Error state
@@ -159,8 +171,9 @@ const Financeiro = () => {
                 className={`bg-[#0066FF]/10 border-2 border-[#0066FF] text-[#0066FF] hover:bg-[#0066FF] hover:text-white transition-all ${
                   isTVMode ? 'px-8 py-6 text-2xl' : 'px-6 py-3 text-lg'
                 }`}
+                aria-label="Atualizar análise financeira"
               >
-                <RefreshCw className={`${isTVMode ? 'w-8 h-8 mr-4' : 'w-5 h-5 mr-2'}`} />
+                <RefreshCw className={`${isTVMode ? 'w-8 h-8 mr-4' : 'w-5 h-5 mr-2'}`} aria-hidden="true" />
                 <span className="font-outfit font-semibold">Atualizar</span>
               </Button>
             </div>
@@ -182,7 +195,10 @@ const Financeiro = () => {
       </header>
 
       {/* NAVEGAÇÃO */}
-      <Navigation isTVMode={isTVMode} />
+      <Navigation isTVMode={isTVMode} criticalCount={alerts.filter(a => a.severity === 'critical').length} warningCount={alerts.filter(a => a.severity === 'warning').length} />
+
+      {/* ALERTAS */}
+      <AlertsBanner alerts={alerts} isTVMode={isTVMode} />
 
       {/* Indicador discreto de atualização */}
       {isRefetching && (
@@ -215,11 +231,20 @@ const Financeiro = () => {
         <div className={`grid grid-cols-3 ${isTVMode ? 'gap-4' : 'gap-8'}`}>
           {/* Card 1: Receita Total */}
           <div className={`bg-[#151E35] rounded-2xl border border-white/10 ${isTVMode ? 'p-6' : 'p-12'}`}>
-            <div className={`flex items-start justify-between ${isTVMode ? 'mb-4' : 'mb-8'}`}>
-              <div className={`bg-[#0066FF]/20 rounded-2xl ${isTVMode ? 'p-4' : 'p-6'}`}>
-                <DollarSign className={`text-[#0066FF] ${isTVMode ? 'w-7 h-7' : 'w-10 h-10'}`} />
+            <TooltipProvider>
+              <div className={`flex items-start justify-between ${isTVMode ? 'mb-4' : 'mb-8'}`}>
+                <TooltipUI>
+                  <TooltipTrigger asChild>
+                    <div className={`bg-[#0066FF]/20 rounded-2xl ${isTVMode ? 'p-4' : 'p-6'}`}>
+                      <DollarSign className={`text-[#0066FF] ${isTVMode ? 'w-7 h-7' : 'w-10 h-10'}`} aria-label="Ícone de receita total" />
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Soma de todos os contratos fechados no período</p>
+                  </TooltipContent>
+                </TooltipUI>
               </div>
-            </div>
+            </TooltipProvider>
             <h3 className={`text-[#94A3B8] uppercase tracking-wider font-semibold ${isTVMode ? 'text-xs mb-2' : 'text-sm mb-4'}`}>
               RECEITA TOTAL
             </h3>
@@ -247,7 +272,15 @@ const Financeiro = () => {
             <p className={`text-[#94A3B8] ${isTVMode ? 'text-sm mb-2' : 'text-base mb-4'}`}>
               {metricas.contratos.assinados} contratos assinados
             </p>
-            <Progress value={metricas.receitas.taxaAssinatura} className="h-2" />
+            <Progress 
+              value={metricas.receitas.taxaAssinatura} 
+              className="h-2" 
+              role="progressbar"
+              aria-valuenow={metricas.receitas.taxaAssinatura}
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-label={`Taxa de assinatura: ${metricas.receitas.taxaAssinatura.toFixed(1)}%`}
+            />
             <p className={`text-[#00E5CC] mt-2 font-semibold ${isTVMode ? 'text-sm' : 'text-base'}`}>
               {metricas.receitas.taxaAssinatura.toFixed(1)}% do total
             </p>
@@ -269,7 +302,15 @@ const Financeiro = () => {
             <p className={`text-[#94A3B8] ${isTVMode ? 'text-sm mb-2' : 'text-base mb-4'}`}>
               {metricas.contratos.pagos} contratos pagos
             </p>
-            <Progress value={metricas.receitas.taxaRecebimentoTotal} className="h-2" />
+            <Progress 
+              value={metricas.receitas.taxaRecebimentoTotal} 
+              className="h-2"
+              role="progressbar"
+              aria-valuenow={metricas.receitas.taxaRecebimentoTotal}
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-label={`Taxa de recebimento: ${metricas.receitas.taxaRecebimentoTotal.toFixed(1)}%`}
+            />
             <p className={`text-[#00E5CC] mt-2 font-semibold ${isTVMode ? 'text-sm' : 'text-base'}`}>
               {metricas.receitas.taxaRecebimentoTotal.toFixed(1)}% recebido
             </p>

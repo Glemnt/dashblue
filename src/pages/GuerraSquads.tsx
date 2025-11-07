@@ -2,11 +2,14 @@ import { useState, useEffect } from 'react';
 import { useGoogleSheets } from '@/hooks/useGoogleSheets';
 import { useTVMode } from '@/hooks/useTVMode';
 import { usePeriodFilter } from '@/contexts/PeriodFilterContext';
+import { useMetaAlerts } from '@/hooks/useMetaAlerts';
 import { calcularMetricasSquads } from '@/utils/squadsMetricsCalculator';
 import { formatarReal } from '@/utils/financialMetricsCalculator';
 import { filterDataByDateRange } from '@/utils/dateFilters';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
+import AlertsBanner from '@/components/AlertsBanner';
+import PageSkeleton from '@/components/skeletons/PageSkeleton';
 import TVModeToggle from '@/components/TVModeToggle';
 import PeriodFilter from '@/components/sdr/PeriodFilter';
 import DataStaleIndicator from '@/components/DataStaleIndicator';
@@ -91,15 +94,19 @@ const GuerraSquads = () => {
   const filteredData = data ? filterDataByDateRange(data, dateRange) : [];
   const metricas = filteredData.length > 0 ? calcularMetricasSquads(filteredData, dateRange, selectedMonthKey) : null;
 
+  // Calcular alertas dos squads
+  const metaTotal = 650000; // Meta mensal padrão
+  const { alerts } = useMetaAlerts({ 
+    metricas: metricas ? {
+      progressoMetaMensal: ((metricas.hotDogs.receitaTotal + metricas.corvoAzul.receitaTotal) / metaTotal) * 100,
+      metaMensal: metaTotal,
+      receitaTotal: metricas.hotDogs.receitaTotal + metricas.corvoAzul.receitaTotal
+    } : undefined,
+    diasUteisRestantes: 15
+  });
+
   if (loading && !data) {
-    return (
-      <div className="min-h-screen bg-[#0B1120] flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-[#00E5CC] mx-auto mb-4"></div>
-          <p className="text-white text-xl font-semibold">Carregando dados da guerra...</p>
-        </div>
-      </div>
-    );
+    return <PageSkeleton isTVMode={isTVMode} type="squads" />;
   }
 
   if (error) {
@@ -166,8 +173,9 @@ const GuerraSquads = () => {
                 className={`bg-[#0066FF]/10 border-2 border-[#0066FF] text-[#0066FF] hover:bg-[#0066FF] hover:text-white transition-all ${
                   isTVMode ? 'px-8 py-6 text-2xl' : 'px-6 py-3 text-lg'
                 }`}
+                aria-label="Atualizar dados da guerra de squads"
               >
-                <RefreshCw className={`${isTVMode ? 'w-8 h-8 mr-4' : 'w-5 h-5 mr-2'} ${isRefreshing ? 'animate-spin' : ''}`} />
+                <RefreshCw className={`${isTVMode ? 'w-8 h-8 mr-4' : 'w-5 h-5 mr-2'} ${isRefreshing ? 'animate-spin' : ''}`} aria-hidden="true" />
                 <span className="font-outfit font-semibold">Atualizar</span>
               </Button>
             </div>
@@ -188,7 +196,10 @@ const GuerraSquads = () => {
       </header>
 
       {/* NAVIGATION */}
-      <Navigation isTVMode={isTVMode} />
+      <Navigation isTVMode={isTVMode} criticalCount={alerts.filter(a => a.severity === 'critical').length} warningCount={alerts.filter(a => a.severity === 'warning').length} />
+
+      {/* ALERTAS */}
+      <AlertsBanner alerts={alerts} isTVMode={isTVMode} />
 
       {/* Indicador discreto de atualização */}
       {isRefetching && (
