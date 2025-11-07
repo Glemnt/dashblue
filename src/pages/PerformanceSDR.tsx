@@ -23,6 +23,8 @@ import TVModeToggle from '@/components/TVModeToggle';
 import ColaboradorAvatar from '@/components/ColaboradorAvatar';
 import { useTVMode } from '@/hooks/useTVMode';
 import { usePeriodFilter } from '@/contexts/PeriodFilterContext';
+import { formatDateRange } from '@/utils/dateFilters';
+import { ExportButton } from '@/components/ExportButton';
 
 const PerformanceSDR = () => {
   const [currentTime, setCurrentTime] = useState(new Date());

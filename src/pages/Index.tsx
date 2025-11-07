@@ -17,7 +17,8 @@ import PeriodFilter from "@/components/sdr/PeriodFilter";
 import TVModeToggle from "@/components/TVModeToggle";
 import { useTVMode } from "@/hooks/useTVMode";
 import { usePeriodFilter } from "@/contexts/PeriodFilterContext";
-import { filterDataByDateRange } from '@/utils/dateFilters';
+import { filterDataByDateRange, formatDateRange } from '@/utils/dateFilters';
+import { ExportButton } from "@/components/ExportButton";
 
 // Função auxiliar para interpolar entre duas cores hex
 const interpolateColor = (color1: string, color2: string, ratio: number): string => {
@@ -212,6 +213,23 @@ const Index = () => {
           <div className="text-right flex flex-col items-end gap-3">
             <div className={`flex ${isTVMode ? 'gap-6' : 'gap-3'}`}>
               <TVModeToggle isTVMode={isTVMode} onToggle={() => setIsTVMode(!isTVMode)} />
+              {!isTVMode && metricas && (
+                <ExportButton
+                  pageTitle="Dashboard Comercial"
+                  period={formatDateRange(dateRange)}
+                  data={[
+                    { label: 'Meta Mensal', value: formatarReal(metricas.metaMensal) },
+                    { label: 'Receita Total', value: formatarReal(metricas.receitaTotal) },
+                    { label: 'Progresso Mensal', value: `${metricas.progressoMetaMensal.toFixed(1)}%` },
+                    { label: 'Meta Semanal', value: formatarReal(metricas.metaSemanal) },
+                    { label: 'Receita Semanal', value: formatarReal(metricas.receitaSemanal) },
+                    { label: 'Meta Diária', value: formatarReal(metricas.metaDiaria) },
+                    { label: 'Receita Diária', value: formatarReal(metricas.receitaDiaria) },
+                    { label: 'Hot Dogs - Receita', value: formatarReal(metricasSquads?.hotDogs.receitaTotal || 0) },
+                    { label: 'Corvo Azul - Receita', value: formatarReal(metricasSquads?.corvoAzul.receitaTotal || 0) },
+                  ]}
+                />
+              )}
               <Button 
                 onClick={refetch}
                 variant="outline"

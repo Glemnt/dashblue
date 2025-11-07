@@ -23,6 +23,8 @@ import { calcularMetricasCloser } from '@/utils/closerMetricsCalculator';
 import { formatarReal } from '@/utils/metricsCalculator';
 import { usePeriodFilter } from '@/contexts/PeriodFilterContext';
 import { getMetasPorMes } from '@/utils/metasConfig';
+import { formatDateRange } from '@/utils/dateFilters';
+import { ExportButton } from '@/components/ExportButton';
 
 const PerformanceCloser = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
