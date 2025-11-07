@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { RefreshCw, TrendingUp, Target, Trophy, Phone, Info } from 'lucide-react';
 import logoWhite from '@/assets/logo-white.png';
 import DataStaleIndicator from '@/components/DataStaleIndicator';
@@ -23,14 +23,9 @@ import TVModeToggle from '@/components/TVModeToggle';
 import ColaboradorAvatar from '@/components/ColaboradorAvatar';
 import { useTVMode } from '@/hooks/useTVMode';
 import { usePeriodFilter } from '@/contexts/PeriodFilterContext';
-import { formatDateRange } from '@/utils/dateFilters';
-import { ExportButton } from '@/components/ExportButton';
 
 const PerformanceSDR = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
-  
-  // Refs para captura de gráficos
-  const chartsContainerRef = useRef<HTMLDivElement>(null);
   
   // Estado global do filtro de período
   const { periodType: currentPeriod, dateRange: currentDateRange, selectedMonthKey, updateFilter, setSelectedMonthKey } = usePeriodFilter();
@@ -212,24 +207,6 @@ const PerformanceSDR = () => {
           <div className="text-right flex flex-col items-end gap-3">
             <div className={`flex ${isTVMode ? 'gap-6' : 'gap-3'}`}>
               <TVModeToggle isTVMode={isTVMode} onToggle={() => setIsTVMode(!isTVMode)} />
-              {!isTVMode && metricas && (
-                <ExportButton
-                  pageTitle="Performance SDR"
-                  period={formatDateRange(currentDateRange)}
-                  data={[
-                    { label: 'Total de Calls', value: metricas.totais.totalCalls.toString() },
-                    { label: 'Taxa de Qualificação', value: `${metricas.totais.taxaQualificacaoMedia.toFixed(1)}%` },
-                    { label: 'Taxa de Show', value: `${metricas.totais.taxaShowMedia.toFixed(1)}%` },
-                    { label: 'SDR Destaque', value: metricas.destaque?.nome || '' },
-                  ]}
-                  chartRefs={[
-                    {
-                      title: "Análise Gráfica de Performance SDR",
-                      ref: chartsContainerRef
-                    }
-                  ]}
-                />
-              )}
               <Button
                 onClick={() => { refetch(); refetchKPIs(); }}
                 variant="outline"
@@ -464,7 +441,7 @@ const PerformanceSDR = () => {
         <h2 className={`text-white font-outfit font-bold text-center tracking-tight ${isTVMode ? 'text-4xl mb-6' : 'text-5xl mb-16'}`}>
           Análise Gráfica Comparativa
         </h2>
-        <div className="max-w-[1800px] mx-auto" ref={chartsContainerRef}>
+        <div className="max-w-[1800px] mx-auto">
           <SDRCharts 
             sdrs={metricas.sdrs} 
             metaIndividualCalls={metaIndividualCalls}

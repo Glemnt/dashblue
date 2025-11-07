@@ -5,7 +5,7 @@ import { usePeriodFilter } from '@/contexts/PeriodFilterContext';
 import { useMetaAlerts } from '@/hooks/useMetaAlerts';
 import { calcularMetricasSquads } from '@/utils/squadsMetricsCalculator';
 import { formatarReal } from '@/utils/financialMetricsCalculator';
-import { filterDataByDateRange, formatDateRange } from '@/utils/dateFilters';
+import { filterDataByDateRange } from '@/utils/dateFilters';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 import AlertsBanner from '@/components/AlertsBanner';
@@ -23,7 +23,6 @@ import { RefreshCw, Wifi } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import logoWhite from '@/assets/logo-white.png';
-import { ExportButton } from '@/components/ExportButton';
 
 const GuerraSquads = () => {
   // Estado global do filtro de período
@@ -167,19 +166,6 @@ const GuerraSquads = () => {
           <div className="text-right flex flex-col items-end gap-3">
             <div className={`flex ${isTVMode ? 'gap-6' : 'gap-3'}`}>
               <TVModeToggle isTVMode={isTVMode} onToggle={() => setIsTVMode(!isTVMode)} />
-              {!isTVMode && metricas && (
-                <ExportButton
-                  pageTitle="Guerra de Squads"
-                  period={formatDateRange(dateRange)}
-                  data={[
-                    { label: 'Hot Dogs - Receita', value: formatarReal(metricas.hotDogs.receitaTotal) },
-                    { label: 'Hot Dogs - Contratos', value: metricas.hotDogs.contratos.toString() },
-                    { label: 'Corvo Azul - Receita', value: formatarReal(metricas.corvoAzul.receitaTotal) },
-                    { label: 'Corvo Azul - Contratos', value: metricas.corvoAzul.contratos.toString() },
-                    { label: 'Diferença Receita', value: formatarReal(Math.abs(metricas.comparacao.receita.diferenca)) },
-                  ]}
-                />
-              )}
               <Button
                 onClick={handleRefresh}
                 variant="outline"

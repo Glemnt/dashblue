@@ -7,7 +7,7 @@ import PageSkeleton from "@/components/skeletons/PageSkeleton";
 import { useGoogleSheets } from "@/hooks/useGoogleSheets";
 import { useMetaAlerts } from "@/hooks/useMetaAlerts";
 import { calcularMetricasFinanceiras, formatarReal } from "@/utils/financialMetricsCalculator";
-import { filterDataByDateRange, formatDateRange } from '@/utils/dateFilters';
+import { filterDataByDateRange } from '@/utils/dateFilters';
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
@@ -26,7 +26,6 @@ import {
   TooltipTrigger,
   TooltipContent,
 } from "@/components/ui/tooltip";
-import { ExportButton } from "@/components/ExportButton";
 
 const Financeiro = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
