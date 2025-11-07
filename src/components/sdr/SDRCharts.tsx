@@ -30,9 +30,29 @@ const SDRCharts = ({ sdrs, metaIndividualCalls }: SDRChartsProps) => {
       
       <div className="bg-[#151E35] rounded-2xl p-8 border border-white/5">
         <h3 className="text-white font-outfit text-2xl font-bold mb-8">
-          📊 Calls por SDR
+          <span role="img" aria-label="Emoji de gráfico">📊</span> Calls por SDR
         </h3>
-        <ResponsiveContainer width="100%" height={400}>
+        
+        {/* Tabela sr-only para screen readers */}
+        <table className="sr-only">
+          <caption>Número de calls realizadas por cada SDR</caption>
+          <thead>
+            <tr>
+              <th>SDR</th>
+              <th>Calls Realizadas</th>
+            </tr>
+          </thead>
+          <tbody>
+            {barChartData.map((sdr, index) => (
+              <tr key={index}>
+                <td>{sdr.nome}</td>
+                <td>{sdr.calls}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        
+        <ResponsiveContainer width="100%" height={400} aria-hidden="true">
           <BarChart
             data={barChartData}
             layout="vertical"
@@ -85,12 +105,36 @@ const SDRCharts = ({ sdrs, metaIndividualCalls }: SDRChartsProps) => {
 
       <div className="bg-[#151E35] rounded-2xl p-8 border border-white/5">
         <h3 className="text-white font-outfit text-2xl font-bold mb-4">
-          🎯 Volume vs Qualidade
+          <span role="img" aria-label="Emoji de alvo">🎯</span> Volume vs Qualidade
         </h3>
         <p className="text-[#94A3B8] text-sm font-outfit mb-6">
           Tamanho da bolha = receita originada
         </p>
-        <ResponsiveContainer width="100%" height={400}>
+        
+        {/* Tabela sr-only para screen readers */}
+        <table className="sr-only">
+          <caption>Relação entre volume de calls e taxa de show dos SDRs</caption>
+          <thead>
+            <tr>
+              <th>SDR</th>
+              <th>Calls</th>
+              <th>Taxa Show (%)</th>
+              <th>Vendas Originadas</th>
+            </tr>
+          </thead>
+          <tbody>
+            {scatterData.map((sdr, index) => (
+              <tr key={index}>
+                <td>{sdr.nome}</td>
+                <td>{sdr.calls}</td>
+                <td>{sdr.taxaShow.toFixed(1)}%</td>
+                <td>{formatarReal(sdr.vendas)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        
+        <ResponsiveContainer width="100%" height={400} aria-hidden="true">
           <ScatterChart margin={{ top: 20, right: 20, bottom: 40, left: 40 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
             <XAxis 

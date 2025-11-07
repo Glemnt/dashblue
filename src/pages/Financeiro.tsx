@@ -395,7 +395,7 @@ const Financeiro = () => {
           {/* Hot Dogs */}
           <div className={`bg-[#151E35] rounded-2xl border-l-4 border-[#FF4757] ${isTVMode ? 'p-6' : 'p-12'}`}>
             <h3 className={`text-white font-black mb-6 ${isTVMode ? 'text-2xl' : 'text-3xl'}`}>
-              🔴 Hot Dogs
+              <span role="img" aria-label="Emoji de Hot Dogs">🔴</span> Hot Dogs
             </h3>
             <div className="grid grid-cols-2 gap-6">
               <div>
@@ -434,7 +434,7 @@ const Financeiro = () => {
           {/* Corvo Azul */}
           <div className={`bg-[#151E35] rounded-2xl border-l-4 border-[#0066FF] ${isTVMode ? 'p-6' : 'p-12'}`}>
             <h3 className={`text-white font-black mb-6 ${isTVMode ? 'text-2xl' : 'text-3xl'}`}>
-              🔵 Corvo Azul
+              <span role="img" aria-label="Emoji de Corvo Azul">🔵</span> Corvo Azul
             </h3>
             <div className="grid grid-cols-2 gap-6">
               <div>
@@ -499,7 +499,7 @@ const Financeiro = () => {
                     <tr key={sdr.nome} className="border-b border-[#0B1120]/5 hover:bg-[#F8FAFC]">
                       <td className="py-3 px-2">
                         <div className="flex items-center gap-2">
-                          {index < 3 && <span className="text-lg">{['🥇', '🥈', '🥉'][index]}</span>}
+                          {index < 3 && <span className="text-lg" role="img" aria-label={`Medalha ${index === 0 ? 'de ouro' : index === 1 ? 'de prata' : 'de bronze'}`}>{['🥇', '🥈', '🥉'][index]}</span>}
                           <span>{sdr.squadEmoji}</span>
                           <span className={`font-semibold ${isTVMode ? 'text-sm' : 'text-base'}`}>{sdr.nome}</span>
                         </div>
@@ -545,7 +545,7 @@ const Financeiro = () => {
                     <tr key={closer.nome} className="border-b border-[#0B1120]/5 hover:bg-[#F8FAFC]">
                       <td className="py-3 px-2">
                         <div className="flex items-center gap-2">
-                          {index < 3 && <span className="text-lg">{['🥇', '🥈', '🥉'][index]}</span>}
+                          {index < 3 && <span className="text-lg" role="img" aria-label={`Medalha ${index === 0 ? 'de ouro' : index === 1 ? 'de prata' : 'de bronze'}`}>{['🥇', '🥈', '🥉'][index]}</span>}
                           <span>{closer.squadEmoji}</span>
                           <span className={`font-semibold ${isTVMode ? 'text-sm' : 'text-base'}`}>{closer.nome}</span>
                         </div>

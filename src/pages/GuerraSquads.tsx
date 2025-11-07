@@ -286,9 +286,9 @@ const GuerraSquads = () => {
         <div className="max-w-[1600px] mx-auto text-center">
           {metricas.placar.lider === 'Hot Dogs' && (
             <>
-              <h2 className={`font-black text-white mb-4 ${isTVMode ? 'text-6xl' : 'text-4xl md:text-6xl'}`}>
-                🔥 Hot Dogs on Fire!
-              </h2>
+          <h2 className={`font-black text-white mb-4 ${isTVMode ? 'text-6xl' : 'text-4xl md:text-6xl'}`}>
+            <span role="img" aria-label="Emoji de fogo">🔥</span> Hot Dogs on Fire!
+          </h2>
               <p className={`text-white mb-2 ${isTVMode ? 'text-4xl' : 'text-2xl md:text-3xl'}`}>
                 +{formatarReal(metricas.placar.vantagem)} na frente!
               </p>
@@ -300,9 +300,9 @@ const GuerraSquads = () => {
 
           {metricas.placar.lider === 'Corvo Azul' && (
             <>
-              <h2 className={`font-black text-white mb-4 ${isTVMode ? 'text-6xl' : 'text-4xl md:text-6xl'}`}>
-                🦅 Corvo Azul Decolou!
-              </h2>
+          <h2 className={`font-black text-white mb-4 ${isTVMode ? 'text-6xl' : 'text-4xl md:text-6xl'}`}>
+            <span role="img" aria-label="Emoji de águia">🦅</span> Corvo Azul Decolou!
+          </h2>
               <p className={`text-white mb-2 ${isTVMode ? 'text-4xl' : 'text-2xl md:text-3xl'}`}>
                 +{formatarReal(metricas.placar.vantagem)} de vantagem!
               </p>
@@ -314,9 +314,9 @@ const GuerraSquads = () => {
 
           {metricas.placar.lider === 'Empate' && (
             <>
-              <h2 className={`font-black text-white mb-4 ${isTVMode ? 'text-6xl' : 'text-4xl md:text-6xl'}`}>
-                ⚔️ Empate Técnico!
-              </h2>
+          <h2 className={`font-black text-white mb-4 ${isTVMode ? 'text-6xl' : 'text-4xl md:text-6xl'}`}>
+            <span role="img" aria-label="Emoji de espadas cruzadas">⚔️</span> Empate Técnico!
+          </h2>
               <p className={`text-white mb-2 ${isTVMode ? 'text-4xl' : 'text-2xl md:text-3xl'}`}>
                 A batalha está acirrada!
               </p>

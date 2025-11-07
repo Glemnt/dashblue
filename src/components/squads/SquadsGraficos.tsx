@@ -112,7 +112,29 @@ export const SquadsGraficos = ({ hotDogs, corvoAzul, isTVMode }: SquadsGraficosP
           <h3 className={`font-bold text-center mb-4 ${isTVMode ? 'text-2xl' : 'text-xl'}`}>
             Comparação de Métricas
           </h3>
-          <ResponsiveContainer width="100%" height={isTVMode ? 450 : 350}>
+          
+          {/* Tabela sr-only para screen readers */}
+          <table className="sr-only">
+            <caption>Comparação de métricas entre Hot Dogs e Corvo Azul</caption>
+            <thead>
+              <tr>
+                <th>Métrica</th>
+                <th>Hot Dogs</th>
+                <th>Corvo Azul</th>
+              </tr>
+            </thead>
+            <tbody>
+              {dadosBarras.map((item, index) => (
+                <tr key={index}>
+                  <td>{item.metrica}</td>
+                  <td>{item['Hot Dogs']}</td>
+                  <td>{item['Corvo Azul']}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          
+          <ResponsiveContainer width="100%" height={isTVMode ? 450 : 350} aria-hidden="true">
             <BarChart data={dadosBarras}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis 
@@ -140,7 +162,29 @@ export const SquadsGraficos = ({ hotDogs, corvoAzul, isTVMode }: SquadsGraficosP
           <h3 className={`font-bold text-center mb-4 ${isTVMode ? 'text-2xl' : 'text-xl'}`}>
             Perfil de Força
           </h3>
-          <ResponsiveContainer width="100%" height={isTVMode ? 450 : 350}>
+          
+          {/* Tabela sr-only para screen readers */}
+          <table className="sr-only">
+            <caption>Perfil de força comparativo entre squads</caption>
+            <thead>
+              <tr>
+                <th>Métrica</th>
+                <th>Hot Dogs</th>
+                <th>Corvo Azul</th>
+              </tr>
+            </thead>
+            <tbody>
+              {dadosRadar.map((item, index) => (
+                <tr key={index}>
+                  <td>{item.metrica}</td>
+                  <td>{item['Hot Dogs'].toFixed(1)}</td>
+                  <td>{item['Corvo Azul'].toFixed(1)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          
+          <ResponsiveContainer width="100%" height={isTVMode ? 450 : 350} aria-hidden="true">
             <RadarChart data={dadosRadar}>
               <PolarGrid />
               <PolarAngleAxis 
@@ -178,7 +222,29 @@ export const SquadsGraficos = ({ hotDogs, corvoAzul, isTVMode }: SquadsGraficosP
           <h3 className={`font-bold text-center mb-4 ${isTVMode ? 'text-2xl' : 'text-xl'}`}>
             Evolução + Projeção
           </h3>
-          <ResponsiveContainer width="100%" height={isTVMode ? 450 : 350}>
+          
+          {/* Tabela sr-only para screen readers */}
+          <table className="sr-only">
+            <caption>Evolução da receita ao longo do mês com projeção</caption>
+            <thead>
+              <tr>
+                <th>Dia</th>
+                <th>Hot Dogs</th>
+                <th>Corvo Azul</th>
+              </tr>
+            </thead>
+            <tbody>
+              {dadosLinha.map((item, index) => (
+                <tr key={index}>
+                  <td>{item.dia}</td>
+                  <td>R$ {item['Hot Dogs'].toLocaleString('pt-BR')}</td>
+                  <td>R$ {item['Corvo Azul'].toLocaleString('pt-BR')}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          
+          <ResponsiveContainer width="100%" height={isTVMode ? 450 : 350} aria-hidden="true">
             <LineChart data={dadosLinha}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis 

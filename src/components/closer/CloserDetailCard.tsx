@@ -100,108 +100,138 @@ const CloserDetailCard = ({ closer, metaIndividual }: CloserDetailCardProps) => 
             <div className="grid grid-cols-4 gap-6 mb-8">
               
               {/* Calls Realizadas */}
-              <div className="bg-[#0066FF]/5 rounded-xl p-6 border border-[#0066FF]/20">
-                <div className="flex items-center gap-3 mb-3">
-                  <Phone className="w-6 h-6 text-[#0066FF]" />
-                  <p className="text-[#64748B] text-xs font-semibold uppercase tracking-wider">
-                    Calls Realizadas
+              <TooltipProvider>
+                <div className="bg-[#0066FF]/5 rounded-xl p-6 border border-[#0066FF]/20">
+                  <div className="flex items-center gap-3 mb-3">
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Phone className="w-6 h-6 text-[#0066FF]" aria-label="Ícone de calls realizadas" />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Total de reuniões de fechamento realizadas</p>
+                      </TooltipContent>
+                    </Tooltip>
+                    <p className="text-[#64748B] text-xs font-semibold uppercase tracking-wider">
+                      Calls Realizadas
+                    </p>
+                  </div>
+                  <p className="text-[#0B1120] font-outfit text-4xl font-black">
+                    {closer.callsRealizadas}
                   </p>
                 </div>
-                <p className="text-[#0B1120] font-outfit text-4xl font-black">
-                  {closer.callsRealizadas}
-                </p>
-              </div>
 
-              {/* Calls Qualificadas */}
-              <div className="bg-[#00E5CC]/5 rounded-xl p-6 border border-[#00E5CC]/20">
-                <div className="flex items-center gap-3 mb-3">
-                  <CheckCircle className="w-6 h-6 text-[#00E5CC]" />
-                  <p className="text-[#64748B] text-xs font-semibold uppercase tracking-wider">
-                    Qualificadas
+                {/* Calls Qualificadas */}
+                <div className="bg-[#00E5CC]/5 rounded-xl p-6 border border-[#00E5CC]/20">
+                  <div className="flex items-center gap-3 mb-3">
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <CheckCircle className="w-6 h-6 text-[#00E5CC]" aria-label="Ícone de calls qualificadas" />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Reuniões com leads qualificados</p>
+                      </TooltipContent>
+                    </Tooltip>
+                    <p className="text-[#64748B] text-xs font-semibold uppercase tracking-wider">
+                      Qualificadas
+                    </p>
+                  </div>
+                  <p className="text-[#0B1120] font-outfit text-4xl font-black">
+                    {closer.callsQualificadas}
                   </p>
                 </div>
-                <p className="text-[#0B1120] font-outfit text-4xl font-black">
-                  {closer.callsQualificadas}
-                </p>
-              </div>
 
-              {/* Contratos Fechados */}
-              <div className="bg-[#FFB800]/5 rounded-xl p-6 border border-[#FFB800]/20">
-                <div className="flex items-center gap-3 mb-3">
-                  <span className="text-2xl">📝</span>
-                  <p className="text-[#64748B] text-xs font-semibold uppercase tracking-wider">
-                    Contratos
+                {/* Contratos Fechados */}
+                <div className="bg-[#FFB800]/5 rounded-xl p-6 border border-[#FFB800]/20">
+                  <div className="flex items-center gap-3 mb-3">
+                    <span className="text-2xl" role="img" aria-label="Emoji de contratos">📝</span>
+                    <p className="text-[#64748B] text-xs font-semibold uppercase tracking-wider">
+                      Contratos
+                    </p>
+                  </div>
+                  <p className="text-[#0B1120] font-outfit text-4xl font-black">
+                    {closer.contratosFechados}
                   </p>
                 </div>
-                <p className="text-[#0B1120] font-outfit text-4xl font-black">
-                  {closer.contratosFechados}
-                </p>
-              </div>
 
-              {/* Taxa Conversão */}
-              <div className="bg-[#0066FF]/5 rounded-xl p-6 border border-[#0066FF]/20">
-                <div className="flex items-center gap-3 mb-3">
-                  <TrendingUp className="w-6 h-6 text-[#0066FF]" />
-                  <p className="text-[#64748B] text-xs font-semibold uppercase tracking-wider">
-                    Taxa Conversão
+                {/* Taxa Conversão */}
+                <div className="bg-[#0066FF]/5 rounded-xl p-6 border border-[#0066FF]/20">
+                  <div className="flex items-center gap-3 mb-3">
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <TrendingUp className="w-6 h-6 text-[#0066FF]" aria-label="Ícone de taxa de conversão" />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Percentual de reuniões que viraram contratos</p>
+                      </TooltipContent>
+                    </Tooltip>
+                    <p className="text-[#64748B] text-xs font-semibold uppercase tracking-wider">
+                      Taxa Conversão
+                    </p>
+                  </div>
+                  <p className="text-[#0B1120] font-outfit text-4xl font-black">
+                    {closer.taxaConversao.toFixed(1)}%
                   </p>
                 </div>
-                <p className="text-[#0B1120] font-outfit text-4xl font-black">
-                  {closer.taxaConversao.toFixed(1)}%
-                </p>
-              </div>
 
-              {/* Receita Total */}
-              <div className="bg-[#00E5CC]/5 rounded-xl p-6 border border-[#00E5CC]/20">
-                <div className="flex items-center gap-3 mb-3">
-                  <DollarSign className="w-6 h-6 text-[#00E5CC]" />
-                  <p className="text-[#64748B] text-xs font-semibold uppercase tracking-wider">
-                    Receita Total
+                {/* Receita Total */}
+                <div className="bg-[#00E5CC]/5 rounded-xl p-6 border border-[#00E5CC]/20">
+                  <div className="flex items-center gap-3 mb-3">
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <DollarSign className="w-6 h-6 text-[#00E5CC]" aria-label="Ícone de receita total" />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Soma de todos os contratos fechados</p>
+                      </TooltipContent>
+                    </Tooltip>
+                    <p className="text-[#64748B] text-xs font-semibold uppercase tracking-wider">
+                      Receita Total
+                    </p>
+                  </div>
+                  <p className="text-[#0B1120] font-outfit text-3xl font-black">
+                    {formatarReal(closer.receitaTotal)}
                   </p>
                 </div>
-                <p className="text-[#0B1120] font-outfit text-3xl font-black">
-                  {formatarReal(closer.receitaTotal)}
-                </p>
-              </div>
 
-              {/* Receita Assinada */}
-              <div className="bg-[#FFB800]/5 rounded-xl p-6 border border-[#FFB800]/20">
-                <div className="flex items-center gap-3 mb-3">
-                  <span className="text-2xl">✍️</span>
-                  <p className="text-[#64748B] text-xs font-semibold uppercase tracking-wider">
-                    Assinada
+                {/* Receita Assinada */}
+                <div className="bg-[#FFB800]/5 rounded-xl p-6 border border-[#FFB800]/20">
+                  <div className="flex items-center gap-3 mb-3">
+                    <span className="text-2xl" role="img" aria-label="Emoji de assinatura">✍️</span>
+                    <p className="text-[#64748B] text-xs font-semibold uppercase tracking-wider">
+                      Assinada
+                    </p>
+                  </div>
+                  <p className="text-[#0B1120] font-outfit text-3xl font-black">
+                    {formatarReal(closer.receitaAssinada)}
                   </p>
                 </div>
-                <p className="text-[#0B1120] font-outfit text-3xl font-black">
-                  {formatarReal(closer.receitaAssinada)}
-                </p>
-              </div>
 
-              {/* Receita Paga */}
-              <div className="bg-[#00E5CC]/5 rounded-xl p-6 border border-[#00E5CC]/20">
-                <div className="flex items-center gap-3 mb-3">
-                  <span className="text-2xl">💰</span>
-                  <p className="text-[#64748B] text-xs font-semibold uppercase tracking-wider">
-                    Paga
+                {/* Receita Paga */}
+                <div className="bg-[#00E5CC]/5 rounded-xl p-6 border border-[#00E5CC]/20">
+                  <div className="flex items-center gap-3 mb-3">
+                    <span className="text-2xl" role="img" aria-label="Emoji de pagamento">💰</span>
+                    <p className="text-[#64748B] text-xs font-semibold uppercase tracking-wider">
+                      Paga
+                    </p>
+                  </div>
+                  <p className="text-[#0B1120] font-outfit text-3xl font-black">
+                    {formatarReal(closer.receitaPaga)}
                   </p>
                 </div>
-                <p className="text-[#0B1120] font-outfit text-3xl font-black">
-                  {formatarReal(closer.receitaPaga)}
-                </p>
-              </div>
 
-              {/* Ticket Médio */}
-              <div className="bg-[#0066FF]/5 rounded-xl p-6 border border-[#0066FF]/20">
-                <div className="flex items-center gap-3 mb-3">
-                  <span className="text-2xl">🎯</span>
-                  <p className="text-[#64748B] text-xs font-semibold uppercase tracking-wider">
-                    Ticket Médio
+                {/* Ticket Médio */}
+                <div className="bg-[#0066FF]/5 rounded-xl p-6 border border-[#0066FF]/20">
+                  <div className="flex items-center gap-3 mb-3">
+                    <span className="text-2xl" role="img" aria-label="Emoji de ticket médio">🎯</span>
+                    <p className="text-[#64748B] text-xs font-semibold uppercase tracking-wider">
+                      Ticket Médio
+                    </p>
+                  </div>
+                  <p className="text-[#0B1120] font-outfit text-3xl font-black">
+                    {formatarReal(closer.ticketMedio)}
                   </p>
                 </div>
-                <p className="text-[#0B1120] font-outfit text-3xl font-black">
-                  {formatarReal(closer.ticketMedio)}
-                </p>
-              </div>
+              </TooltipProvider>
 
             </div>
 
