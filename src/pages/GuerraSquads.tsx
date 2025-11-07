@@ -208,6 +208,14 @@ const GuerraSquads = () => {
         </div>
       </header>
 
+      {/* MODAL DE COMPARAÇÃO TEMPORAL */}
+      <TemporalComparisonModal
+        open={showComparison}
+        onOpenChange={setShowComparison}
+        pageType="squads"
+        defaultCurrentPeriod={dateRange}
+      />
+
       {/* NAVIGATION */}
       <Navigation isTVMode={isTVMode} criticalCount={alerts.filter(a => a.severity === 'critical').length} warningCount={alerts.filter(a => a.severity === 'warning').length} />
 
