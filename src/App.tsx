@@ -7,6 +7,7 @@ import { PeriodFilterProvider } from "@/contexts/PeriodFilterContext";
 import Index from "./pages/Index";
 import PerformanceSDR from "./pages/PerformanceSDR";
 import PerformanceCloser from "./pages/PerformanceCloser";
+import DashboardExecutivo from "./pages/DashboardExecutivo";
 import Financeiro from "./pages/Financeiro";
 import GuerraSquads from "./pages/GuerraSquads";
 import AssistenteIA from "./pages/AssistenteIA";
@@ -23,6 +24,7 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
+            <Route path="/executivo" element={<DashboardExecutivo />} />
             <Route path="/sdr" element={<PerformanceSDR />} />
             <Route path="/closer" element={<PerformanceCloser />} />
             <Route path="/financeiro" element={<Financeiro />} />

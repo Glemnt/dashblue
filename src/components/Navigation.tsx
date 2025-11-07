@@ -10,6 +10,7 @@ interface NavigationProps {
 const Navigation = ({ isTVMode = false, criticalCount = 0, warningCount = 0 }: NavigationProps) => {
   const menuItems = [
     { path: '/', label: 'Visão Geral', enabled: true },
+    { path: '/executivo', label: '👔 Executivo', enabled: true },
     { path: '/sdr', label: 'SDR', enabled: true },
     { path: '/closer', label: 'Closer', enabled: true },
     { path: '/financeiro', label: 'Financeiro', enabled: true },
