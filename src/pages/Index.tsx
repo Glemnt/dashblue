@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { RefreshCw } from "lucide-react";
+import { RefreshCw, ArrowLeftRight } from "lucide-react";
 import logoWhite from "@/assets/logo-white.png";
 import DataStaleIndicator from "@/components/DataStaleIndicator";
 import AlertsBanner from "@/components/AlertsBanner";
@@ -18,6 +18,7 @@ import TVModeToggle from "@/components/TVModeToggle";
 import { useTVMode } from "@/hooks/useTVMode";
 import { usePeriodFilter } from "@/contexts/PeriodFilterContext";
 import { filterDataByDateRange } from '@/utils/dateFilters';
+import { TemporalComparisonModal } from "@/components/comparison/TemporalComparisonModal";
 
 // Função auxiliar para interpolar entre duas cores hex
 const interpolateColor = (color1: string, color2: string, ratio: number): string => {
@@ -73,6 +74,7 @@ const getProgressColor = (percentage: number): string => {
 
 const Index = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [showComparison, setShowComparison] = useState(false);
   
   // Estado global do filtro de período
   const { periodType, dateRange, selectedMonthKey, updateFilter, setSelectedMonthKey } = usePeriodFilter();
@@ -212,6 +214,16 @@ const Index = () => {
           <div className="text-right flex flex-col items-end gap-3">
             <div className={`flex ${isTVMode ? 'gap-6' : 'gap-3'}`}>
               <TVModeToggle isTVMode={isTVMode} onToggle={() => setIsTVMode(!isTVMode)} />
+              {!isTVMode && (
+                <Button 
+                  onClick={() => setShowComparison(true)}
+                  variant="outline"
+                  className="bg-[#0066FF]/10 border-2 border-[#0066FF] text-[#0066FF] hover:bg-[#0066FF] hover:text-white transition-all px-6 py-3 text-lg"
+                >
+                  <ArrowLeftRight className="w-5 h-5 mr-2" />
+                  <span className="font-outfit font-semibold">Comparar</span>
+                </Button>
+              )}
               <Button 
                 onClick={refetch}
                 variant="outline"
@@ -239,6 +251,14 @@ const Index = () => {
           </div>
         </div>
       </header>
+
+      {/* MODAL DE COMPARAÇÃO */}
+      <TemporalComparisonModal
+        open={showComparison}
+        onOpenChange={setShowComparison}
+        pageType="dashboard"
+        defaultCurrentPeriod={dateRange}
+      />
 
       {/* NAVEGAÇÃO */}
       <Navigation isTVMode={isTVMode} criticalCount={alerts.filter(a => a.severity === 'critical').length} warningCount={alerts.filter(a => a.severity === 'warning').length} />

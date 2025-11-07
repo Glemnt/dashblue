@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { RefreshCw, TrendingUp, Target, Trophy, Info } from 'lucide-react';
+import { RefreshCw, TrendingUp, Target, Trophy, Info, ArrowLeftRight } from 'lucide-react';
 import logoWhite from '@/assets/logo-white.png';
 import DataStaleIndicator from '@/components/DataStaleIndicator';
 import { Button } from '@/components/ui/button';
@@ -23,9 +23,11 @@ import { calcularMetricasCloser } from '@/utils/closerMetricsCalculator';
 import { formatarReal } from '@/utils/metricsCalculator';
 import { usePeriodFilter } from '@/contexts/PeriodFilterContext';
 import { getMetasPorMes } from '@/utils/metasConfig';
+import { TemporalComparisonModal } from '@/components/comparison/TemporalComparisonModal';
 
 const PerformanceCloser = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [showComparison, setShowComparison] = useState(false);
   
   // Estado global do filtro de período
   const { periodType: currentPeriod, dateRange: currentDateRange, selectedMonthKey, updateFilter, setSelectedMonthKey } = usePeriodFilter();
@@ -206,6 +208,16 @@ const PerformanceCloser = () => {
           <div className="text-right flex flex-col items-end gap-3">
             <div className={`flex ${isTVMode ? 'gap-6' : 'gap-3'}`}>
               <TVModeToggle isTVMode={isTVMode} onToggle={() => setIsTVMode(!isTVMode)} />
+              {!isTVMode && (
+                <Button
+                  onClick={() => setShowComparison(true)}
+                  variant="outline"
+                  className="bg-[#0066FF]/10 border-2 border-[#0066FF] text-[#0066FF] hover:bg-[#0066FF] hover:text-white transition-all px-6 py-3 text-lg"
+                >
+                  <ArrowLeftRight className="w-5 h-5 mr-2" />
+                  <span className="font-outfit font-semibold">Comparar</span>
+                </Button>
+              )}
             <Button
               onClick={refetch}
               variant="outline"
@@ -234,6 +246,14 @@ const PerformanceCloser = () => {
           
         </div>
       </header>
+
+      {/* MODAL DE COMPARAÇÃO */}
+      <TemporalComparisonModal
+        open={showComparison}
+        onOpenChange={setShowComparison}
+        pageType="closer"
+        defaultCurrentPeriod={currentDateRange}
+      />
 
       {/* NAVEGAÇÃO */}
       <Navigation isTVMode={isTVMode} />

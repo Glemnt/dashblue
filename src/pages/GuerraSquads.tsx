@@ -6,6 +6,7 @@ import { useMetaAlerts } from '@/hooks/useMetaAlerts';
 import { calcularMetricasSquads } from '@/utils/squadsMetricsCalculator';
 import { formatarReal } from '@/utils/financialMetricsCalculator';
 import { filterDataByDateRange } from '@/utils/dateFilters';
+import { TemporalComparisonModal } from '@/components/comparison/TemporalComparisonModal';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 import AlertsBanner from '@/components/AlertsBanner';
@@ -19,12 +20,14 @@ import { SquadsMembros } from '@/components/squads/SquadsMembros';
 import { SquadsProjecao } from '@/components/squads/SquadsProjecao';
 import { SquadsMetaIndividual } from '@/components/squads/SquadsMetaIndividual';
 import { Button } from '@/components/ui/button';
-import { RefreshCw, Wifi } from 'lucide-react';
+import { RefreshCw, Wifi, ArrowLeftRight } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import logoWhite from '@/assets/logo-white.png';
 
 const GuerraSquads = () => {
+  const [showComparison, setShowComparison] = useState(false);
+  
   // Estado global do filtro de período
   const { periodType, dateRange, selectedMonthKey, updateFilter, setSelectedMonthKey } = usePeriodFilter();
   
@@ -166,6 +169,16 @@ const GuerraSquads = () => {
           <div className="text-right flex flex-col items-end gap-3">
             <div className={`flex ${isTVMode ? 'gap-6' : 'gap-3'}`}>
               <TVModeToggle isTVMode={isTVMode} onToggle={() => setIsTVMode(!isTVMode)} />
+              {!isTVMode && (
+                <Button
+                  onClick={() => setShowComparison(true)}
+                  variant="outline"
+                  className="bg-[#0066FF]/10 border-2 border-[#0066FF] text-[#0066FF] hover:bg-[#0066FF] hover:text-white transition-all px-6 py-3 text-lg"
+                >
+                  <ArrowLeftRight className="w-5 h-5 mr-2" />
+                  <span className="font-outfit font-semibold">Comparar</span>
+                </Button>
+              )}
               <Button
                 onClick={handleRefresh}
                 variant="outline"

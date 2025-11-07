@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { RefreshCw, TrendingUp, Target, Trophy, Phone, Info } from 'lucide-react';
+import { RefreshCw, TrendingUp, Target, Trophy, Phone, Info, ArrowLeftRight } from 'lucide-react';
 import logoWhite from '@/assets/logo-white.png';
 import DataStaleIndicator from '@/components/DataStaleIndicator';
 import { useGoogleSheets } from '@/hooks/useGoogleSheets';
@@ -23,9 +23,11 @@ import TVModeToggle from '@/components/TVModeToggle';
 import ColaboradorAvatar from '@/components/ColaboradorAvatar';
 import { useTVMode } from '@/hooks/useTVMode';
 import { usePeriodFilter } from '@/contexts/PeriodFilterContext';
+import { TemporalComparisonModal } from '@/components/comparison/TemporalComparisonModal';
 
 const PerformanceSDR = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [showComparison, setShowComparison] = useState(false);
   
   // Estado global do filtro de período
   const { periodType: currentPeriod, dateRange: currentDateRange, selectedMonthKey, updateFilter, setSelectedMonthKey } = usePeriodFilter();
@@ -207,6 +209,16 @@ const PerformanceSDR = () => {
           <div className="text-right flex flex-col items-end gap-3">
             <div className={`flex ${isTVMode ? 'gap-6' : 'gap-3'}`}>
               <TVModeToggle isTVMode={isTVMode} onToggle={() => setIsTVMode(!isTVMode)} />
+              {!isTVMode && (
+                <Button
+                  onClick={() => setShowComparison(true)}
+                  variant="outline"
+                  className="bg-[#0066FF]/10 border-2 border-[#0066FF] text-[#0066FF] hover:bg-[#0066FF] hover:text-white transition-all px-6 py-3 text-lg"
+                >
+                  <ArrowLeftRight className="w-5 h-5 mr-2" />
+                  <span className="font-outfit font-semibold">Comparar</span>
+                </Button>
+              )}
               <Button
                 onClick={() => { refetch(); refetchKPIs(); }}
                 variant="outline"
@@ -233,6 +245,14 @@ const PerformanceSDR = () => {
           </div>
         </div>
       </header>
+
+      {/* MODAL DE COMPARAÇÃO */}
+      <TemporalComparisonModal
+        open={showComparison}
+        onOpenChange={setShowComparison}
+        pageType="sdr"
+        defaultCurrentPeriod={currentDateRange}
+      />
 
       {/* NAVEGAÇÃO */}
       <Navigation isTVMode={isTVMode} />
