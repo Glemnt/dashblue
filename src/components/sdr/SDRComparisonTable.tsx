@@ -48,48 +48,48 @@ const SDRComparisonTable = ({ sdrs, destaque }: SDRComparisonTableProps) => {
 
   return (
     <div className="bg-[#151E35] rounded-2xl overflow-hidden border border-white/5">
-      <div className="overflow-x-auto">
-        <table className="w-full">
+      <div className="overflow-x-auto -mx-4 sm:mx-0">
+        <table className="w-full min-w-[800px]">
           <thead>
             <tr className="border-b border-white/10">
               <th 
-                className="text-left p-6 text-[#64748B] font-outfit text-xs font-semibold uppercase tracking-widest cursor-pointer hover:text-white transition-colors"
+                className="text-left p-4 md:p-6 text-[#64748B] font-outfit text-xs font-semibold uppercase tracking-widest cursor-pointer hover:text-white transition-colors"
                 onClick={() => handleSort('nome')}
               >
                 <div className="flex items-center gap-2">
                   SDR <SortIcon field="nome" />
                 </div>
               </th>
-              <th className="text-left p-6 text-[#64748B] font-outfit text-xs font-semibold uppercase tracking-widest">
+              <th className="text-left p-4 md:p-6 text-[#64748B] font-outfit text-xs font-semibold uppercase tracking-widest">
                 Squad
               </th>
               <th 
-                className="text-center p-6 text-[#64748B] font-outfit text-xs font-semibold uppercase tracking-widest cursor-pointer hover:text-white transition-colors"
+                className="text-center p-4 md:p-6 text-[#64748B] font-outfit text-xs font-semibold uppercase tracking-widest cursor-pointer hover:text-white transition-colors"
                 onClick={() => handleSort('totalCalls')}
               >
                 <div className="flex items-center justify-center gap-2">
                   Calls <SortIcon field="totalCalls" />
                 </div>
               </th>
-              <th className="text-center p-6 text-[#64748B] font-outfit text-xs font-semibold uppercase tracking-widest">
+              <th className="text-center p-4 md:p-6 text-[#64748B] font-outfit text-xs font-semibold uppercase tracking-widest">
                 Qualificadas
               </th>
               <th 
-                className="text-center p-6 text-[#64748B] font-outfit text-xs font-semibold uppercase tracking-widest cursor-pointer hover:text-white transition-colors"
+                className="text-center p-4 md:p-6 text-[#64748B] font-outfit text-xs font-semibold uppercase tracking-widest cursor-pointer hover:text-white transition-colors"
                 onClick={() => handleSort('taxaQualificacao')}
               >
                 <div className="flex items-center justify-center gap-2">
                   Taxa Qual. <SortIcon field="taxaQualificacao" />
                 </div>
               </th>
-              <th className="text-center p-6 text-[#64748B] font-outfit text-xs font-semibold uppercase tracking-widest">
+              <th className="text-center p-4 md:p-6 text-[#64748B] font-outfit text-xs font-semibold uppercase tracking-widest">
                 Realizadas
               </th>
-              <th className="text-center p-6 text-[#64748B] font-outfit text-xs font-semibold uppercase tracking-widest">
+              <th className="text-center p-4 md:p-6 text-[#64748B] font-outfit text-xs font-semibold uppercase tracking-widest">
                 No-Shows
               </th>
               <th 
-                className="text-center p-6 text-[#64748B] font-outfit text-xs font-semibold uppercase tracking-widest cursor-pointer hover:text-white transition-colors"
+                className="text-center p-4 md:p-6 text-[#64748B] font-outfit text-xs font-semibold uppercase tracking-widest cursor-pointer hover:text-white transition-colors"
                 onClick={() => handleSort('taxaShow')}
               >
                 <div className="flex items-center justify-center gap-2">
@@ -97,7 +97,7 @@ const SDRComparisonTable = ({ sdrs, destaque }: SDRComparisonTableProps) => {
                 </div>
               </th>
               <th 
-                className="text-right p-6 text-[#64748B] font-outfit text-xs font-semibold uppercase tracking-widest cursor-pointer hover:text-white transition-colors"
+                className="text-right p-4 md:p-6 text-[#64748B] font-outfit text-xs font-semibold uppercase tracking-widest cursor-pointer hover:text-white transition-colors"
                 onClick={() => handleSort('vendasOriginadas')}
               >
                 <div className="flex items-center justify-end gap-2">
@@ -117,7 +117,7 @@ const SDRComparisonTable = ({ sdrs, destaque }: SDRComparisonTableProps) => {
                     isDestaque ? 'bg-[#FFB800]/10' : ''
                   }`}
                 >
-                  <td className="p-6">
+                  <td className="p-4 md:p-6">
                     <div className="flex items-center gap-3">
                       <ColaboradorAvatar 
                         nome={sdr.nome}
@@ -131,7 +131,7 @@ const SDRComparisonTable = ({ sdrs, destaque }: SDRComparisonTableProps) => {
                       </span>
                     </div>
                   </td>
-                  <td className="p-6">
+                  <td className="p-4 md:p-6">
                     <span 
                       className="px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider"
                       style={{ backgroundColor: sdr.squadColor + '40', color: sdr.squadColor }}
@@ -139,13 +139,13 @@ const SDRComparisonTable = ({ sdrs, destaque }: SDRComparisonTableProps) => {
                       {sdr.squad}
                     </span>
                   </td>
-                  <td className="p-6 text-center text-white font-outfit text-xl font-bold">
+                  <td className="p-4 md:p-6 text-center text-white font-outfit text-xl font-bold">
                     {sdr.totalCalls}
                   </td>
-                  <td className="p-6 text-center text-white font-outfit text-xl font-bold">
+                  <td className="p-4 md:p-6 text-center text-white font-outfit text-xl font-bold">
                     {sdr.callsQualificadas}
                   </td>
-                  <td className="p-6">
+                  <td className="p-4 md:p-6">
                     <div className="flex flex-col items-center gap-2">
                       <div className="flex items-center gap-2">
                         <span className="text-white font-outfit text-xl font-bold">
@@ -165,13 +165,13 @@ const SDRComparisonTable = ({ sdrs, destaque }: SDRComparisonTableProps) => {
                       </div>
                     </div>
                   </td>
-                  <td className="p-6 text-center text-white font-outfit text-xl font-bold">
+                  <td className="p-4 md:p-6 text-center text-white font-outfit text-xl font-bold">
                     {sdr.callsRealizadas}
                   </td>
-                  <td className="p-6 text-center text-white font-outfit text-xl font-bold">
+                  <td className="p-4 md:p-6 text-center text-white font-outfit text-xl font-bold">
                     {sdr.noShows}
                   </td>
-                  <td className="p-6">
+                  <td className="p-4 md:p-6">
                     <div className="flex flex-col items-center gap-2">
                       <div className="flex items-center gap-2">
                         <span className="text-white font-outfit text-xl font-bold">
@@ -191,7 +191,7 @@ const SDRComparisonTable = ({ sdrs, destaque }: SDRComparisonTableProps) => {
                       </div>
                     </div>
                   </td>
-                  <td className="p-6 text-right">
+                  <td className="p-4 md:p-6 text-right">
                     <p className="text-white font-outfit text-2xl font-black">
                       {formatarReal(sdr.vendasOriginadas)}
                     </p>

@@ -210,7 +210,7 @@ const PerformanceSDR = () => {
       )}
 
       {/* FILTRO DE PERÍODO */}
-      <section className={`bg-[#0B1120] ${isTVMode ? 'pt-16 px-16' : 'pt-12 px-12'}`}>
+      <section className={`bg-[#0B1120] ${isTVMode ? 'pt-16 px-16' : 'pt-8 md:pt-12 px-4 sm:px-6 md:px-12'}`}>
         <div className="max-w-[1800px] mx-auto">
           <PeriodFilter
             onFilterChange={handleFilterChange}
@@ -224,7 +224,7 @@ const PerformanceSDR = () => {
       </section>
 
       {/* SEÇÃO 1: RESUMO GERAL */}
-      <section className={`bg-[#0B1120] ${isTVMode ? 'py-8 px-12' : 'py-20 px-12'}`}>
+      <section className={`bg-[#0B1120] ${isTVMode ? 'py-8 px-12' : 'py-10 md:py-20 px-4 sm:px-6 md:px-12'}`}>
         <div className="max-w-[1600px] mx-auto">
           <div className={`grid grid-cols-1 md:grid-cols-2 ${isTVMode ? 'gap-4' : 'gap-4 sm:gap-6 md:gap-8'}`}>
             
@@ -363,7 +363,7 @@ const PerformanceSDR = () => {
       </section>
 
       {/* SEÇÃO 2: PÓDIO DOS TOP 3 */}
-      <section className={`bg-[#F8FAFC] ${isTVMode ? 'py-16 px-12' : 'py-20 px-12'}`}>
+      <section className={`bg-[#F8FAFC] ${isTVMode ? 'py-16 px-12' : 'py-10 md:py-20 px-4 sm:px-6 md:px-12'}`}>
         <h2 className={`text-[#0B1120] font-outfit font-bold text-center tracking-tight ${isTVMode ? 'text-4xl mb-8' : 'text-5xl mb-16'}`}>
           Pódio dos Top 3 SDRs
         </h2>
@@ -371,7 +371,7 @@ const PerformanceSDR = () => {
       </section>
 
       {/* SEÇÃO 3: TABELA COMPARATIVA */}
-      <section className={`bg-[#0B1120] ${isTVMode ? 'py-8 px-12' : 'py-20 px-12'}`}>
+      <section className={`bg-[#0B1120] ${isTVMode ? 'py-8 px-12' : 'py-10 md:py-20 px-4 sm:px-6 md:px-12'}`}>
         <h2 className={`text-white font-outfit font-bold text-center tracking-tight ${isTVMode ? 'text-4xl mb-6' : 'text-5xl mb-16'}`}>
           Comparação de Performance
         </h2>
@@ -381,7 +381,7 @@ const PerformanceSDR = () => {
       </section>
 
       {/* SEÇÃO 4: CARDS INDIVIDUAIS EXPANSÍVEIS */}
-      <section className={`bg-[#F8FAFC] ${isTVMode ? 'py-8 px-12' : 'py-20 px-12'}`}>
+      <section className={`bg-[#F8FAFC] ${isTVMode ? 'py-8 px-12' : 'py-10 md:py-20 px-4 sm:px-6 md:px-12'}`}>
         <h2 className={`text-[#0B1120] font-outfit font-bold text-center tracking-tight ${isTVMode ? 'text-4xl mb-6' : 'text-5xl mb-16'}`}>
           Detalhamento Individual
         </h2>

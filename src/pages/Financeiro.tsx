@@ -191,7 +191,7 @@ const Financeiro = () => {
       )}
 
       {/* FILTRO DE PERÍODO */}
-      <section className={`bg-[#0B1120] ${isTVMode ? 'pt-16 px-16' : 'pt-12 px-12'}`}>
+      <section className={`bg-[#0B1120] ${isTVMode ? 'pt-16 px-16' : 'pt-8 md:pt-12 px-4 sm:px-6 md:px-12'}`}>
         <div className="max-w-[1600px] mx-auto">
           <PeriodFilter
             onFilterChange={updateFilter}
@@ -205,7 +205,7 @@ const Financeiro = () => {
       </section>
 
       {/* SEÇÃO 1: OVERVIEW FINANCEIRO */}
-      <section className={`bg-[#0B1120] ${isTVMode ? 'py-8 px-12' : 'py-20 px-12'}`}>
+      <section className={`bg-[#0B1120] ${isTVMode ? 'py-8 px-12' : 'py-10 md:py-20 px-4 sm:px-6 md:px-12'}`}>
         <h2 className={`text-white font-black mb-8 ${isTVMode ? 'text-4xl' : 'text-5xl'}`}>
           Resumo Financeiro
         </h2>

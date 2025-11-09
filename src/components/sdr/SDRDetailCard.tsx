@@ -30,7 +30,7 @@ const SDRDetailCard = ({ sdr, data, metaIndividualCalls }: SDRDetailCardProps) =
       >
         
         <CollapsibleTrigger asChild>
-          <div className="p-8 cursor-pointer hover:bg-gray-50 transition-colors">
+          <div className="p-4 sm:p-6 md:p-8 cursor-pointer hover:bg-gray-50 transition-colors">
             <div className="flex items-center justify-between">
               
               <div className="flex items-center gap-6">
@@ -79,11 +79,11 @@ const SDRDetailCard = ({ sdr, data, metaIndividualCalls }: SDRDetailCardProps) =
         </CollapsibleTrigger>
 
         <CollapsibleContent>
-          <div className="px-8 pb-8 pt-4 border-t border-gray-200">
+          <div className="px-4 sm:px-6 md:px-8 pb-6 md:pb-8 pt-4 border-t border-gray-200">
             
-            <div className="grid grid-cols-3 gap-6 mb-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-6 md:mb-8">
               
-              <div className="bg-[#0066FF]/5 rounded-xl p-6 border border-[#0066FF]/20">
+              <div className="bg-[#0066FF]/5 rounded-xl p-4 md:p-6 border border-[#0066FF]/20">
                 <div className="flex items-center gap-3 mb-3">
                   <Phone className="w-6 h-6 text-[#0066FF]" />
                   <p className="text-[#64748B] text-xs font-semibold uppercase tracking-wider">
@@ -95,7 +95,7 @@ const SDRDetailCard = ({ sdr, data, metaIndividualCalls }: SDRDetailCardProps) =
                 </p>
               </div>
 
-              <div className="bg-[#00E5CC]/5 rounded-xl p-6 border border-[#00E5CC]/20">
+              <div className="bg-[#00E5CC]/5 rounded-xl p-4 md:p-6 border border-[#00E5CC]/20">
                 <div className="flex items-center gap-3 mb-3">
                   <CheckCircle className="w-6 h-6 text-[#00E5CC]" />
                   <p className="text-[#64748B] text-xs font-semibold uppercase tracking-wider">
@@ -107,7 +107,7 @@ const SDRDetailCard = ({ sdr, data, metaIndividualCalls }: SDRDetailCardProps) =
                 </p>
               </div>
 
-              <div className="bg-[#FFB800]/5 rounded-xl p-6 border border-[#FFB800]/20">
+              <div className="bg-[#FFB800]/5 rounded-xl p-4 md:p-6 border border-[#FFB800]/20">
                 <div className="flex items-center gap-3 mb-3">
                   <TrendingUp className="w-6 h-6 text-[#FFB800]" />
                   <p className="text-[#64748B] text-xs font-semibold uppercase tracking-wider">
@@ -119,7 +119,7 @@ const SDRDetailCard = ({ sdr, data, metaIndividualCalls }: SDRDetailCardProps) =
                 </p>
               </div>
 
-              <div className="bg-[#00E5CC]/5 rounded-xl p-6 border border-[#00E5CC]/20">
+              <div className="bg-[#00E5CC]/5 rounded-xl p-4 md:p-6 border border-[#00E5CC]/20">
                 <div className="flex items-center gap-3 mb-3">
                   <Calendar className="w-6 h-6 text-[#00E5CC]" />
                   <p className="text-[#64748B] text-xs font-semibold uppercase tracking-wider">
@@ -131,7 +131,7 @@ const SDRDetailCard = ({ sdr, data, metaIndividualCalls }: SDRDetailCardProps) =
                 </p>
               </div>
 
-              <div className="bg-[#FF4757]/5 rounded-xl p-6 border border-[#FF4757]/20">
+              <div className="bg-[#FF4757]/5 rounded-xl p-4 md:p-6 border border-[#FF4757]/20">
                 <div className="flex items-center gap-3 mb-3">
                   <span className="text-2xl">🚫</span>
                   <p className="text-[#64748B] text-xs font-semibold uppercase tracking-wider">
@@ -143,7 +143,7 @@ const SDRDetailCard = ({ sdr, data, metaIndividualCalls }: SDRDetailCardProps) =
                 </p>
               </div>
 
-              <div className="bg-[#0066FF]/5 rounded-xl p-6 border border-[#0066FF]/20">
+              <div className="bg-[#0066FF]/5 rounded-xl p-4 md:p-6 border border-[#0066FF]/20">
                 <div className="flex items-center gap-3 mb-3">
                   <span className="text-2xl">📊</span>
                   <p className="text-[#64748B] text-xs font-semibold uppercase tracking-wider">
@@ -245,7 +245,7 @@ const SDRDetailCard = ({ sdr, data, metaIndividualCalls }: SDRDetailCardProps) =
 
                       {/* Grid com informações do contrato */}
                       <div className="bg-white rounded-lg p-4 border border-[#00E5CC]/20">
-                        <div className="grid grid-cols-3 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
                           
                           {/* Valor do Contrato */}
                           <div>
