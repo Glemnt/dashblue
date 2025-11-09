@@ -29,14 +29,14 @@ const CloserCharts = ({ closers, metaIndividual }: CloserChartsProps) => {
   const totalReceita = closers.reduce((sum, c) => sum + c.receitaTotal, 0);
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-8">
       
-      {/* GRÁFICO 1: Barras Horizontais - Receita por Closer */}
-      <div className="bg-[#151E35] rounded-2xl p-8 border border-white/5">
-        <h3 className="text-white font-outfit text-2xl font-bold mb-8">
+      {/* GRÁFICO 1: Receita por Closer (Barras Horizontais) */}
+      <div className="bg-[#151E35] rounded-2xl p-4 md:p-8 border border-white/5">
+        <h3 className="text-white font-outfit text-xl md:text-2xl font-bold mb-4 md:mb-8">
           💰 Receita por Closer
         </h3>
-        <ResponsiveContainer width="100%" height={400}>
+        <ResponsiveContainer width="100%" height={300} className="md:!h-[400px]">
           <BarChart
             data={barChartData}
             layout="vertical"
@@ -102,11 +102,11 @@ const CloserCharts = ({ closers, metaIndividual }: CloserChartsProps) => {
       </div>
 
       {/* GRÁFICO 2: Donut Chart - Distribuição de Receita */}
-      <div className="bg-[#151E35] rounded-2xl p-8 border border-white/5">
-        <h3 className="text-white font-outfit text-2xl font-bold mb-8">
+      <div className="bg-[#151E35] rounded-2xl p-4 md:p-8 border border-white/5">
+        <h3 className="text-white font-outfit text-xl md:text-2xl font-bold mb-4 md:mb-8">
           📊 Distribuição de Receita
         </h3>
-        <ResponsiveContainer width="100%" height={400}>
+        <ResponsiveContainer width="100%" height={300} className="md:!h-[400px]">
           <PieChart>
             <Pie
               data={pieChartData}

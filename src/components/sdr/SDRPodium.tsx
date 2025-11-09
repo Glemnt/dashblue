@@ -1,6 +1,13 @@
 import { formatarReal } from '@/utils/metricsCalculator';
 import { SDRMetrics } from '@/utils/sdrMetricsCalculator';
 import ColaboradorAvatar from '@/components/ColaboradorAvatar';
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 
 interface SDRPodiumProps {
   top3: SDRMetrics[];
@@ -91,7 +98,8 @@ const SDRPodium = ({ top3 }: SDRPodiumProps) => {
 
   return (
     <div className="max-w-[1400px] mx-auto">
-      <div className="grid grid-cols-3 gap-8 items-end">
+      {/* Desktop: Grid tradicional */}
+      <div className="hidden md:grid md:grid-cols-3 gap-8 items-end">
         {/* 2º Lugar */}
         <div className="transform translate-y-8">
           {renderPodiumCard(segundo, 2)}
@@ -106,6 +114,25 @@ const SDRPodium = ({ top3 }: SDRPodiumProps) => {
         <div className="transform translate-y-12">
           {renderPodiumCard(terceiro, 3)}
         </div>
+      </div>
+
+      {/* Mobile: Carousel */}
+      <div className="md:hidden">
+        <Carousel className="w-full max-w-sm mx-auto">
+          <CarouselContent>
+            <CarouselItem>
+              {renderPodiumCard(primeiro, 1)}
+            </CarouselItem>
+            <CarouselItem>
+              {renderPodiumCard(segundo, 2)}
+            </CarouselItem>
+            <CarouselItem>
+              {renderPodiumCard(terceiro, 3)}
+            </CarouselItem>
+          </CarouselContent>
+          <CarouselPrevious className="left-2" />
+          <CarouselNext className="right-2" />
+        </Carousel>
       </div>
     </div>
   );

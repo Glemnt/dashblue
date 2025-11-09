@@ -3,6 +3,7 @@ import { formatarReal } from '@/utils/metricsCalculator';
 import { ArrowUp, ArrowDown } from 'lucide-react';
 import { SDRMetrics } from '@/utils/sdrMetricsCalculator';
 import ColaboradorAvatar from '@/components/ColaboradorAvatar';
+import SDRComparisonMobileCards from './SDRComparisonMobileCards';
 
 interface SDRComparisonTableProps {
   sdrs: SDRMetrics[];
@@ -47,9 +48,16 @@ const SDRComparisonTable = ({ sdrs, destaque }: SDRComparisonTableProps) => {
   };
 
   return (
-    <div className="bg-[#151E35] rounded-2xl overflow-hidden border border-white/5">
-      <div className="overflow-x-auto -mx-4 sm:mx-0">
-        <table className="w-full min-w-[800px]">
+    <>
+      {/* Mobile: Cards */}
+      <div className="md:hidden">
+        <SDRComparisonMobileCards sdrs={sortedSDRs} destaque={destaque} />
+      </div>
+
+      {/* Desktop: Tabela */}
+      <div className="hidden md:block bg-[#151E35] rounded-2xl overflow-hidden border border-white/5">
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[800px]">
           <thead>
             <tr className="border-b border-white/10">
               <th 
@@ -203,9 +211,10 @@ const SDRComparisonTable = ({ sdrs, destaque }: SDRComparisonTableProps) => {
               );
             })}
           </tbody>
-        </table>
+          </table>
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 

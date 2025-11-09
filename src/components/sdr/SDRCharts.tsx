@@ -26,13 +26,13 @@ const SDRCharts = ({ sdrs, metaIndividualCalls }: SDRChartsProps) => {
   }));
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-8">
       
-      <div className="bg-[#151E35] rounded-2xl p-8 border border-white/5">
-        <h3 className="text-white font-outfit text-2xl font-bold mb-8">
+      <div className="bg-[#151E35] rounded-2xl p-4 md:p-8 border border-white/5">
+        <h3 className="text-white font-outfit text-xl md:text-2xl font-bold mb-4 md:mb-8">
           📊 Calls por SDR
         </h3>
-        <ResponsiveContainer width="100%" height={400}>
+        <ResponsiveContainer width="100%" height={300} className="md:!h-[400px]">
           <BarChart
             data={barChartData}
             layout="vertical"
@@ -83,14 +83,14 @@ const SDRCharts = ({ sdrs, metaIndividualCalls }: SDRChartsProps) => {
         </ResponsiveContainer>
       </div>
 
-      <div className="bg-[#151E35] rounded-2xl p-8 border border-white/5">
-        <h3 className="text-white font-outfit text-2xl font-bold mb-4">
+      <div className="bg-[#151E35] rounded-2xl p-4 md:p-8 border border-white/5">
+        <h3 className="text-white font-outfit text-xl md:text-2xl font-bold mb-2 md:mb-4">
           🎯 Volume vs Qualidade
         </h3>
-        <p className="text-[#94A3B8] text-sm font-outfit mb-6">
+        <p className="text-[#94A3B8] text-xs md:text-sm font-outfit mb-4 md:mb-6">
           Tamanho da bolha = receita originada
         </p>
-        <ResponsiveContainer width="100%" height={400}>
+        <ResponsiveContainer width="100%" height={300} className="md:!h-[400px]">
           <ScatterChart margin={{ top: 20, right: 20, bottom: 40, left: 40 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
             <XAxis 

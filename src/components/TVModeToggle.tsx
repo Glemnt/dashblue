@@ -11,7 +11,7 @@ const TVModeToggle = ({ isTVMode, onToggle }: TVModeToggleProps) => {
     <Button
       onClick={onToggle}
       variant="outline"
-      className={`bg-[#0066FF]/10 border-2 border-[#0066FF] text-[#0066FF] hover:bg-[#0066FF] hover:text-white transition-all ${
+      className={`hidden md:flex bg-[#0066FF]/10 border-2 border-[#0066FF] text-[#0066FF] hover:bg-[#0066FF] hover:text-white transition-all ${
         isTVMode ? 'px-8 py-6 text-2xl' : 'px-6 py-3 text-lg'
       }`}
     >

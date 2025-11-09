@@ -4,6 +4,7 @@ import { CloserMetrics } from '@/utils/closerMetricsCalculator';
 import { formatarReal } from '@/utils/metricsCalculator';
 import { Progress } from '@/components/ui/progress';
 import ColaboradorAvatar from '@/components/ColaboradorAvatar';
+import CloserComparisonMobileCards from './CloserComparisonMobileCards';
 
 interface CloserComparisonTableProps {
   closers: CloserMetrics[];
@@ -57,8 +58,15 @@ const CloserComparisonTable = ({ closers, destaque }: CloserComparisonTableProps
   );
 
   return (
-    <div className="bg-[#151E35] rounded-2xl overflow-hidden border border-white/5">
-      <table className="w-full">
+    <>
+      {/* Mobile: Cards */}
+      <div className="md:hidden">
+        <CloserComparisonMobileCards closers={sortedClosers} destaque={destaque} />
+      </div>
+
+      {/* Desktop: Tabela */}
+      <div className="hidden md:block bg-[#151E35] rounded-2xl overflow-hidden border border-white/5">
+        <table className="w-full">
         <thead className="border-b border-white/10">
           <tr>
             <SortableHeader label="Closer" sortKeyVal="nome" />
@@ -189,8 +197,9 @@ const CloserComparisonTable = ({ closers, destaque }: CloserComparisonTableProps
             );
           })}
         </tbody>
-      </table>
-    </div>
+        </table>
+      </div>
+    </>
   );
 };
 
