@@ -34,31 +34,9 @@ const CloserCharts = ({ closers, metaIndividual }: CloserChartsProps) => {
       {/* GRÁFICO 1: Barras Horizontais - Receita por Closer */}
       <div className="bg-[#151E35] rounded-2xl p-8 border border-white/5">
         <h3 className="text-white font-outfit text-2xl font-bold mb-8">
-          <span role="img" aria-label="Emoji de dinheiro">💰</span> Receita por Closer
+          💰 Receita por Closer
         </h3>
-        
-        {/* Tabela sr-only para screen readers */}
-        <table className="sr-only">
-          <caption>Receita total e número de contratos por closer</caption>
-          <thead>
-            <tr>
-              <th>Closer</th>
-              <th>Receita Total</th>
-              <th>Contratos</th>
-            </tr>
-          </thead>
-          <tbody>
-            {barChartData.map((closer, index) => (
-              <tr key={index}>
-                <td>{closer.nome}</td>
-                <td>{formatarReal(closer.receita)}</td>
-                <td>{closer.contratos}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        
-        <ResponsiveContainer width="100%" height={400} aria-hidden="true">
+        <ResponsiveContainer width="100%" height={400}>
           <BarChart
             data={barChartData}
             layout="vertical"
@@ -126,34 +104,9 @@ const CloserCharts = ({ closers, metaIndividual }: CloserChartsProps) => {
       {/* GRÁFICO 2: Donut Chart - Distribuição de Receita */}
       <div className="bg-[#151E35] rounded-2xl p-8 border border-white/5">
         <h3 className="text-white font-outfit text-2xl font-bold mb-8">
-          <span role="img" aria-label="Emoji de gráfico">📊</span> Distribuição de Receita
+          📊 Distribuição de Receita
         </h3>
-        
-        {/* Tabela sr-only para screen readers */}
-        <table className="sr-only">
-          <caption>Distribuição percentual de receita entre closers</caption>
-          <thead>
-            <tr>
-              <th>Closer</th>
-              <th>Receita</th>
-              <th>Percentual</th>
-            </tr>
-          </thead>
-          <tbody>
-            {pieChartData.map((closer, index) => {
-              const percent = ((closer.value / totalReceita) * 100).toFixed(1);
-              return (
-                <tr key={index}>
-                  <td>{closer.nome}</td>
-                  <td>{formatarReal(closer.value)}</td>
-                  <td>{percent}%</td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-        
-        <ResponsiveContainer width="100%" height={400} aria-hidden="true">
+        <ResponsiveContainer width="100%" height={400}>
           <PieChart>
             <Pie
               data={pieChartData}

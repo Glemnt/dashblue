@@ -9,7 +9,6 @@ import { PeriodType, DateRange } from '@/utils/dateFilters';
 import { supabase } from '@/integrations/supabase/client';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
-import PageSkeleton from '@/components/skeletons/PageSkeleton';
 import PeriodFilter from '@/components/sdr/PeriodFilter';
 import TVModeToggle from '@/components/TVModeToggle';
 import { Button } from '@/components/ui/button';
@@ -246,7 +245,14 @@ const AssistenteIA = () => {
 
 
   if (loadingData || !metricas) {
-    return <PageSkeleton isTVMode={isTVMode} type="performance" />;
+    return (
+      <div className="min-h-screen bg-[#0B1120] flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-16 h-16 text-[#0066FF] animate-spin mx-auto mb-4" />
+          <p className="text-white text-xl">Carregando dados...</p>
+        </div>
+      </div>
+    );
   }
 
   const getStatusColor = () => {
@@ -289,9 +295,8 @@ const AssistenteIA = () => {
                 }}
                 variant="outline"
                 className={isTVMode ? "text-2xl px-8 py-6" : ""}
-                aria-label="Atualizar dados e análise de IA"
               >
-                <RefreshCw className={`${isTVMode ? 'w-8 h-8 mr-4' : 'w-4 h-4 mr-2'}`} aria-hidden="true" />
+                <RefreshCw className={`${isTVMode ? 'w-8 h-8 mr-4' : 'w-4 h-4 mr-2'}`} />
                 Atualizar
               </Button>
               <div className={`text-right ${isTVMode ? 'text-2xl' : 'text-sm'}`}>

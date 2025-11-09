@@ -4,7 +4,6 @@ import { SDRMetrics } from '@/utils/sdrMetricsCalculator';
 import { formatarReal } from '@/utils/metricsCalculator';
 import { Progress } from '@/components/ui/progress';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import ColaboradorAvatar from '@/components/ColaboradorAvatar';
 
 interface SDRDetailCardProps {
@@ -84,107 +83,77 @@ const SDRDetailCard = ({ sdr, data, metaIndividualCalls }: SDRDetailCardProps) =
             
             <div className="grid grid-cols-3 gap-6 mb-8">
               
-              <TooltipProvider>
-                <div className="bg-[#0066FF]/5 rounded-xl p-6 border border-[#0066FF]/20">
-                  <div className="flex items-center gap-3 mb-3">
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Phone className="w-6 h-6 text-[#0066FF]" aria-label="Ícone de total de calls" />
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>Total de ligações realizadas pelo SDR</p>
-                      </TooltipContent>
-                    </Tooltip>
-                    <p className="text-[#64748B] text-xs font-semibold uppercase tracking-wider">
-                      Total Calls
-                    </p>
-                  </div>
-                  <p className="text-[#0B1120] font-outfit text-4xl font-black">
-                    {sdr.totalCalls}
+              <div className="bg-[#0066FF]/5 rounded-xl p-6 border border-[#0066FF]/20">
+                <div className="flex items-center gap-3 mb-3">
+                  <Phone className="w-6 h-6 text-[#0066FF]" />
+                  <p className="text-[#64748B] text-xs font-semibold uppercase tracking-wider">
+                    Total Calls
                   </p>
                 </div>
+                <p className="text-[#0B1120] font-outfit text-4xl font-black">
+                  {sdr.totalCalls}
+                </p>
+              </div>
 
-                <div className="bg-[#00E5CC]/5 rounded-xl p-6 border border-[#00E5CC]/20">
-                  <div className="flex items-center gap-3 mb-3">
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <CheckCircle className="w-6 h-6 text-[#00E5CC]" aria-label="Ícone de calls qualificadas" />
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>Ligações que resultaram em leads qualificados</p>
-                      </TooltipContent>
-                    </Tooltip>
-                    <p className="text-[#64748B] text-xs font-semibold uppercase tracking-wider">
-                      Qualificadas
-                    </p>
-                  </div>
-                  <p className="text-[#0B1120] font-outfit text-4xl font-black">
-                    {sdr.callsQualificadas}
+              <div className="bg-[#00E5CC]/5 rounded-xl p-6 border border-[#00E5CC]/20">
+                <div className="flex items-center gap-3 mb-3">
+                  <CheckCircle className="w-6 h-6 text-[#00E5CC]" />
+                  <p className="text-[#64748B] text-xs font-semibold uppercase tracking-wider">
+                    Qualificadas
                   </p>
                 </div>
+                <p className="text-[#0B1120] font-outfit text-4xl font-black">
+                  {sdr.callsQualificadas}
+                </p>
+              </div>
 
-                <div className="bg-[#FFB800]/5 rounded-xl p-6 border border-[#FFB800]/20">
-                  <div className="flex items-center gap-3 mb-3">
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <TrendingUp className="w-6 h-6 text-[#FFB800]" aria-label="Ícone de taxa de qualificação" />
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>Percentual de calls que foram qualificadas</p>
-                      </TooltipContent>
-                    </Tooltip>
-                    <p className="text-[#64748B] text-xs font-semibold uppercase tracking-wider">
-                      Taxa Qualif.
-                    </p>
-                  </div>
-                  <p className="text-[#0B1120] font-outfit text-4xl font-black">
-                    {sdr.taxaQualificacao.toFixed(1)}%
+              <div className="bg-[#FFB800]/5 rounded-xl p-6 border border-[#FFB800]/20">
+                <div className="flex items-center gap-3 mb-3">
+                  <TrendingUp className="w-6 h-6 text-[#FFB800]" />
+                  <p className="text-[#64748B] text-xs font-semibold uppercase tracking-wider">
+                    Taxa Qualif.
                   </p>
                 </div>
+                <p className="text-[#0B1120] font-outfit text-4xl font-black">
+                  {sdr.taxaQualificacao.toFixed(1)}%
+                </p>
+              </div>
 
-                <div className="bg-[#00E5CC]/5 rounded-xl p-6 border border-[#00E5CC]/20">
-                  <div className="flex items-center gap-3 mb-3">
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Calendar className="w-6 h-6 text-[#00E5CC]" aria-label="Ícone de reuniões realizadas" />
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>Reuniões agendadas que aconteceram</p>
-                      </TooltipContent>
-                    </Tooltip>
-                    <p className="text-[#64748B] text-xs font-semibold uppercase tracking-wider">
-                      Realizadas
-                    </p>
-                  </div>
-                  <p className="text-[#0B1120] font-outfit text-4xl font-black">
-                    {sdr.callsRealizadas}
+              <div className="bg-[#00E5CC]/5 rounded-xl p-6 border border-[#00E5CC]/20">
+                <div className="flex items-center gap-3 mb-3">
+                  <Calendar className="w-6 h-6 text-[#00E5CC]" />
+                  <p className="text-[#64748B] text-xs font-semibold uppercase tracking-wider">
+                    Realizadas
                   </p>
                 </div>
+                <p className="text-[#0B1120] font-outfit text-4xl font-black">
+                  {sdr.callsRealizadas}
+                </p>
+              </div>
 
-                <div className="bg-[#FF4757]/5 rounded-xl p-6 border border-[#FF4757]/20">
-                  <div className="flex items-center gap-3 mb-3">
-                    <span className="text-2xl" role="img" aria-label="Emoji de no-show">🚫</span>
-                    <p className="text-[#64748B] text-xs font-semibold uppercase tracking-wider">
-                      No-Shows
-                    </p>
-                  </div>
-                  <p className="text-[#0B1120] font-outfit text-4xl font-black">
-                    {sdr.noShows}
+              <div className="bg-[#FF4757]/5 rounded-xl p-6 border border-[#FF4757]/20">
+                <div className="flex items-center gap-3 mb-3">
+                  <span className="text-2xl">🚫</span>
+                  <p className="text-[#64748B] text-xs font-semibold uppercase tracking-wider">
+                    No-Shows
                   </p>
                 </div>
+                <p className="text-[#0B1120] font-outfit text-4xl font-black">
+                  {sdr.noShows}
+                </p>
+              </div>
 
-                <div className="bg-[#0066FF]/5 rounded-xl p-6 border border-[#0066FF]/20">
-                  <div className="flex items-center gap-3 mb-3">
-                    <span className="text-2xl" role="img" aria-label="Emoji de taxa de show">📊</span>
-                    <p className="text-[#64748B] text-xs font-semibold uppercase tracking-wider">
-                      Taxa Show
-                    </p>
-                  </div>
-                  <p className="text-[#0B1120] font-outfit text-4xl font-black">
-                    {sdr.taxaShow.toFixed(1)}%
+              <div className="bg-[#0066FF]/5 rounded-xl p-6 border border-[#0066FF]/20">
+                <div className="flex items-center gap-3 mb-3">
+                  <span className="text-2xl">📊</span>
+                  <p className="text-[#64748B] text-xs font-semibold uppercase tracking-wider">
+                    Taxa Show
                   </p>
                 </div>
-              </TooltipProvider>
+                <p className="text-[#0B1120] font-outfit text-4xl font-black">
+                  {sdr.taxaShow.toFixed(1)}%
+                </p>
+              </div>
 
             </div>
 

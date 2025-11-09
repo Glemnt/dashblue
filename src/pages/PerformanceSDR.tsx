@@ -1,19 +1,14 @@
 import { useEffect, useState } from 'react';
-import { RefreshCw, TrendingUp, Target, Trophy, Phone, Info, ArrowLeftRight } from 'lucide-react';
+import { RefreshCw, TrendingUp, Target, Trophy, Phone } from 'lucide-react';
 import logoWhite from '@/assets/logo-white.png';
-import DataStaleIndicator from '@/components/DataStaleIndicator';
 import { useGoogleSheets } from '@/hooks/useGoogleSheets';
 import { useSDRKPIs } from '@/hooks/useSDRKPIs';
-import { useMetaAlerts } from '@/hooks/useMetaAlerts';
 import { calcularMetricasSDR, mesclarMetricasSDRComDashboard } from '@/utils/sdrMetricsCalculator';
 import { formatarReal } from '@/utils/metricsCalculator';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
-import AlertsBanner from '@/components/AlertsBanner';
-import PageSkeleton from '@/components/skeletons/PageSkeleton';
 import SDRPodium from '@/components/sdr/SDRPodium';
 import SDRComparisonTable from '@/components/sdr/SDRComparisonTable';
 import PeriodFilter from '@/components/sdr/PeriodFilter';
@@ -23,11 +18,9 @@ import TVModeToggle from '@/components/TVModeToggle';
 import ColaboradorAvatar from '@/components/ColaboradorAvatar';
 import { useTVMode } from '@/hooks/useTVMode';
 import { usePeriodFilter } from '@/contexts/PeriodFilterContext';
-import { TemporalComparisonModal } from '@/components/comparison/TemporalComparisonModal';
 
 const PerformanceSDR = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
-  const [showComparison, setShowComparison] = useState(false);
   
   // Estado global do filtro de período
   const { periodType: currentPeriod, dateRange: currentDateRange, selectedMonthKey, updateFilter, setSelectedMonthKey } = usePeriodFilter();
@@ -105,47 +98,17 @@ const PerformanceSDR = () => {
     });
   };
 
-  // Calcular dias úteis restantes
-  const calcularDiasUteisRestantes = () => {
-    const now = new Date();
-    const brasiliaTime = new Date(now.toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }));
-    const ano = brasiliaTime.getFullYear();
-    const mes = brasiliaTime.getMonth();
-    const dia = brasiliaTime.getDate();
-    const ultimoDiaMes = new Date(ano, mes + 1, 0).getDate();
-    
-    let diasUteis = 0;
-    for (let d = dia + 1; d <= ultimoDiaMes; d++) {
-      const tempDate = new Date(ano, mes, d);
-      const tempDiaSemana = tempDate.getDay();
-      if (tempDiaSemana !== 0 && tempDiaSemana !== 6) {
-        diasUteis++;
-      }
-    }
-    return diasUteis;
-  };
-
-  const diasUteisRestantes = calcularDiasUteisRestantes();
-  const metaCallsMensal = 400;
-
-  // Alertas de meta (usando vendas como métrica principal para SDRs)
-  const { alerts } = useMetaAlerts({
-    metricas: metricas ? {
-      progressoMetaMensal: (metricas.totais.totalCalls / metaCallsMensal) * 100,
-      metaMensal: metaCallsMensal,
-      receitaTotal: metricas.totais.vendasOriginadasTotal,
-      sdr: metricas.sdrs.map(s => ({
-        nome: s.nome,
-        totalCalls: s.totalCalls,
-        progressoMeta: (s.totalCalls / (metaCallsMensal / metricas.sdrs.length)) * 100
-      }))
-    } : undefined,
-    diasUteisRestantes
-  });
-
   // Loading State
   if ((loading || loadingKPIs) && !metricas) {
-    return <PageSkeleton isTVMode={isTVMode} type="performance" />;
+    return (
+      <div className="min-h-screen bg-[#0B1120] font-outfit flex items-center justify-center">
+        <div className="text-center">
+          <RefreshCw className="w-16 h-16 text-[#0066FF] mx-auto mb-4 animate-spin" />
+          <h2 className="text-white text-3xl font-bold mb-2">Carregando Performance SDR...</h2>
+          <p className="text-[#94A3B8] text-lg">Buscando dados do Google Sheets</p>
+        </div>
+      </div>
+    );
   }
 
   // Error State
@@ -187,9 +150,8 @@ const PerformanceSDR = () => {
       <header className={`bg-[#0B1120] border-b border-white/5 ${isTVMode ? '' : 'sticky top-0'} z-50`}>
         <div className={`max-w-[1920px] mx-auto ${isTVMode ? 'px-16 py-12' : 'px-12 py-8'} flex justify-between items-center`}>
           {!isTVMode && (
-            <div className="flex items-center gap-4">
+            <div className="flex items-center">
               <img src={logoWhite} alt="Blue Ocean" className="h-10 w-auto" />
-              <DataStaleIndicator lastUpdate={lastUpdate} isTVMode={isTVMode} />
             </div>
           )}
 
@@ -200,7 +162,7 @@ const PerformanceSDR = () => {
               Performance SDR
             </h1>
             {!isTVMode && (
-              <p className="text-[#A8B8D0] font-outfit text-lg mt-2">
+              <p className="text-[#94A3B8] font-outfit text-lg mt-2">
                 Análise detalhada da equipe de prospecção
               </p>
             )}
@@ -209,16 +171,6 @@ const PerformanceSDR = () => {
           <div className="text-right flex flex-col items-end gap-3">
             <div className={`flex ${isTVMode ? 'gap-6' : 'gap-3'}`}>
               <TVModeToggle isTVMode={isTVMode} onToggle={() => setIsTVMode(!isTVMode)} />
-              {!isTVMode && (
-                <Button
-                  onClick={() => setShowComparison(true)}
-                  variant="outline"
-                  className="bg-[#0066FF]/10 border-2 border-[#0066FF] text-[#0066FF] hover:bg-[#0066FF] hover:text-white transition-all px-6 py-3 text-lg"
-                >
-                  <ArrowLeftRight className="w-5 h-5 mr-2" />
-                  <span className="font-outfit font-semibold">Comparar</span>
-                </Button>
-              )}
               <Button
                 onClick={() => { refetch(); refetchKPIs(); }}
                 variant="outline"
@@ -236,7 +188,7 @@ const PerformanceSDR = () => {
               }`}>
                 {formatDate(currentTime)}
               </p>
-              <p className={`text-[#A8B8D0] font-outfit ${
+              <p className={`text-[#94A3B8] font-outfit ${
                 isTVMode ? 'text-lg' : 'text-sm'
               }`}>
                 {isTVMode ? formatTime(currentTime) : `Atualizado: ${lastUpdate ? formatTime(lastUpdate) : '--:--'}`}
@@ -246,19 +198,8 @@ const PerformanceSDR = () => {
         </div>
       </header>
 
-      {/* MODAL DE COMPARAÇÃO */}
-      <TemporalComparisonModal
-        open={showComparison}
-        onOpenChange={setShowComparison}
-        pageType="sdr"
-        defaultCurrentPeriod={currentDateRange}
-      />
-
       {/* NAVEGAÇÃO */}
       <Navigation isTVMode={isTVMode} />
-
-      {/* ALERTAS DE META */}
-      <AlertsBanner alerts={alerts} isTVMode={isTVMode} />
 
       {/* Indicador discreto de atualização */}
       {isRefetching && (
