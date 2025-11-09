@@ -226,10 +226,10 @@ const PerformanceSDR = () => {
       {/* SEÇÃO 1: RESUMO GERAL */}
       <section className={`bg-[#0B1120] ${isTVMode ? 'py-8 px-12' : 'py-20 px-12'}`}>
         <div className="max-w-[1600px] mx-auto">
-          <div className={`grid grid-cols-2 ${isTVMode ? 'gap-4' : 'gap-8'}`}>
+          <div className={`grid grid-cols-1 md:grid-cols-2 ${isTVMode ? 'gap-4' : 'gap-4 sm:gap-6 md:gap-8'}`}>
             
             {/* Card 1: Total de Calls */}
-            <div className={`bg-[#151E35] rounded-2xl border border-white/5 hover:shadow-2xl transition-all duration-300 ${isTVMode ? 'p-6' : 'p-12'}`}>
+            <div className={`bg-[#151E35] rounded-2xl border border-white/5 hover:shadow-2xl transition-all duration-300 ${isTVMode ? 'p-4 sm:p-6' : 'p-6 sm:p-8 md:p-10 lg:p-12'}`}>
               <div className={`flex items-start justify-between ${isTVMode ? 'mb-4' : 'mb-8'}`}>
                 <div className={`bg-[#0066FF]/20 rounded-2xl ${isTVMode ? 'p-4' : 'p-6'}`}>
                   <Phone className={`text-[#0066FF] ${isTVMode ? 'w-7 h-7' : 'w-10 h-10'}`} />
@@ -239,7 +239,7 @@ const PerformanceSDR = () => {
               <h3 className={`text-[#94A3B8] font-outfit uppercase tracking-wider ${isTVMode ? 'text-sm mb-2' : 'text-lg mb-3'}`}>
                 Total de Calls
               </h3>
-              <p className={`text-white font-outfit font-black ${isTVMode ? 'text-5xl mb-2' : 'text-7xl mb-4'}`}>
+              <p className={`text-white font-outfit font-black break-all leading-tight ${isTVMode ? 'text-3xl sm:text-4xl md:text-5xl mb-2' : 'text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl mb-4'}`}>
                 {metricas.totais.totalCalls}
               </p>
               <p className={`text-[#94A3B8] font-outfit ${isTVMode ? 'text-sm mb-3' : 'text-lg mb-6'}`}>
@@ -263,7 +263,7 @@ const PerformanceSDR = () => {
             </div>
 
             {/* Card 2: Taxa Média de Qualificação */}
-            <div className={`bg-[#151E35] rounded-2xl border border-white/5 hover:shadow-2xl transition-all duration-300 ${isTVMode ? 'p-6' : 'p-12'}`}>
+            <div className={`bg-[#151E35] rounded-2xl border border-white/5 hover:shadow-2xl transition-all duration-300 ${isTVMode ? 'p-4 sm:p-6' : 'p-6 sm:p-8 md:p-10 lg:p-12'}`}>
               <div className={`flex items-start justify-between ${isTVMode ? 'mb-4' : 'mb-8'}`}>
                 <div className={`bg-[#00E5CC]/20 rounded-2xl ${isTVMode ? 'p-4' : 'p-6'}`}>
                   <span className="text-5xl">✅</span>
@@ -273,7 +273,7 @@ const PerformanceSDR = () => {
               <h3 className={`text-[#94A3B8] font-outfit uppercase tracking-wider ${isTVMode ? 'text-sm mb-2' : 'text-lg mb-3'}`}>
                 Taxa Média de Qualificação
               </h3>
-              <p className={`text-white font-outfit font-black ${isTVMode ? 'text-5xl mb-2' : 'text-7xl mb-4'}`}>
+              <p className={`text-white font-outfit font-black break-all leading-tight ${isTVMode ? 'text-3xl sm:text-4xl md:text-5xl mb-2' : 'text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl mb-4'}`}>
                 {metricas.totais.taxaQualificacaoMedia.toFixed(1)}%
               </p>
               <p className={`text-[#94A3B8] font-outfit ${isTVMode ? 'text-sm mb-3' : 'text-lg mb-6'}`}>
@@ -297,7 +297,7 @@ const PerformanceSDR = () => {
             </div>
 
             {/* Card 3: Taxa Média de Show */}
-            <div className={`bg-[#151E35] rounded-2xl border border-white/5 hover:shadow-2xl transition-all duration-300 ${isTVMode ? 'p-6' : 'p-12'}`}>
+            <div className={`bg-[#151E35] rounded-2xl border border-white/5 hover:shadow-2xl transition-all duration-300 ${isTVMode ? 'p-4 sm:p-6' : 'p-6 sm:p-8 md:p-10 lg:p-12'}`}>
               <div className={`flex items-start justify-between ${isTVMode ? 'mb-4' : 'mb-8'}`}>
                 <div className={`bg-[#FFB800]/20 rounded-2xl ${isTVMode ? 'p-4' : 'p-6'}`}>
                   <span className="text-5xl">📊</span>
@@ -307,7 +307,7 @@ const PerformanceSDR = () => {
               <h3 className={`text-[#94A3B8] font-outfit uppercase tracking-wider ${isTVMode ? 'text-sm mb-2' : 'text-lg mb-3'}`}>
                 Taxa Média de Show
               </h3>
-              <p className={`text-white font-outfit font-black ${isTVMode ? 'text-5xl mb-2' : 'text-7xl mb-4'}`}>
+              <p className={`text-white font-outfit font-black break-all leading-tight ${isTVMode ? 'text-3xl sm:text-4xl md:text-5xl mb-2' : 'text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl mb-4'}`}>
                 {metricas.totais.taxaShowMedia.toFixed(1)}%
               </p>
               <p className={`text-[#94A3B8] font-outfit ${isTVMode ? 'text-sm mb-3' : 'text-lg mb-6'}`}>

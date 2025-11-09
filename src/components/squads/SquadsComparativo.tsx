@@ -129,8 +129,8 @@ export const SquadsComparativo = ({ hotDogs, corvoAzul, comparacao, isTVMode }: 
                     hotDogsVencedor ? 'bg-[#FF4757]/5' : ''
                   }`}>
                     <div className="flex flex-col items-center gap-2">
-                      <span className={`font-black ${
-                        isTVMode ? 'text-3xl' : 'text-2xl'
+                      <span className={`font-black break-all leading-tight ${
+                        isTVMode ? 'text-xl sm:text-2xl md:text-3xl' : 'text-lg sm:text-xl md:text-2xl'
                       } ${
                         hotDogsVencedor ? 'text-[#FF4757]' : 'text-gray-600'
                       }`}>
@@ -167,8 +167,8 @@ export const SquadsComparativo = ({ hotDogs, corvoAzul, comparacao, isTVMode }: 
                     corvoAzulVencedor ? 'bg-[#0066FF]/5' : ''
                   }`}>
                     <div className="flex flex-col items-center gap-2">
-                      <span className={`font-black ${
-                        isTVMode ? 'text-3xl' : 'text-2xl'
+                      <span className={`font-black break-all leading-tight ${
+                        isTVMode ? 'text-xl sm:text-2xl md:text-3xl' : 'text-lg sm:text-xl md:text-2xl'
                       } ${
                         corvoAzulVencedor ? 'text-[#0066FF]' : 'text-gray-600'
                       }`}>

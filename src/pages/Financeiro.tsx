@@ -210,9 +210,9 @@ const Financeiro = () => {
           Resumo Financeiro
         </h2>
         
-        <div className={`grid grid-cols-3 ${isTVMode ? 'gap-4' : 'gap-8'}`}>
+        <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 ${isTVMode ? 'gap-4' : 'gap-4 sm:gap-6 md:gap-8'}`}>
           {/* Card 1: Receita Total */}
-          <div className={`bg-[#151E35] rounded-2xl border border-white/10 ${isTVMode ? 'p-6' : 'p-12'}`}>
+          <div className={`bg-[#151E35] rounded-2xl border border-white/10 ${isTVMode ? 'p-4 sm:p-6' : 'p-6 sm:p-8 md:p-10 lg:p-12'}`}>
             <div className={`flex items-start justify-between ${isTVMode ? 'mb-4' : 'mb-8'}`}>
               <div className={`bg-[#0066FF]/20 rounded-2xl ${isTVMode ? 'p-4' : 'p-6'}`}>
                 <DollarSign className={`text-[#0066FF] ${isTVMode ? 'w-7 h-7' : 'w-10 h-10'}`} />
@@ -221,7 +221,7 @@ const Financeiro = () => {
             <h3 className={`text-[#94A3B8] uppercase tracking-wider font-semibold ${isTVMode ? 'text-xs mb-2' : 'text-sm mb-4'}`}>
               RECEITA TOTAL
             </h3>
-            <p className={`text-white font-black ${isTVMode ? 'text-4xl mb-2' : 'text-6xl mb-4'}`}>
+            <p className={`text-white font-black break-all leading-tight ${isTVMode ? 'text-2xl sm:text-3xl md:text-4xl mb-2' : 'text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl mb-4'}`}>
               {formatarReal(metricas.receitas.total)}
             </p>
             <p className={`text-[#94A3B8] ${isTVMode ? 'text-sm' : 'text-base'}`}>
@@ -230,7 +230,7 @@ const Financeiro = () => {
           </div>
 
           {/* Card 2: Receita Assinada */}
-          <div className={`bg-[#151E35] rounded-2xl border border-white/10 ${isTVMode ? 'p-6' : 'p-12'}`}>
+          <div className={`bg-[#151E35] rounded-2xl border border-white/10 ${isTVMode ? 'p-4 sm:p-6' : 'p-6 sm:p-8 md:p-10 lg:p-12'}`}>
             <div className={`flex items-start justify-between ${isTVMode ? 'mb-4' : 'mb-8'}`}>
               <div className={`bg-[#00E5CC]/20 rounded-2xl ${isTVMode ? 'p-4' : 'p-6'}`}>
                 <FileCheck className={`text-[#00E5CC] ${isTVMode ? 'w-7 h-7' : 'w-10 h-10'}`} />
@@ -239,7 +239,7 @@ const Financeiro = () => {
             <h3 className={`text-[#94A3B8] uppercase tracking-wider font-semibold ${isTVMode ? 'text-xs mb-2' : 'text-sm mb-4'}`}>
               RECEITA ASSINADA
             </h3>
-            <p className={`text-white font-black ${isTVMode ? 'text-4xl mb-2' : 'text-6xl mb-4'}`}>
+            <p className={`text-white font-black break-all leading-tight ${isTVMode ? 'text-2xl sm:text-3xl md:text-4xl mb-2' : 'text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl mb-4'}`}>
               {formatarReal(metricas.receitas.assinada)}
             </p>
             <p className={`text-[#94A3B8] ${isTVMode ? 'text-sm mb-2' : 'text-base mb-4'}`}>
@@ -252,7 +252,7 @@ const Financeiro = () => {
           </div>
 
           {/* Card 3: Receita Paga */}
-          <div className={`bg-gradient-to-br from-[#00E5CC]/20 to-[#0066FF]/10 rounded-2xl border-2 border-[#00E5CC] ${isTVMode ? 'p-6' : 'p-12'}`}>
+          <div className={`bg-gradient-to-br from-[#00E5CC]/20 to-[#0066FF]/10 rounded-2xl border-2 border-[#00E5CC] ${isTVMode ? 'p-4 sm:p-6' : 'p-6 sm:p-8 md:p-10 lg:p-12'}`}>
             <div className={`flex items-start justify-between ${isTVMode ? 'mb-4' : 'mb-8'}`}>
               <div className={`bg-[#00E5CC]/30 rounded-2xl ${isTVMode ? 'p-4' : 'p-6'}`}>
                 <CheckCircle className={`text-[#00E5CC] ${isTVMode ? 'w-7 h-7' : 'w-10 h-10'}`} />
@@ -261,7 +261,7 @@ const Financeiro = () => {
             <h3 className={`text-[#94A3B8] uppercase tracking-wider font-semibold ${isTVMode ? 'text-xs mb-2' : 'text-sm mb-4'}`}>
               RECEITA PAGA
             </h3>
-            <p className={`text-white font-black ${isTVMode ? 'text-4xl mb-2' : 'text-6xl mb-4'}`}>
+            <p className={`text-white font-black break-all leading-tight ${isTVMode ? 'text-2xl sm:text-3xl md:text-4xl mb-2' : 'text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl mb-4'}`}>
               {formatarReal(metricas.receitas.paga)}
             </p>
             <p className={`text-[#94A3B8] ${isTVMode ? 'text-sm mb-2' : 'text-base mb-4'}`}>
@@ -274,7 +274,7 @@ const Financeiro = () => {
           </div>
 
           {/* Card 4: Gap de Assinatura */}
-          <div className={`bg-[#151E35] rounded-2xl border border-white/10 ${isTVMode ? 'p-6' : 'p-12'}`}>
+          <div className={`bg-[#151E35] rounded-2xl border border-white/10 ${isTVMode ? 'p-4 sm:p-6' : 'p-6 sm:p-8 md:p-10 lg:p-12'}`}>
             <div className={`flex items-start justify-between ${isTVMode ? 'mb-4' : 'mb-8'}`}>
               <div className={`bg-[#FFB800]/20 rounded-2xl ${isTVMode ? 'p-4' : 'p-6'}`}>
                 <Clock className={`text-[#FFB800] ${isTVMode ? 'w-7 h-7' : 'w-10 h-10'}`} />
@@ -283,7 +283,7 @@ const Financeiro = () => {
             <h3 className={`text-[#94A3B8] uppercase tracking-wider font-semibold ${isTVMode ? 'text-xs mb-2' : 'text-sm mb-4'}`}>
               GAP DE ASSINATURA
             </h3>
-            <p className={`text-[#FFB800] font-black ${isTVMode ? 'text-4xl mb-2' : 'text-6xl mb-4'}`}>
+            <p className={`text-[#FFB800] font-black break-all leading-tight ${isTVMode ? 'text-2xl sm:text-3xl md:text-4xl mb-2' : 'text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl mb-4'}`}>
               {formatarReal(metricas.receitas.gapAssinatura)}
             </p>
             <p className={`text-[#94A3B8] ${isTVMode ? 'text-sm' : 'text-base'}`}>
@@ -292,7 +292,7 @@ const Financeiro = () => {
           </div>
 
           {/* Card 5: Gap de Pagamento */}
-          <div className={`bg-[#151E35] rounded-2xl border border-white/10 ${isTVMode ? 'p-6' : 'p-12'}`}>
+          <div className={`bg-[#151E35] rounded-2xl border border-white/10 ${isTVMode ? 'p-4 sm:p-6' : 'p-6 sm:p-8 md:p-10 lg:p-12'}`}>
             <div className={`flex items-start justify-between ${isTVMode ? 'mb-4' : 'mb-8'}`}>
               <div className={`bg-[#FF8800]/20 rounded-2xl ${isTVMode ? 'p-4' : 'p-6'}`}>
                 <CreditCard className={`text-[#FF8800] ${isTVMode ? 'w-7 h-7' : 'w-10 h-10'}`} />
@@ -301,7 +301,7 @@ const Financeiro = () => {
             <h3 className={`text-[#94A3B8] uppercase tracking-wider font-semibold ${isTVMode ? 'text-xs mb-2' : 'text-sm mb-4'}`}>
               GAP DE PAGAMENTO
             </h3>
-            <p className={`text-[#FF8800] font-black ${isTVMode ? 'text-4xl mb-2' : 'text-6xl mb-4'}`}>
+            <p className={`text-[#FF8800] font-black break-all leading-tight ${isTVMode ? 'text-2xl sm:text-3xl md:text-4xl mb-2' : 'text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl mb-4'}`}>
               {formatarReal(metricas.receitas.gapPagamento)}
             </p>
             <p className={`text-[#94A3B8] ${isTVMode ? 'text-sm' : 'text-base'}`}>
@@ -310,7 +310,7 @@ const Financeiro = () => {
           </div>
 
           {/* Card 6: Gap Financeiro Total */}
-          <div className={`bg-[#151E35] rounded-2xl border border-white/10 ${isTVMode ? 'p-6' : 'p-12'}`}>
+          <div className={`bg-[#151E35] rounded-2xl border border-white/10 ${isTVMode ? 'p-4 sm:p-6' : 'p-6 sm:p-8 md:p-10 lg:p-12'}`}>
             <div className={`flex items-start justify-between ${isTVMode ? 'mb-4' : 'mb-8'}`}>
               <div className={`bg-[#FF4757]/20 rounded-2xl ${isTVMode ? 'p-4' : 'p-6'}`}>
                 <AlertTriangle className={`text-[#FF4757] ${isTVMode ? 'w-7 h-7' : 'w-10 h-10'}`} />
@@ -324,7 +324,7 @@ const Financeiro = () => {
             <h3 className={`text-[#94A3B8] uppercase tracking-wider font-semibold ${isTVMode ? 'text-xs mb-2' : 'text-sm mb-4'}`}>
               GAP FINANCEIRO TOTAL
             </h3>
-            <p className={`text-[#FF4757] font-black ${isTVMode ? 'text-4xl mb-2' : 'text-6xl mb-4'}`}>
+            <p className={`text-[#FF4757] font-black break-all leading-tight ${isTVMode ? 'text-2xl sm:text-3xl md:text-4xl mb-2' : 'text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl mb-4'}`}>
               {formatarReal(metricas.receitas.gapFinanceiroTotal)}
             </p>
             <p className={`text-[#94A3B8] ${isTVMode ? 'text-sm' : 'text-base'}`}>
@@ -348,34 +348,34 @@ const Financeiro = () => {
           Análise por Squad
         </h2>
         
-        <div className={`grid grid-cols-2 ${isTVMode ? 'gap-4' : 'gap-8'}`}>
+        <div className={`grid grid-cols-1 md:grid-cols-2 ${isTVMode ? 'gap-4' : 'gap-4 sm:gap-6 md:gap-8'}`}>
           {/* Hot Dogs */}
-          <div className={`bg-[#151E35] rounded-2xl border-l-4 border-[#FF4757] ${isTVMode ? 'p-6' : 'p-12'}`}>
+          <div className={`bg-[#151E35] rounded-2xl border-l-4 border-[#FF4757] ${isTVMode ? 'p-4 sm:p-6' : 'p-6 sm:p-8 md:p-10 lg:p-12'}`}>
             <h3 className={`text-white font-black mb-6 ${isTVMode ? 'text-2xl' : 'text-3xl'}`}>
               🔴 Hot Dogs
             </h3>
             <div className="grid grid-cols-2 gap-6">
               <div>
                 <p className="text-[#94A3B8] text-sm uppercase tracking-wider mb-2">Receita Total</p>
-                <p className={`text-white font-black ${isTVMode ? 'text-2xl' : 'text-3xl'}`}>
+                <p className={`text-white font-black break-all leading-tight ${isTVMode ? 'text-lg sm:text-xl md:text-2xl' : 'text-xl sm:text-2xl md:text-3xl'}`}>
                   {formatarReal(metricas.porSquad.hotDogs.receitaTotal)}
                 </p>
               </div>
               <div>
                 <p className="text-[#94A3B8] text-sm uppercase tracking-wider mb-2">Receita Paga</p>
-                <p className={`text-[#00E5CC] font-black ${isTVMode ? 'text-2xl' : 'text-3xl'}`}>
+                <p className={`text-[#00E5CC] font-black break-all leading-tight ${isTVMode ? 'text-lg sm:text-xl md:text-2xl' : 'text-xl sm:text-2xl md:text-3xl'}`}>
                   {formatarReal(metricas.porSquad.hotDogs.receitaPaga)}
                 </p>
               </div>
               <div>
                 <p className="text-[#94A3B8] text-sm uppercase tracking-wider mb-2">Gap Financeiro</p>
-                <p className={`text-[#FF8800] font-black ${isTVMode ? 'text-2xl' : 'text-3xl'}`}>
+                <p className={`text-[#FF8800] font-black break-all leading-tight ${isTVMode ? 'text-lg sm:text-xl md:text-2xl' : 'text-xl sm:text-2xl md:text-3xl'}`}>
                   {formatarReal(metricas.porSquad.hotDogs.gapFinanceiro)}
                 </p>
               </div>
               <div>
                 <p className="text-[#94A3B8] text-sm uppercase tracking-wider mb-2">Taxa de Recebimento</p>
-                <p className={`text-white font-black ${isTVMode ? 'text-2xl' : 'text-3xl'} mb-2`}>
+                <p className={`text-white font-black break-all leading-tight ${isTVMode ? 'text-lg sm:text-xl md:text-2xl' : 'text-xl sm:text-2xl md:text-3xl'} mb-2`}>
                   {metricas.porSquad.hotDogs.taxaRecebimento.toFixed(1)}%
                 </p>
                 <Progress value={metricas.porSquad.hotDogs.taxaRecebimento} className="h-2" />

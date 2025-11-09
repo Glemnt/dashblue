@@ -42,8 +42,8 @@ export const SquadsPlacar = ({ dados, isTVMode }: SquadsPlacarProps) => {
             </h3>
             
             <div className="bg-[#FF4757]/20 rounded-2xl p-4 md:p-6 lg:p-8 mb-4 overflow-hidden">
-              <p className={`text-white font-black mb-2 break-words overflow-hidden leading-tight ${
-                isTVMode ? 'text-4xl md:text-6xl lg:text-7xl' : 'text-3xl md:text-5xl lg:text-6xl'
+              <p className={`text-white font-black mb-2 break-all overflow-hidden leading-tight ${
+                isTVMode ? 'text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl 2xl:text-7xl' : 'text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl 2xl:text-6xl'
               }`}>
                 {formatarReal(dados.hotDogsReceita)}
               </p>
@@ -64,7 +64,7 @@ export const SquadsPlacar = ({ dados, isTVMode }: SquadsPlacarProps) => {
           {/* COLUNA CENTRO: VS + TROFÉU */}
           <div className="text-center order-3 md:order-2 min-w-0 px-2 md:px-4">
             <p className={`text-white font-black mb-6 md:mb-8 ${
-              isTVMode ? 'text-6xl md:text-8xl' : 'text-5xl md:text-7xl lg:text-8xl'
+              isTVMode ? 'text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl 2xl:text-8xl' : 'text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl 2xl:text-7xl'
             }`}>
               VS
             </p>
@@ -90,8 +90,8 @@ export const SquadsPlacar = ({ dados, isTVMode }: SquadsPlacarProps) => {
             {/* VANTAGEM */}
             {dados.lider !== 'Empate' && (
               <div className="bg-[#151E35] rounded-2xl p-4 md:p-6 border-2 border-[#FFB800] overflow-hidden">
-                <p className={`text-[#FFB800] font-black mb-2 break-words overflow-hidden leading-tight ${
-                  isTVMode ? 'text-2xl md:text-3xl lg:text-4xl' : 'text-xl md:text-2xl lg:text-3xl'
+                <p className={`text-[#FFB800] font-black mb-2 break-all overflow-hidden leading-tight ${
+                  isTVMode ? 'text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl' : 'text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl'
                 }`}>
                   +{formatarReal(dados.vantagem)}
                 </p>
@@ -124,8 +124,8 @@ export const SquadsPlacar = ({ dados, isTVMode }: SquadsPlacarProps) => {
             </h3>
             
             <div className="bg-[#0066FF]/20 rounded-2xl p-4 md:p-6 lg:p-8 mb-4 overflow-hidden">
-              <p className={`text-white font-black mb-2 break-words overflow-hidden leading-tight ${
-                isTVMode ? 'text-4xl md:text-6xl lg:text-7xl' : 'text-3xl md:text-5xl lg:text-6xl'
+              <p className={`text-white font-black mb-2 break-all overflow-hidden leading-tight ${
+                isTVMode ? 'text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl 2xl:text-7xl' : 'text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl 2xl:text-6xl'
               }`}>
                 {formatarReal(dados.corvoAzulReceita)}
               </p>

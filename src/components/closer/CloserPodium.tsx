@@ -90,7 +90,7 @@ const CloserPodium = ({ top3 }: CloserPodiumProps) => {
               <p className="text-white/80 text-sm font-outfit uppercase tracking-wider">
                 Receita Total
               </p>
-              <p className="text-white font-outfit text-3xl font-black break-all leading-tight">
+              <p className="text-white font-outfit text-xl sm:text-2xl md:text-3xl font-black break-all leading-tight">
                 {formatarReal(closer.receitaTotal)}
               </p>
               

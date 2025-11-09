@@ -68,9 +68,9 @@ const SDRPodium = ({ top3 }: SDRPodiumProps) => {
           </div>
 
           {/* Receita */}
-          <p className="text-white font-outfit text-4xl font-black mb-2">
-            {formatarReal(sdr.vendasOriginadas)}
-          </p>
+            <p className="text-white font-outfit text-2xl sm:text-3xl md:text-4xl font-black mb-2 break-all leading-tight">
+              {formatarReal(sdr.vendasOriginadas)}
+            </p>
 
           {/* Calls */}
           <p className="text-white/80 font-outfit text-sm">
