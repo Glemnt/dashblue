@@ -287,16 +287,16 @@ const Index = () => {
         
         <div className={`max-w-[1600px] mx-auto max-w-full ${isTVMode ? 'space-y-3' : 'space-y-4 md:space-y-8'}`}>
           {/* META MENSAL */}
-          <div className={`bg-[#151E35] rounded-2xl ${isTVMode ? 'p-4 sm:p-6 animate-fade-in' : 'p-6 sm:p-8 md:p-10 lg:p-12'} border border-white/10`}>
+          <div className={`bg-[#151E35] rounded-2xl ${isTVMode ? 'p-4 sm:p-6 animate-fade-in' : 'p-4 sm:p-6 md:p-10 lg:p-12'} border border-white/10`}>
             <div className="flex justify-between items-start mb-4">
               <div>
                 <p className={`text-[#94A3B8] font-outfit font-semibold uppercase tracking-widest ${
-                  isTVMode ? 'text-xs mb-1' : 'text-sm mb-3'
+                  isTVMode ? 'text-xs mb-1' : 'text-xs sm:text-sm mb-2 sm:mb-3'
                 }`}>
                   Meta Mensal
                 </p>
                 <p className={`text-white font-outfit font-black break-all leading-tight ${
-                  isTVMode ? 'text-2xl sm:text-3xl md:text-4xl' : 'text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl'
+                  isTVMode ? 'text-2xl sm:text-3xl md:text-4xl' : 'text-xl sm:text-2xl md:text-4xl lg:text-5xl xl:text-6xl'
                 }`}>
                   {formatarReal(metricas.metaMensal)}
                 </p>
@@ -305,7 +305,7 @@ const Index = () => {
                 <p 
                   key={metricas.progressoMetaMensal}
                   className={`text-white font-outfit font-black ${
-                    isTVMode ? 'text-3xl sm:text-4xl md:text-5xl animate-number-change' : 'text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl 2xl:text-8xl'
+                    isTVMode ? 'text-3xl sm:text-4xl md:text-5xl animate-number-change' : 'text-2xl sm:text-3xl md:text-5xl lg:text-6xl xl:text-7xl 2xl:text-8xl'
                   }`}
                 >
                   {metricas.progressoMetaMensal.toFixed(0)}%
@@ -352,16 +352,16 @@ const Index = () => {
           </div>
 
           {/* META SEMANAL */}
-          <div className={`bg-[#151E35] rounded-2xl ${isTVMode ? 'p-4 sm:p-6 animate-fade-in' : 'p-6 sm:p-8 md:p-10 lg:p-12'} border border-white/10`}>
+          <div className={`bg-[#151E35] rounded-2xl ${isTVMode ? 'p-4 sm:p-6 animate-fade-in' : 'p-4 sm:p-6 md:p-10 lg:p-12'} border border-white/10`}>
             <div className="flex justify-between items-start mb-4">
               <div>
                 <p className={`text-[#94A3B8] font-outfit font-semibold uppercase tracking-widest ${
-                  isTVMode ? 'text-xs mb-1' : 'text-sm mb-3'
+                  isTVMode ? 'text-xs mb-1' : 'text-xs sm:text-sm mb-2 sm:mb-3'
                 }`}>
                   Meta Semanal
                 </p>
                 <p className={`text-white font-outfit font-black break-all leading-tight ${
-                  isTVMode ? 'text-2xl sm:text-3xl md:text-4xl' : 'text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl'
+                  isTVMode ? 'text-2xl sm:text-3xl md:text-4xl' : 'text-xl sm:text-2xl md:text-4xl lg:text-5xl xl:text-6xl'
                 }`}>
                   {formatarReal(metricas.metaSemanal)}
                 </p>
@@ -370,7 +370,7 @@ const Index = () => {
                 <p 
                   key={metricas.progressoMetaSemanal}
                   className={`text-white font-outfit font-black ${
-                    isTVMode ? 'text-3xl sm:text-4xl md:text-5xl animate-number-change' : 'text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl 2xl:text-8xl'
+                    isTVMode ? 'text-3xl sm:text-4xl md:text-5xl animate-number-change' : 'text-2xl sm:text-3xl md:text-5xl lg:text-6xl xl:text-7xl 2xl:text-8xl'
                   }`}
                 >
                   {metricas.progressoMetaSemanal.toFixed(0)}%
@@ -417,7 +417,7 @@ const Index = () => {
           </div>
 
           {/* META DIÁRIA */}
-          <div className={`bg-[#151E35] rounded-2xl ${isTVMode ? 'p-4 sm:p-6 animate-fade-in' : 'p-6 sm:p-8 md:p-10 lg:p-12'} border border-white/10`}>
+          <div className={`bg-[#151E35] rounded-2xl ${isTVMode ? 'p-4 sm:p-6 animate-fade-in' : 'p-4 sm:p-6 md:p-10 lg:p-12'} border border-white/10`}>
             <div className="flex justify-between items-start mb-4">
               <div>
                 <p className={`text-[#94A3B8] font-outfit font-semibold uppercase tracking-widest ${

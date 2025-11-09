@@ -72,12 +72,13 @@ export const SquadsComparativo = ({ hotDogs, corvoAzul, comparacao, isTVMode }: 
   return (
     <div className="max-w-[1600px] mx-auto">
       <h2 className={`text-[#0B1120] font-black text-center mb-8 ${
-        isTVMode ? 'text-5xl' : 'text-4xl'
+        isTVMode ? 'text-5xl' : 'text-2xl sm:text-3xl md:text-4xl'
       }`}>
         Comparação de Métricas
       </h2>
       
-      <div className="bg-white rounded-2xl overflow-hidden shadow-2xl">
+      {/* DESKTOP: Tabela */}
+      <div className="hidden md:block bg-white rounded-2xl overflow-hidden shadow-2xl">
         <Table>
           <TableHeader>
             <TableRow className="bg-gradient-to-r from-gray-50 to-gray-100 hover:from-gray-50 hover:to-gray-100">
@@ -203,6 +204,79 @@ export const SquadsComparativo = ({ hotDogs, corvoAzul, comparacao, isTVMode }: 
             })}
           </TableBody>
         </Table>
+      </div>
+      
+      {/* MOBILE: Cards empilhados */}
+      <div className="md:hidden space-y-4">
+        {metricas.map((metrica, idx) => {
+          const hotDogsVencedor = metrica.comparacao.vencedor === 'Hot Dogs';
+          const corvoAzulVencedor = metrica.comparacao.vencedor === 'Corvo Azul';
+          const empate = metrica.comparacao.vencedor === 'Empate';
+          
+          return (
+            <div key={idx} className="bg-white rounded-xl p-4 shadow-lg">
+              <h3 className="text-gray-700 font-bold text-lg mb-4 text-center">
+                {metrica.label}
+              </h3>
+              
+              {/* Hot Dogs */}
+              <div className={`rounded-lg p-4 mb-3 ${
+                hotDogsVencedor ? 'bg-[#FF4757]/10' : 'bg-[#FF4757]/5'
+              }`}>
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-2xl">🔴</span>
+                  <span className="text-[#FF4757] font-bold text-sm">HOT DOGS</span>
+                </div>
+                <p className="text-2xl font-black text-gray-800 break-all">
+                  {metrica.hotDogsValor}
+                </p>
+                {!empate && (
+                  <p className={`text-sm font-semibold mt-2 ${
+                    hotDogsVencedor ? 'text-[#FF4757]' : 'text-gray-400'
+                  }`}>
+                    {hotDogsVencedor 
+                      ? `🟢 +${metrica.comparacao.diferencaPerc.toFixed(0)}% melhor`
+                      : `🔴 -${metrica.comparacao.diferencaPerc.toFixed(0)}%`
+                    }
+                  </p>
+                )}
+                {empate && (
+                  <p className="text-sm font-semibold text-yellow-600 mt-2">
+                    🟡 Empate
+                  </p>
+                )}
+              </div>
+              
+              {/* Corvo Azul */}
+              <div className={`rounded-lg p-4 ${
+                corvoAzulVencedor ? 'bg-[#0066FF]/10' : 'bg-[#0066FF]/5'
+              }`}>
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-2xl">🔵</span>
+                  <span className="text-[#0066FF] font-bold text-sm">CORVO AZUL</span>
+                </div>
+                <p className="text-2xl font-black text-gray-800 break-all">
+                  {metrica.corvoAzulValor}
+                </p>
+                {!empate && (
+                  <p className={`text-sm font-semibold mt-2 ${
+                    corvoAzulVencedor ? 'text-[#0066FF]' : 'text-gray-400'
+                  }`}>
+                    {corvoAzulVencedor 
+                      ? `🟢 +${metrica.comparacao.diferencaPerc.toFixed(0)}% melhor`
+                      : `🔴 -${metrica.comparacao.diferencaPerc.toFixed(0)}%`
+                    }
+                  </p>
+                )}
+                {empate && (
+                  <p className="text-sm font-semibold text-yellow-600 mt-2">
+                    🟡 Empate
+                  </p>
+                )}
+              </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
