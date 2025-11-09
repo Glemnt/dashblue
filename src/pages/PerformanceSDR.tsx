@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { RefreshCw, TrendingUp, Target, Trophy, Phone } from 'lucide-react';
 import logoWhite from '@/assets/logo-white.png';
+import MobileMenu from '@/components/MobileMenu';
 import { useGoogleSheets } from '@/hooks/useGoogleSheets';
 import { useSDRKPIs } from '@/hooks/useSDRKPIs';
 import { calcularMetricasSDR, mesclarMetricasSDRComDashboard } from '@/utils/sdrMetricsCalculator';
@@ -145,37 +146,36 @@ const PerformanceSDR = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#0B1120] font-outfit">
+    <div className="min-h-screen bg-[#0B1120] font-outfit overflow-x-hidden max-w-full">
       {/* HEADER */}
       <header className={`bg-[#0B1120] border-b border-white/5 ${isTVMode ? '' : 'sticky top-0'} z-50`}>
-        <div className={`max-w-[1920px] mx-auto ${isTVMode ? 'px-16 py-12' : 'px-12 py-8'} flex justify-between items-center`}>
-          {!isTVMode && (
-            <div className="flex items-center">
-              <img src={logoWhite} alt="Blue Ocean" className="h-10 w-auto" />
-            </div>
-          )}
+        <div className={`max-w-[1920px] mx-auto ${isTVMode ? 'px-16 py-12' : 'px-4 sm:px-6 md:px-12 py-4 md:py-8'} flex justify-between items-center gap-4`}>
+          <div className="flex items-center gap-4">
+            {!isTVMode && <MobileMenu />}
+            {!isTVMode && <img src={logoWhite} alt="Blue Ocean" className="hidden md:block h-8 md:h-10 w-auto" />}
+          </div>
 
           <div className="text-center">
             <h1 className={`text-white font-outfit font-bold tracking-tight ${
-              isTVMode ? 'text-7xl' : 'text-5xl'
+              isTVMode ? 'text-7xl' : 'text-2xl sm:text-3xl md:text-4xl lg:text-5xl'
             }`}>
               Performance SDR
             </h1>
             {!isTVMode && (
-              <p className="text-[#94A3B8] font-outfit text-lg mt-2">
+              <p className="text-[#94A3B8] font-outfit text-sm md:text-lg mt-2">
                 Análise detalhada da equipe de prospecção
               </p>
             )}
           </div>
 
-          <div className="text-right flex flex-col items-end gap-3">
-            <div className={`flex ${isTVMode ? 'gap-6' : 'gap-3'}`}>
+          <div className="text-right flex flex-col items-end gap-2 md:gap-3">
+            <div className={`flex ${isTVMode ? 'gap-6' : 'gap-2 md:gap-3'}`}>
               <TVModeToggle isTVMode={isTVMode} onToggle={() => setIsTVMode(!isTVMode)} />
               <Button
                 onClick={() => { refetch(); refetchKPIs(); }}
                 variant="outline"
                 className={`bg-[#0066FF]/10 border-2 border-[#0066FF] text-[#0066FF] hover:bg-[#0066FF] hover:text-white transition-all ${
-                  isTVMode ? 'px-8 py-6 text-2xl' : 'px-6 py-3 text-lg'
+                  isTVMode ? 'px-8 py-6 text-2xl' : 'px-3 py-2 md:px-6 md:py-3 text-sm md:text-lg'
                 }`}
               >
                 <RefreshCw className={`${isTVMode ? 'w-8 h-8 mr-4' : 'w-5 h-5 mr-2'}`} />

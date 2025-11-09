@@ -16,11 +16,11 @@ const Navigation = ({ isTVMode = false }: NavigationProps) => {
   ];
 
   return (
-    <nav className={`bg-[#151E35] border-b-2 border-white/15 sticky top-0 z-40 ${
+    <nav className={`bg-[#151E35] border-b-2 border-white/15 sticky top-0 z-40 overflow-x-hidden ${
       isTVMode ? 'py-8' : 'py-0'
     }`}>
-      <div className="max-w-[1920px] mx-auto px-12">
-        <div className={`flex ${isTVMode ? 'gap-12 justify-center' : 'gap-8'} ${
+      <div className="max-w-[1920px] mx-auto px-4 sm:px-6 md:px-12">
+        <div className={`hidden md:flex ${isTVMode ? 'gap-12 justify-center' : 'gap-8'} ${
           isTVMode ? 'py-0' : 'py-4'
         }`}>
           {menuItems.map((item) => (

@@ -21,6 +21,7 @@ import { Progress } from '@/components/ui/progress';
 import { SimulatorSlider } from '@/components/ia/simulator/SimulatorSlider';
 import { formatarReal } from '@/utils/metricsCalculator';
 import logoWhite from '@/assets/logo-white.png';
+import MobileMenu from '@/components/MobileMenu';
 
 const AssistenteIA = () => {
   const { toast } = useToast();
@@ -270,23 +271,24 @@ const AssistenteIA = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#0B1120]">
+    <div className="min-h-screen bg-[#0B1120] overflow-x-hidden max-w-full">
       {/* Header */}
       <header className="bg-[#0B1120] border-b-2 border-white/15 sticky top-0 z-50">
-        <div className="max-w-[1920px] mx-auto px-6 md:px-12 py-6 md:py-8">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-6">
-              <img src={logoWhite} alt="Blue Ocean" className={isTVMode ? "h-20" : "h-12"} />
-              <div>
-                <h1 className={`font-outfit font-bold text-white ${isTVMode ? 'text-6xl' : 'text-3xl md:text-4xl'}`}>
-                  Assistente de IA Comercial
-                </h1>
-                <p className={`text-[#94A3B8] font-outfit ${isTVMode ? 'text-3xl mt-2' : 'text-sm md:text-base'}`}>
-                  Insights estratégicos baseados em dados
-                </p>
-              </div>
-            </div>
+        <div className={`max-w-[1920px] mx-auto ${isTVMode ? 'px-16 py-12' : 'px-4 sm:px-6 md:px-12 py-4 md:py-8'}`}>
+          <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-4">
+              {!isTVMode && <MobileMenu />}
+              {!isTVMode && <img src={logoWhite} alt="Blue Ocean" className={isTVMode ? "h-20" : "hidden md:block h-8 md:h-12 w-auto"} />}
+            </div>
+            <div>
+              <h1 className={`font-outfit font-bold text-white ${isTVMode ? 'text-6xl' : 'text-2xl sm:text-3xl md:text-4xl'}`}>
+                Assistente de IA Comercial
+              </h1>
+              <p className={`text-[#94A3B8] font-outfit ${isTVMode ? 'text-3xl mt-2' : 'text-xs sm:text-sm md:text-base hidden sm:block'}`}>
+                Insights estratégicos baseados em dados
+              </p>
+            </div>
+            <div className="flex items-center gap-2 md:gap-4">
               <TVModeToggle isTVMode={isTVMode} onToggle={() => setIsTVMode(!isTVMode)} />
               <Button
                 onClick={() => {
@@ -294,12 +296,12 @@ const AssistenteIA = () => {
                   gerarAnaliseCompleta();
                 }}
                 variant="outline"
-                className={isTVMode ? "text-2xl px-8 py-6" : ""}
+                className={isTVMode ? "text-2xl px-8 py-6" : "px-3 py-2 md:px-6 md:py-3 text-sm md:text-base"}
               >
-                <RefreshCw className={`${isTVMode ? 'w-8 h-8 mr-4' : 'w-4 h-4 mr-2'}`} />
-                Atualizar
+                <RefreshCw className={`${isTVMode ? 'w-8 h-8 mr-4' : 'w-4 h-4 md:w-4 md:h-4 mr-1 md:mr-2'}`} />
+                <span className="hidden sm:inline">Atualizar</span>
               </Button>
-              <div className={`text-right ${isTVMode ? 'text-2xl' : 'text-sm'}`}>
+              <div className={`text-right ${isTVMode ? 'text-2xl' : 'text-xs sm:text-sm hidden lg:block'}`}>
                 <p className="text-white font-semibold">{formatDate(currentTime)}</p>
                 <p className="text-[#94A3B8]">{formatTime(currentTime)}</p>
               </div>
