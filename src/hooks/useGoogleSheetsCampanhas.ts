@@ -12,7 +12,7 @@ interface UseCampanhasReturn {
   isRefetching: boolean;
 }
 
-const CAMPANHAS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSMYk5K5k39Apo7zd4z5xhi3aS9C_YE5FGgGJfhcLaCSlfh4YZp1AlAyjPw8PQho9fDlUYHSgofKyuj/pub?gid=1359887700&single=true&output=csv";
+const CAMPANHAS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTiBWb4KkxNxK-WwtnetmSBqedeaGkJ1zyjJf1xd07v_v9LevCbDMX2rSttHCbcWz2dU3ce3JO7lDWv/pub?gid=1031029116&single=true&output=csv";
 
 export const useGoogleSheetsCampanhas = (): UseCampanhasReturn => {
   const [data, setData] = useState<any[]>([]);

@@ -14,14 +14,14 @@ export const AVAILABLE_MONTHS: AvailableMonth[] = [
   {
     key: 'outubro-2025',
     label: 'Outubro 2025',
-    gid: '2010777326',
+    gid: '1439614322',
     month: 9,
     year: 2025
   },
   {
     key: 'novembro-2025',
     label: 'Novembro 2025',
-    gid: '548333510',
+    gid: '930588352',
     month: 10,
     year: 2025
   }
@@ -37,11 +37,11 @@ export const AVAILABLE_MONTHS: AvailableMonth[] = [
 
 // Mapeamento legado (mantido para compatibilidade)
 const SHEET_GIDS: Record<string, string> = {
-  'outubro-2025': '2010777326',
-  'novembro-2025': '548333510'
+  'outubro-2025': '1439614322',
+  'novembro-2025': '930588352'
 };
 
-const BASE_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSMYk5K5k39Apo7zd4z5xhi3aS9C_YE5FGgGJfhcLaCSlfh4YZp1AlAyjPw8PQho9fDlUYHSgofKyuj/pub";
+const BASE_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTiBWb4KkxNxK-WwtnetmSBqedeaGkJ1zyjJf1xd07v_v9LevCbDMX2rSttHCbcWz2dU3ce3JO7lDWv/pub";
 
 export const getSheetUrlForPeriod = (dateRange: DateRange): string => {
   const startMonth = dateRange.start.getMonth(); // 0-11

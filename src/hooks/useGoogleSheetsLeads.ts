@@ -10,7 +10,7 @@ interface UseLeadsReturn {
   isRefetching: boolean;
 }
 
-const LEADS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSMYk5K5k39Apo7zd4z5xhi3aS9C_YE5FGgGJfhcLaCSlfh4YZp1AlAyjPw8PQho9fDlUYHSgofKyuj/pub?gid=167032865&single=true&output=csv";
+const LEADS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTiBWb4KkxNxK-WwtnetmSBqedeaGkJ1zyjJf1xd07v_v9LevCbDMX2rSttHCbcWz2dU3ce3JO7lDWv/pub?gid=1680388014&single=true&output=csv";
 
 export const useGoogleSheetsLeads = (): UseLeadsReturn => {
   const [totalLeads, setTotalLeads] = useState<number>(0);
