@@ -467,9 +467,34 @@ serve(async (req) => {
   try {
     const { type, metrics, history, question, changes } = await req.json();
 
+    // Validate analysis type
     if (!['analysis', 'chat', 'simulation', 'report'].includes(type)) {
       throw new Error('Invalid analysis type');
     }
+
+    // Validate chat history length
+    if (history && (!Array.isArray(history) || history.length > 50)) {
+      throw new Error('Chat history must be an array with max 50 messages');
+    }
+
+    // Validate question length
+    if (question && (typeof question !== 'string' || question.length > 1000)) {
+      throw new Error('Question must be a string with max 1000 characters');
+    }
+
+    // Validate metrics structure
+    if (metrics && (typeof metrics !== 'object' || Array.isArray(metrics) || metrics === null)) {
+      throw new Error('Invalid metrics format - must be an object');
+    }
+
+    // Validate changes structure for simulation
+    if (type === 'simulation' && changes && (typeof changes !== 'object' || Array.isArray(changes) || changes === null)) {
+      throw new Error('Invalid changes format - must be an object');
+    }
+
+    // Sanitize string inputs to prevent abuse
+    const sanitizeInput = (str: string) => str.substring(0, 1000).trim();
+    const sanitizedQuestion = question ? sanitizeInput(question) : question;
 
     let prompt = '';
     
@@ -478,7 +503,7 @@ serve(async (req) => {
         prompt = buildAnalysisPrompt(metrics);
         break;
       case 'chat':
-        prompt = buildChatPrompt(metrics, history || [], question);
+        prompt = buildChatPrompt(metrics, history || [], sanitizedQuestion);
         break;
       case 'simulation':
         prompt = buildSimulationPrompt(metrics, changes);
