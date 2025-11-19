@@ -76,7 +76,7 @@ const ContractsTable = ({ contratos, isTVMode }: Props) => {
     try {
       const dadosParaExportar = contratosFiltrados.map(contrato => ({
         'Nome da Call': contrato.nomeCall,
-        'Data': format(new Date(contrato.dataFechamento), 'dd/MM/yyyy'),
+        'Data': contrato.dataFechamento,
         'SDR': contrato.sdr,
         'Closer': contrato.closer,
         'Valor': formatarReal(contrato.valor),
