@@ -1,10 +1,14 @@
 import { useState, useMemo } from 'react';
 import { FinancialContract, formatarReal } from '@/utils/financialMetricsCalculator';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { ArrowUpDown, Search } from 'lucide-react';
+import { ArrowUpDown, Search, Download } from 'lucide-react';
+import { unparse } from 'papaparse';
+import { useToast } from '@/hooks/use-toast';
+import { format } from 'date-fns';
 
 interface Props {
   contratos: FinancialContract[];
@@ -12,6 +16,7 @@ interface Props {
 }
 
 const ContractsTable = ({ contratos, isTVMode }: Props) => {
+  const { toast } = useToast();
   const [filtroAssinatura, setFiltroAssinatura] = useState<string>('todos');
   const [filtroPagamento, setFiltroPagamento] = useState<string>('todos');
   const [filtroSquad, setFiltroSquad] = useState<string>('todos');
@@ -66,8 +71,65 @@ const ContractsTable = ({ contratos, isTVMode }: Props) => {
     return 'destructive';                              // Vermelho (Pendente)
   };
 
+  // Exportar para CSV
+  const exportarParaCSV = () => {
+    try {
+      const dadosParaExportar = contratosFiltrados.map(contrato => ({
+        'Nome da Call': contrato.nomeCall,
+        'Data': format(new Date(contrato.dataFechamento), 'dd/MM/yyyy'),
+        'SDR': contrato.sdr,
+        'Closer': contrato.closer,
+        'Valor': formatarReal(contrato.valor),
+        'Status Assinatura': contrato.statusAssinatura,
+        'Status Pagamento': contrato.statusPagamento,
+        'Status Geral': contrato.statusGeral,
+        'Squad': contrato.squad
+      }));
+
+      const csv = unparse(dadosParaExportar, {
+        delimiter: ',',
+        header: true
+      });
+
+      // Adicionar BOM para compatibilidade com Excel
+      const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      
+      link.setAttribute('href', url);
+      link.setAttribute('download', `contratos-financeiros-${format(new Date(), 'dd-MM-yyyy')}.csv`);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      toast({
+        title: 'Sucesso!',
+        description: 'Contratos exportados com sucesso!',
+      });
+    } catch (error) {
+      toast({
+        title: 'Erro',
+        description: 'Erro ao exportar contratos',
+        variant: 'destructive',
+      });
+    }
+  };
+
   return (
     <div className="bg-[#151E35] rounded-2xl p-8">
+      {/* Header com Botão de Exportação */}
+      <div className="flex justify-between items-center mb-6">
+        <h3 className="text-xl font-bold text-white">Contratos Detalhados</h3>
+        <Button
+          onClick={exportarParaCSV}
+          className="bg-primary hover:bg-primary/90 text-primary-foreground"
+        >
+          <Download className="w-4 h-4 mr-2" />
+          Exportar CSV
+        </Button>
+      </div>
+
       {/* Filtros */}
       <div className={`grid gap-4 mb-6 ${isTVMode ? 'grid-cols-2' : 'grid-cols-4'}`}>
         <div className="relative">
