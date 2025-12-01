@@ -76,7 +76,7 @@ const Index = () => {
   
   const { data, loading, error, lastUpdate, refetch, isRefetching } = useGoogleSheets(dateRange, selectedMonthKey);
   const { totalLeads: leadsCampanhas, totalMQLs: mqlsCampanhas, loading: loadingCampanhas } = useGoogleSheetsCampanhas();
-  const leads = useGoogleSheetsLeads();
+  const leads = useGoogleSheetsLeads(selectedMonthKey);
   
   // Estado do modo TV
   const { isTVMode, setIsTVMode } = useTVMode();

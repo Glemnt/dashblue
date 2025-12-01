@@ -1,24 +1,48 @@
 import { useState, useEffect, useCallback } from 'react';
 import Papa from 'papaparse';
+import { getLeadSourceUrls, getTargetMonthNumber, parseLeadDate, LeadSource } from '@/utils/leadsSheetUrlManager';
 
 interface UseLeadsReturn {
   totalLeads: number;
   totalMQLs: number;
   totalDesqualificados: number;
+  leadsPorFonte: Record<string, number>;
   loading: boolean;
   error: string | null;
   isRefetching: boolean;
 }
 
-const LEADS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTiBWb4KkxNxK-WwtnetmSBqedeaGkJ1zyjJf1xd07v_v9LevCbDMX2rSttHCbcWz2dU3ce3JO7lDWv/pub?gid=1680388014&single=true&output=csv";
-
-export const useGoogleSheetsLeads = (): UseLeadsReturn => {
+export const useGoogleSheetsLeads = (monthKey?: string): UseLeadsReturn => {
   const [totalLeads, setTotalLeads] = useState<number>(0);
   const [totalMQLs, setTotalMQLs] = useState<number>(0);
   const [totalDesqualificados, setTotalDesqualificados] = useState<number>(0);
+  const [leadsPorFonte, setLeadsPorFonte] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState<boolean>(true);
   const [isRefetching, setIsRefetching] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+
+  const fetchSingleSheet = async (url: string, source: LeadSource): Promise<{ leads: any[]; source: LeadSource }> => {
+    const response = await fetch(url);
+    
+    if (!response.ok) {
+      throw new Error(`Erro ao buscar ${source.name}: ${response.status}`);
+    }
+    
+    const csvText = await response.text();
+    
+    return new Promise((resolve, reject) => {
+      Papa.parse(csvText, {
+        header: true,
+        skipEmptyLines: true,
+        complete: (results) => {
+          resolve({ leads: results.data, source });
+        },
+        error: (err) => {
+          reject(err);
+        }
+      });
+    });
+  };
 
   const fetchData = useCallback(async (isInitialLoad = false) => {
     try {
@@ -28,89 +52,86 @@ export const useGoogleSheetsLeads = (): UseLeadsReturn => {
       } else {
         setIsRefetching(true);
       }
-      const response = await fetch(LEADS_CSV_URL);
       
-      if (!response.ok) {
-        throw new Error(`Erro ao buscar leads: ${response.status}`);
-      }
+      const sourceUrls = getLeadSourceUrls(monthKey);
+      const targetMonth = getTargetMonthNumber(monthKey);
       
-      const csvText = await response.text();
+      console.log(`📧 LEADS - Buscando ${sourceUrls.length} planilhas para mês ${targetMonth + 1}`);
       
-      Papa.parse(csvText, {
-        header: true,
-        skipEmptyLines: true,
-        complete: (results) => {
-          const leadsValidos = results.data.filter((row: any) => {
-            // Filtrar linhas válidas (com email ou nome preenchido)
-            return row['Email'] || row['Nome'] || row['EMAIL'] || row['NOME'];
-          });
+      // Buscar todas as planilhas em paralelo
+      const results = await Promise.all(
+        sourceUrls.map(({ url, source }) => 
+          fetchSingleSheet(url, source).catch(err => {
+            console.warn(`⚠️ Erro ao buscar ${source.name}:`, err);
+            return { leads: [], source };
+          })
+        )
+      );
+      
+      // Processar e filtrar leads por mês
+      let totalCount = 0;
+      const countBySource: Record<string, number> = {};
+      
+      for (const { leads, source } of results) {
+        // Filtrar leads válidos (com email ou nome)
+        const leadsValidos = leads.filter((row: any) => {
+          return row['Email'] || row['email'] || row['EMAIL'] || 
+                 row['Nome'] || row['nome'] || row['NOME'] ||
+                 row['full_name'] || row['phone_number'];
+        });
+        
+        // Filtrar por mês
+        const leadsDoMes = leadsValidos.filter((row: any) => {
+          // Procurar coluna de data em vários formatos possíveis
+          const dataStr = row['Data'] || row['DATA'] || row['data'] || 
+                         row['created_time'] || row['Timestamp'] || row['timestamp'] ||
+                         row['Data de Criação'] || row['Data_Criacao'] ||
+                         row['submitted_at'] || row['date'];
           
-          // Debug: Verificar colunas disponíveis
-          console.log('📧 LEADS - Headers disponíveis:', Object.keys(leadsValidos[0] || {}));
-          console.log('📧 LEADS - Primeira linha:', leadsValidos[0]);
-          
-          // Verificar se a coluna Status_Lead existe
-          const temStatusLead = leadsValidos[0] && leadsValidos[0].hasOwnProperty('Status_Lead');
-          console.log('📧 LEADS - Coluna Status_Lead existe?', temStatusLead);
-          
-          if (temStatusLead) {
-            const valoresUnicos = [...new Set(leadsValidos.map(row => row['Status_Lead']))].filter(v => v);
-            console.log('📧 LEADS - Valores únicos em Status_Lead:', valoresUnicos);
+          if (!dataStr) {
+            // Se não tiver data, incluir o lead (pode ser um campo não mapeado)
+            return true;
           }
           
-          // Contar MQLs (coluna Status_Lead = "MQL")
-          const mqls = leadsValidos.filter((row: any) => {
-            const statusLead = row['Status_Lead'] || row['STATUS_LEAD'] || row['status_lead'];
-            
-            if (!statusLead) return false;
-            
-            const valor = String(statusLead).trim().toUpperCase();
-            return valor === 'MQL';
-          });
+          const date = parseLeadDate(dataStr);
           
-          // Contar Desqualificados (coluna Status_Lead = "Desqualificado")
-          const desqualificados = leadsValidos.filter((row: any) => {
-            const statusLead = row['Status_Lead'] || row['STATUS_LEAD'] || row['status_lead'];
-            
-            if (!statusLead) return false;
-            
-            const valor = String(statusLead).trim().toUpperCase();
-            return valor === 'DESQUALIFICADO';
-          });
+          if (!date) {
+            console.warn(`⚠️ Não foi possível parsear data: ${dataStr}`);
+            return true; // Incluir se não conseguir parsear
+          }
           
-          console.log('📧 LEADS - Totais:');
-          console.log('Total de leads:', leadsValidos.length);
-          console.log('MQLs:', mqls.length);
-          console.log('Desqualificados:', desqualificados.length);
-          console.log('Sem classificação:', leadsValidos.length - mqls.length - desqualificados.length);
-          
-          setTotalLeads(leadsValidos.length);
-          setTotalMQLs(mqls.length);
-          setTotalDesqualificados(desqualificados.length);
-          setLoading(false);
-          setIsRefetching(false);
-        },
-        error: (err) => {
-          console.error('❌ Erro no parsing CSV leads:', err);
-          setError(`Erro ao processar CSV: ${err.message}`);
-          setLoading(false);
-          setIsRefetching(false);
-        }
-      });
+          return date.getMonth() === targetMonth;
+        });
+        
+        console.log(`📧 ${source.name}: ${leadsDoMes.length}/${leadsValidos.length} leads no mês ${targetMonth + 1}`);
+        
+        countBySource[source.key] = leadsDoMes.length;
+        totalCount += leadsDoMes.length;
+      }
+      
+      console.log(`📧 LEADS - Total consolidado: ${totalCount} leads`);
+      
+      setTotalLeads(totalCount);
+      setTotalMQLs(0); // Por enquanto zerado conforme solicitado
+      setTotalDesqualificados(0);
+      setLeadsPorFonte(countBySource);
+      setLoading(false);
+      setIsRefetching(false);
+      
     } catch (err) {
-      console.error('❌ Erro no fetch leads:', err);
+      console.error('❌ Erro ao buscar leads:', err);
       setError(err instanceof Error ? err.message : 'Erro desconhecido');
       setLoading(false);
       setIsRefetching(false);
     }
-  }, []);
+  }, [monthKey]);
 
   useEffect(() => {
     fetchData(true);
     
     const interval = setInterval(() => {
       fetchData(false);
-    }, 10000);
+    }, 30000); // Refresh a cada 30 segundos
     
     return () => clearInterval(interval);
   }, [fetchData]);
@@ -119,6 +140,7 @@ export const useGoogleSheetsLeads = (): UseLeadsReturn => {
     totalLeads,
     totalMQLs,
     totalDesqualificados,
+    leadsPorFonte,
     loading,
     error,
     isRefetching
