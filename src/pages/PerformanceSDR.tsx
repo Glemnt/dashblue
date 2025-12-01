@@ -33,7 +33,7 @@ const PerformanceSDR = () => {
     loading: loadingKPIs,
     error: errorKPIs,
     refetch: refetchKPIs
-  } = useSDRKPIs();
+  } = useSDRKPIs(currentDateRange, selectedMonthKey);
   
   // Estado do modo TV
   const { isTVMode, setIsTVMode } = useTVMode();
