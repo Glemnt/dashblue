@@ -126,7 +126,7 @@ const Index = () => {
   // Calcular métricas com dados filtrados
   const metricas = filteredData.length > 0 ? calcularMetricas(filteredData, {
     totalLeads: leads.totalLeads,      // Contagem de linhas da planilha "LEADS - META ADS NOV."
-    totalMQLs: mqlsCampanhas           // Soma da coluna "MQL" da planilha "CAMPANHAS - NOV."
+    totalMQLs: 0                       // MQLs zerados até ter forma de metrificar corretamente
   }, selectedMonthKey) : null;
   
   // Calcular métricas dos squads separadamente
