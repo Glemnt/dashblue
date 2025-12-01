@@ -8,6 +8,7 @@ import fotoMarcos from '@/assets/colaboradores/marcos.png';
 import fotoTiago from '@/assets/colaboradores/tiago.png';
 import fotoVinicius from '@/assets/colaboradores/vinicius.png';
 import fotoJoaoLopes from '@/assets/colaboradores/joao-lopes.png';
+import fotoAndrey from '@/assets/colaboradores/andrey.png';
 
 // Mapeamento nome → foto
 const colaboradorPhotos: Record<string, string> = {
@@ -28,9 +29,8 @@ const colaboradorPhotos: Record<string, string> = {
   'Tiago': fotoTiago,
   'Vinicius': fotoVinicius,
   'Vinícius': fotoVinicius, // variação com acento
-  // Andrey - foto será adicionada posteriormente, por enquanto usa emoji fallback
-  'Andrey': '',
-  'ANDREY': '',
+  'Andrey': fotoAndrey,
+  'ANDREY': fotoAndrey,
 };
 
 // Função helper para obter foto
