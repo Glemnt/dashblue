@@ -19,12 +19,12 @@ export const useGoogleSheets = (dateRange?: DateRange, monthKey?: string): UseGo
   const [error, setError] = useState<string | null>(null);
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
 
-  const fetchData = useCallback(async (isInitialLoad = false) => {
+  const fetchData = useCallback(async (isInitialLoad = false, retryCount = 0) => {
     try {
       setError(null);
-      if (isInitialLoad) {
+      if (isInitialLoad && retryCount === 0) {
         setLoading(true);
-      } else {
+      } else if (retryCount === 0) {
         setIsRefetching(true);
       }
       
@@ -56,17 +56,11 @@ export const useGoogleSheets = (dateRange?: DateRange, monthKey?: string): UseGo
         complete: (results) => {
           console.log('📊 FETCH GOOGLE SHEETS:');
           console.log('✅ Total de linhas:', results.data.length);
-          console.log('✅ CSV bruto (preview):', csvText.substring(0, 500));
           
           if (results.data.length > 0) {
             console.log('📋 Headers exatos:', Object.keys(results.data[0]));
-            console.log('📋 Primeira linha completa:', results.data[0]);
-            if (results.data[1]) {
-              console.log('📋 Segunda linha completa:', results.data[1]);
-            }
           }
           
-          console.log('📊 Dados brutos do CSV:', results.data);
           setData(results.data);
           setLastUpdate(new Date());
           setLoading(false);
@@ -81,6 +75,15 @@ export const useGoogleSheets = (dateRange?: DateRange, monthKey?: string): UseGo
       });
     } catch (err) {
       console.error('❌ Erro no fetch:', err);
+      
+      // Retry até 3 vezes com delay exponencial
+      if (retryCount < 3) {
+        const delay = Math.pow(2, retryCount) * 1000; // 1s, 2s, 4s
+        console.log(`🔄 Tentando novamente em ${delay}ms... (tentativa ${retryCount + 1}/3)`);
+        setTimeout(() => fetchData(isInitialLoad, retryCount + 1), delay);
+        return;
+      }
+      
       setError(err instanceof Error ? err.message : 'Erro desconhecido ao buscar dados');
       setLoading(false);
       setIsRefetching(false);

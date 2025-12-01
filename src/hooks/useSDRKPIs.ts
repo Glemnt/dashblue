@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useGoogleSheets } from './useGoogleSheets';
+import { DateRange } from '@/utils/dateFilters';
 
 export interface SDRKPI {
   nome: string;
@@ -39,8 +40,8 @@ const normalizarNome = (nome: string): string => {
   return nome.toUpperCase().trim();
 };
 
-export const useSDRKPIs = (): UseSDRKPIsReturn => {
-  const { data, loading, error, lastUpdate, refetch } = useGoogleSheets();
+export const useSDRKPIs = (dateRange?: DateRange, monthKey?: string): UseSDRKPIsReturn => {
+  const { data, loading, error, lastUpdate, refetch } = useGoogleSheets(dateRange, monthKey);
   const [kpis, setKpis] = useState<SDRKPI[]>([]);
   const [total, setTotal] = useState<SDRKPI | null>(null);
 
