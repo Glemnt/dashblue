@@ -48,7 +48,48 @@ export interface SDRData {
   destaque: SDRMetrics | null;
 }
 
+// Função para normalizar nomes removendo acentos
+const removerAcentos = (str: string): string => {
+  return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+};
+
+// Função para comparar nomes de SDR com flexibilidade
+const compararNomeSDR = (nomeColuna: string, nomeBusca: string): boolean => {
+  if (!nomeColuna || !nomeBusca) return false;
+  
+  const colunaLimpa = removerAcentos(nomeColuna).toUpperCase().trim();
+  const buscaLimpa = removerAcentos(nomeBusca).toUpperCase().trim();
+  
+  // Comparação exata
+  if (colunaLimpa === buscaLimpa) return true;
+  
+  // Mapeamento de variantes para nomes completos
+  const variantesMap: Record<string, string[]> = {
+    'VINICIUS MEIRELES': ['VINICIUS', 'VINÍCIUS', 'VINICIUS MEIRELES', 'VINÍCIUS MEIRELES'],
+    'DAVI': ['DAVI'],
+    'ANDREY': ['ANDREY'],
+    'TIAGO': ['TIAGO'],
+    'MARCOS': ['MARCOS'],
+    'JOAO LOPES': ['JOAO LOPES', 'JOAO', 'JOÃO LOPES', 'JOÃO']
+  };
+  
+  // Normalizar a busca para key do mapa
+  const buscaNormalizada = removerAcentos(buscaLimpa);
+  const variantes = variantesMap[buscaNormalizada] || [];
+  
+  return variantes.some(v => removerAcentos(v).toUpperCase() === colunaLimpa);
+};
+
 export const calcularMetricasSDR = (data: any[], dateRange?: DateRange): SDRData => {
+  // Debug: listar todos os valores únicos de SDR na planilha
+  if (data.length > 0) {
+    const sdrsUnicos = [...new Set(data.map(row => String(row['SDR'] || '').trim()))].filter(Boolean);
+    console.log('📋 SDRs únicos na planilha:', sdrsUnicos);
+    
+    const sdrsFechouUnicos = [...new Set(data.map(row => String(row['SDR FECHOU'] || '').trim()))].filter(Boolean);
+    console.log('📋 SDRs FECHOU únicos na planilha:', sdrsFechouUnicos);
+  }
+
   // Filtrar dados por período se houver filtro
   let filteredData = data;
   if (dateRange) {
@@ -83,12 +124,12 @@ export const calcularMetricasSDR = (data: any[], dateRange?: DateRange): SDRData
 
   if (isOutubro) {
     // OUTUBRO: Marcos como SDR
-    sdrsNomes = ['VINICIUS MEIRELES', 'MARCOS', 'TIAGO', 'JOÃO LOPES'];
+    sdrsNomes = ['VINICIUS MEIRELES', 'MARCOS', 'TIAGO', 'JOAO LOPES'];
     squadMap = {
       'VINICIUS MEIRELES': { squad: 'Corvo Azul', color: '#0066FF', emoji: '🔵', displayName: 'Vinícius' },
       'MARCOS': { squad: 'Hot Dogs', color: '#FF4757', emoji: '🔴', displayName: 'Marcos' },
       'TIAGO': { squad: 'Sem Squad', color: '#64748B', emoji: '⚪', displayName: 'Tiago' },
-      'JOÃO LOPES': { squad: 'RevOps', color: '#94A3B8', emoji: '⚙️', displayName: 'João Lopes' }
+      'JOAO LOPES': { squad: 'RevOps', color: '#94A3B8', emoji: '⚙️', displayName: 'João Lopes' }
     };
   } else if (isDezembro) {
     // DEZEMBRO: Davi no Hot Dogs, Vinícius no Corvo Azul, Andrey sem squad
@@ -109,10 +150,10 @@ export const calcularMetricasSDR = (data: any[], dateRange?: DateRange): SDRData
   }
 
   const sdrsMetrics: SDRMetrics[] = sdrsNomes.map(nome => {
-    // Filtrar linhas onde SDR = nome do SDR (case-insensitive, trim)
+    // Filtrar linhas onde SDR = nome do SDR (usando comparação flexível)
     const callsDoSDR = filteredData.filter(row => {
-      const sdrNome = String(row['SDR'] || '').trim().toUpperCase();
-      return sdrNome === nome; // nome já está em uppercase
+      const sdrNome = String(row['SDR'] || '').trim();
+      return compararNomeSDR(sdrNome, nome);
     });
 
     const totalCalls = callsDoSDR.length;
@@ -146,8 +187,8 @@ export const calcularMetricasSDR = (data: any[], dateRange?: DateRange): SDRData
     // Vendas Originadas (somar VALOR onde SDR FECHOU = nome do SDR)
     const vendasOriginadas = filteredData
       .filter(row => {
-        const sdrFechou = String(row['SDR FECHOU'] || '').trim().toUpperCase();
-        return sdrFechou === nome;
+        const sdrFechou = String(row['SDR FECHOU'] || '').trim();
+        return compararNomeSDR(sdrFechou, nome);
       })
       .reduce((acc, row) => {
         const valor = parseValor(row['VALOR']);
@@ -156,16 +197,16 @@ export const calcularMetricasSDR = (data: any[], dateRange?: DateRange): SDRData
 
     // Número de Contratos Originados
     const contratosOriginados = filteredData.filter(row => {
-      const sdrFechou = String(row['SDR FECHOU'] || '').trim().toUpperCase();
-      return sdrFechou === nome;
+      const sdrFechou = String(row['SDR FECHOU'] || '').trim();
+      return compararNomeSDR(sdrFechou, nome);
     }).length;
 
     // Coletar contratos fechados originados por este SDR
     const contratos: SDRContract[] = filteredData
       .filter(row => {
-        const sdrFechou = String(row['SDR FECHOU'] || '').trim().toUpperCase();
+        const sdrFechou = String(row['SDR FECHOU'] || '').trim();
         const fechamento = String(row['FECHAMENTO'] || '').trim().toUpperCase();
-        return sdrFechou === nome && fechamento === 'SIM';
+        return compararNomeSDR(sdrFechou, nome) && fechamento === 'SIM';
       })
       .map(row => {
         const assinatura = String(row['ASSINATURA'] || '').trim().toUpperCase();
