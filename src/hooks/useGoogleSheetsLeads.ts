@@ -80,24 +80,29 @@ export const useGoogleSheetsLeads = (monthKey?: string): UseLeadsReturn => {
                  row['full_name'] || row['phone_number'];
         });
         
-        // Filtrar por mês
+        // Log headers da primeira planilha para debug
+        if (leadsValidos.length > 0) {
+          console.log(`📧 ${source.name} - Headers:`, Object.keys(leadsValidos[0]));
+        }
+        
+        // Filtrar por mês usando coluna Data/Hora (formato ISO: 2025-11-23T02:36:30.000Z)
         const leadsDoMes = leadsValidos.filter((row: any) => {
-          // Procurar coluna de data em vários formatos possíveis
-          const dataStr = row['Data'] || row['DATA'] || row['data'] || 
+          // Procurar coluna de data - Data/Hora é o formato principal
+          const dataStr = row['Data/Hora'] || row['Data'] || row['DATA'] || row['data'] || 
                          row['created_time'] || row['Timestamp'] || row['timestamp'] ||
                          row['Data de Criação'] || row['Data_Criacao'] ||
                          row['submitted_at'] || row['date'];
           
           if (!dataStr) {
-            // Se não tiver data, incluir o lead (pode ser um campo não mapeado)
-            return true;
+            // Se não tiver data, EXCLUIR o lead (não conseguimos filtrar)
+            return false;
           }
           
           const date = parseLeadDate(dataStr);
           
           if (!date) {
             console.warn(`⚠️ Não foi possível parsear data: ${dataStr}`);
-            return true; // Incluir se não conseguir parsear
+            return false; // Excluir se não conseguir parsear
           }
           
           return date.getMonth() === targetMonth;
