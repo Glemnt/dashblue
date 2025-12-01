@@ -28,6 +28,9 @@ const colaboradorPhotos: Record<string, string> = {
   'Tiago': fotoTiago,
   'Vinicius': fotoVinicius,
   'Vinícius': fotoVinicius, // variação com acento
+  // Andrey - foto será adicionada posteriormente, por enquanto usa emoji fallback
+  'Andrey': '',
+  'ANDREY': '',
 };
 
 // Função helper para obter foto

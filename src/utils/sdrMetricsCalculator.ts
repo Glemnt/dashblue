@@ -76,6 +76,7 @@ export const calcularMetricasSDR = (data: any[], dateRange?: DateRange): SDRData
 
   // Determinar equipe baseada no período
   const isOutubro = dateRange && dateRange.start.getMonth() === 9 && dateRange.start.getFullYear() === 2025;
+  const isDezembro = dateRange && dateRange.start.getMonth() === 11 && dateRange.start.getFullYear() === 2025;
 
   let sdrsNomes: string[];
   let squadMap: Record<string, { squad: string; color: string; emoji: string; displayName: string }>;
@@ -89,8 +90,16 @@ export const calcularMetricasSDR = (data: any[], dateRange?: DateRange): SDRData
       'TIAGO': { squad: 'Sem Squad', color: '#64748B', emoji: '⚪', displayName: 'Tiago' },
       'JOÃO LOPES': { squad: 'RevOps', color: '#94A3B8', emoji: '⚙️', displayName: 'João Lopes' }
     };
+  } else if (isDezembro) {
+    // DEZEMBRO: Davi no Hot Dogs, Vinícius no Corvo Azul, Andrey sem squad
+    sdrsNomes = ['VINICIUS MEIRELES', 'DAVI', 'ANDREY'];
+    squadMap = {
+      'VINICIUS MEIRELES': { squad: 'Corvo Azul', color: '#0066FF', emoji: '🔵', displayName: 'Vinícius' },
+      'DAVI': { squad: 'Hot Dogs', color: '#FF4757', emoji: '🔴', displayName: 'Davi' },
+      'ANDREY': { squad: 'Sem Squad', color: '#64748B', emoji: '⚪', displayName: 'Andrey' }
+    };
   } else {
-    // NOVEMBRO: Davi como SDR, sem Marcos e sem João Lopes
+    // NOVEMBRO: Tiago no Hot Dogs, Vinícius no Corvo Azul, Davi sem squad
     sdrsNomes = ['VINICIUS MEIRELES', 'TIAGO', 'DAVI'];
     squadMap = {
       'VINICIUS MEIRELES': { squad: 'Corvo Azul', color: '#0066FF', emoji: '🔵', displayName: 'Vinícius' },
@@ -258,7 +267,9 @@ export const mesclarMetricasSDRComDashboard = (
     'JOÃO': 'JOÃO LOPES',
     'JOÃO LOPES': 'JOÃO LOPES',
     'JOAO': 'JOÃO LOPES',
-    'JOAO LOPES': 'JOÃO LOPES'
+    'JOAO LOPES': 'JOÃO LOPES',
+    'DAVI': 'DAVI',
+    'ANDREY': 'ANDREY'
   };
 
   const normalizarNome = (nome: string): string => {

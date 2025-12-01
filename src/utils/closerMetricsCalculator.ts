@@ -116,6 +116,7 @@ export const calcularMetricasCloser = (data: any[], dateRange?: DateRange): Clos
 
   // Determinar equipe baseada no período
   const isOutubro = dateRange && dateRange.start.getMonth() === 9 && dateRange.start.getFullYear() === 2025;
+  const isDezembro = dateRange && dateRange.start.getMonth() === 11 && dateRange.start.getFullYear() === 2025;
 
   let closersNomes: Array<{ original: string; display: string; squad: string; color: string; emoji: string }>;
 
@@ -126,6 +127,15 @@ export const calcularMetricasCloser = (data: any[], dateRange?: DateRange): Clos
       { original: 'CAUÃ', display: 'Cauã', squad: 'Hot Dogs', color: '#FF4757', emoji: '🔴' },
       { original: 'GABRIEL FERNANDES', display: 'Gabriel Fernandes', squad: 'Corvo Azul', color: '#0066FF', emoji: '🔵' },
       { original: 'GABRIEL FRANKLIN', display: 'Gabriel Franklin', squad: 'Corvo Azul', color: '#0066FF', emoji: '🔵' }
+    ];
+  } else if (isDezembro) {
+    // DEZEMBRO: Franklin e Bruno no Hot Dogs, Marcos e Cauã no Corvo Azul, Fernandes sem squad
+    closersNomes = [
+      { original: 'BRUNO', display: 'Bruno', squad: 'Hot Dogs', color: '#FF4757', emoji: '🔴' },
+      { original: 'GABRIEL FRANKLIN', display: 'Gabriel Franklin', squad: 'Hot Dogs', color: '#FF4757', emoji: '🔴' },
+      { original: 'MARCOS', display: 'Marcos', squad: 'Corvo Azul', color: '#0066FF', emoji: '🔵' },
+      { original: 'CAUÃ', display: 'Cauã', squad: 'Corvo Azul', color: '#0066FF', emoji: '🔵' },
+      { original: 'GABRIEL FERNANDES', display: 'Gabriel Fernandes', squad: 'Sem Squad', color: '#64748B', emoji: '⚪' }
     ];
   } else {
     // NOVEMBRO: Marcos e Cauã no Corvo Azul, Franklin e Bruno no Hot Dogs
