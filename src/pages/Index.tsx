@@ -552,11 +552,11 @@ const Index = () => {
             <div className="h-2 bg-[#F8FAFC] rounded-full mb-4">
               <div 
                 className="h-full bg-[#0066FF] rounded-full"
-                style={{ width: `${metricas.funil.leads > 0 ? Math.min((metricas.funil.mqls / metricas.funil.leads) * 100, 100) : 0}%` }}
+                style={{ width: `${metricas.funil.leads > 0 ? Math.min((metricas.funil.callsAgendadas / metricas.funil.leads) * 100, 100) : 0}%` }}
               ></div>
             </div>
             <p className="text-gray-medium font-outfit text-base">
-              {metricas.funil.mqls} MQLs ({metricas.funil.leads > 0 ? ((metricas.funil.mqls / metricas.funil.leads) * 100).toFixed(1) : '0'}%)
+              {metricas.funil.callsAgendadas} MQLs ({metricas.funil.leads > 0 ? ((metricas.funil.callsAgendadas / metricas.funil.leads) * 100).toFixed(1) : '0'}%)
             </p>
           </div>
 
@@ -619,40 +619,18 @@ const Index = () => {
             <div className={`flex justify-center ${isTVMode ? 'mt-1' : 'mt-3'}`}>
               <div className="text-center">
                 <p className="text-gray-muted font-outfit text-sm">
-                  {metricas.funil.leads > 0 ? ((metricas.funil.mqls / metricas.funil.leads) * 100).toFixed(1) : '0'}% qualificação ↓
+                  {metricas.funil.leads > 0 ? ((metricas.funil.callsAgendadas / metricas.funil.leads) * 100).toFixed(1) : '0'}% qualificação ↓
                 </p>
               </div>
             </div>
           </div>
 
-          {/* MQLs (90%) */}
+          {/* Calls Agendadas - MQL (90%) */}
           <div className="relative mx-auto" style={{ width: '90%' }}>
             <div className={`bg-blue-vibrant/90 rounded-2xl ${isTVMode ? 'p-5' : 'p-8'}`}>
               <div className="flex justify-between items-center">
                 <div>
-                  <p className="text-white/70 font-outfit text-sm font-semibold uppercase tracking-widest mb-2">MQLs</p>
-                  <p className={`text-white font-outfit font-black break-all leading-tight ${isTVMode ? 'text-3xl sm:text-4xl md:text-5xl' : 'text-4xl sm:text-5xl md:text-6xl lg:text-7xl'}`}>{formatarValor(metricas.funil.mqls)}</p>
-                </div>
-                <p className="text-white/60 font-outfit text-lg">
-                  {metricas.funil.leads > 0 ? ((metricas.funil.mqls / metricas.funil.leads) * 100).toFixed(1) : '0'}% do total
-                </p>
-              </div>
-            </div>
-            <div className={`flex justify-center ${isTVMode ? 'mt-1' : 'mt-3'}`}>
-              <div className="text-center">
-                <p className="text-gray-muted font-outfit text-sm">
-                  {metricas.funil.mqls > 0 ? ((metricas.funil.callsAgendadas / metricas.funil.mqls) * 100).toFixed(1) : '0'}% agendamento ↓
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Calls Agendadas (80%) */}
-          <div className="relative mx-auto" style={{ width: '80%' }}>
-            <div className={`bg-blue-vibrant/70 rounded-2xl ${isTVMode ? 'p-5' : 'p-8'}`}>
-              <div className="flex justify-between items-center">
-                <div>
-                  <p className="text-white/70 font-outfit text-sm font-semibold uppercase tracking-widest mb-2">Calls Agendadas</p>
+                  <p className="text-white/70 font-outfit text-sm font-semibold uppercase tracking-widest mb-2">Calls Agendadas (MQL)</p>
                   <p className={`text-white font-outfit font-black break-all leading-tight ${isTVMode ? 'text-3xl sm:text-4xl md:text-5xl' : 'text-4xl sm:text-5xl md:text-6xl lg:text-7xl'}`}>{formatarValor(metricas.funil.callsAgendadas)}</p>
                 </div>
                 <p className="text-white/60 font-outfit text-lg">
@@ -669,15 +647,15 @@ const Index = () => {
             </div>
           </div>
 
-          {/* Calls Realizadas (70%) */}
-          <div className="relative mx-auto" style={{ width: '70%' }}>
-            <div className={`bg-cyan-modern/80 rounded-2xl ${isTVMode ? 'p-5' : 'p-8'}`}>
+          {/* Calls Realizadas (80%) */}
+          <div className="relative mx-auto" style={{ width: '80%' }}>
+            <div className={`bg-blue-vibrant/70 rounded-2xl ${isTVMode ? 'p-5' : 'p-8'}`}>
               <div className="flex justify-between items-center">
                 <div>
-                  <p className="text-navy-ultra-dark/70 font-outfit text-sm font-semibold uppercase tracking-widest mb-2">Calls Realizadas</p>
-                  <p className={`text-navy-ultra-dark font-outfit font-black break-all leading-tight ${isTVMode ? 'text-3xl sm:text-4xl md:text-5xl' : 'text-4xl sm:text-5xl md:text-6xl lg:text-7xl'}`}>{formatarValor(metricas.funil.callsRealizadas)}</p>
+                  <p className="text-white/70 font-outfit text-sm font-semibold uppercase tracking-widest mb-2">Calls Realizadas</p>
+                  <p className={`text-white font-outfit font-black break-all leading-tight ${isTVMode ? 'text-3xl sm:text-4xl md:text-5xl' : 'text-4xl sm:text-5xl md:text-6xl lg:text-7xl'}`}>{formatarValor(metricas.funil.callsRealizadas)}</p>
                 </div>
-                <p className="text-navy-ultra-dark/60 font-outfit text-lg">
+                <p className="text-white/60 font-outfit text-lg">
                   {metricas.funil.leads > 0 ? ((metricas.funil.callsRealizadas / metricas.funil.leads) * 100).toFixed(1) : '0'}% do total
                 </p>
               </div>
@@ -691,9 +669,9 @@ const Index = () => {
             </div>
           </div>
 
-          {/* Calls Qualificadas (65%) */}
-          <div className="relative mx-auto" style={{ width: '65%' }}>
-            <div className={`bg-cyan-modern/90 rounded-2xl ${isTVMode ? 'p-5' : 'p-8'}`}>
+          {/* Calls Qualificadas (70%) */}
+          <div className="relative mx-auto" style={{ width: '70%' }}>
+            <div className={`bg-cyan-modern/80 rounded-2xl ${isTVMode ? 'p-5' : 'p-8'}`}>
               <div className="flex justify-between items-center">
                 <div>
                   <p className="text-navy-ultra-dark/70 font-outfit text-sm font-semibold uppercase tracking-widest mb-2">
