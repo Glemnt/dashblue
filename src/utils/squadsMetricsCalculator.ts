@@ -171,6 +171,8 @@ const normalizarNome = (nome: string): string => {
   if (nomeUpper.includes('FERNANDES')) return 'Gabriel Fernandes';
   if (nomeUpper.includes('FRANKLIN')) return 'Gabriel Franklin';
   if (nomeUpper.includes('TIAGO')) return 'Tiago';
+  if (nomeUpper.includes('DAVI')) return 'Davi';
+  if (nomeUpper.includes('ANDREY')) return 'Andrey';
   
   return nome;
 };
@@ -195,31 +197,56 @@ const compararMetrica = (valor1: number, valor2: number, tipo: 'maior' | 'menor'
 export const calcularMetricasSquads = (data: any[], dateRange?: DateRange, monthKey?: string): SquadsComparison => {
   // Determinar período
   const isOutubro = dateRange && dateRange.start.getMonth() === 9 && dateRange.start.getFullYear() === 2025;
+  const isDezembro = dateRange && dateRange.start.getMonth() === 11 && dateRange.start.getFullYear() === 2025;
   
   // Configuração dinâmica dos squads por período
-  const SQUADS_CONFIG = isOutubro ? {
-    hotDogs: {
-      sdr: ['MARCOS'],
-      closers: ['BRUNO', 'CAUÃ', 'CAUA'],
-      membrosNomes: ['Marcos', 'Bruno', 'Cauã']
-    },
-    corvoAzul: {
-      sdr: ['VINICIUS MEIRELES', 'VINÍCIUS', 'VINICIUS'],
-      closers: ['GABRIEL FERNANDES', 'FERNANDES', 'GABRIEL FRANKLIN', 'FRANKLIN'],
-      membrosNomes: ['Vinícius', 'Gabriel Fernandes', 'Gabriel Franklin']
-    }
-  } : {
-    hotDogs: {
-      sdr: ['TIAGO'],
-      closers: ['BRUNO', 'GABRIEL FRANKLIN', 'FRANKLIN'],
-      membrosNomes: ['Tiago', 'Bruno', 'Gabriel Franklin']
-    },
-    corvoAzul: {
-      sdr: ['VINICIUS MEIRELES', 'VINÍCIUS', 'VINICIUS'],
-      closers: ['MARCOS', 'CAUÃ', 'CAUA'],
-      membrosNomes: ['Vinícius', 'Marcos', 'Cauã']
-    }
-  };
+  let SQUADS_CONFIG;
+  
+  if (isOutubro) {
+    // OUTUBRO: Marcos como SDR no Hot Dogs
+    SQUADS_CONFIG = {
+      hotDogs: {
+        sdr: ['MARCOS'],
+        closers: ['BRUNO', 'CAUÃ', 'CAUA'],
+        membrosNomes: ['Marcos', 'Bruno', 'Cauã']
+      },
+      corvoAzul: {
+        sdr: ['VINICIUS MEIRELES', 'VINÍCIUS', 'VINICIUS'],
+        closers: ['GABRIEL FERNANDES', 'FERNANDES', 'GABRIEL FRANKLIN', 'FRANKLIN'],
+        membrosNomes: ['Vinícius', 'Gabriel Fernandes', 'Gabriel Franklin']
+      }
+    };
+  } else if (isDezembro) {
+    // DEZEMBRO: Davi (SDR Hot Dogs), Vinícius (SDR Corvo Azul)
+    // Closers: Franklin e Bruno (Hot Dogs), Marcos e Cauã (Corvo Azul)
+    // Sem squad: Andrey (SDR), Gabriel Fernandes (Closer)
+    SQUADS_CONFIG = {
+      hotDogs: {
+        sdr: ['DAVI'],
+        closers: ['BRUNO', 'GABRIEL FRANKLIN', 'FRANKLIN'],
+        membrosNomes: ['Davi', 'Bruno', 'Gabriel Franklin']
+      },
+      corvoAzul: {
+        sdr: ['VINICIUS MEIRELES', 'VINÍCIUS', 'VINICIUS'],
+        closers: ['MARCOS', 'CAUÃ', 'CAUA'],
+        membrosNomes: ['Vinícius', 'Marcos', 'Cauã']
+      }
+    };
+  } else {
+    // NOVEMBRO: Tiago (SDR Hot Dogs), Vinícius (SDR Corvo Azul)
+    SQUADS_CONFIG = {
+      hotDogs: {
+        sdr: ['TIAGO'],
+        closers: ['BRUNO', 'GABRIEL FRANKLIN', 'FRANKLIN'],
+        membrosNomes: ['Tiago', 'Bruno', 'Gabriel Franklin']
+      },
+      corvoAzul: {
+        sdr: ['VINICIUS MEIRELES', 'VINÍCIUS', 'VINICIUS'],
+        closers: ['MARCOS', 'CAUÃ', 'CAUA'],
+        membrosNomes: ['Vinícius', 'Marcos', 'Cauã']
+      }
+    };
+  }
   
   // Função identificarSquad dinâmica
   const identificarSquad = (nome: string): 'Hot Dogs' | 'Corvo Azul' | null => {

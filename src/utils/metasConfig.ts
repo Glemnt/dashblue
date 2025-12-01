@@ -28,21 +28,20 @@ export const METAS_POR_MES: Record<string, MetasMensais> = {
       metaPorSquad: 180000, // 360k / 2 squads
       totalSquads: 2
     }
+  },
+  'dezembro-2025': {
+    metaMensal: 325000,
+    metaIndividualCloser: 65000,
+    modelo: 'MRR',
+    squads: {
+      metaPorSquad: 162500, // 325k / 2 squads
+      totalSquads: 2
+    }
   }
-  // Fácil adicionar dezembro:
-  // 'dezembro-2025': {
-  //   metaMensal: 360000,
-  //   metaIndividualCloser: 80000,
-  //   modelo: 'MRR',
-  //   squads: {
-  //     metaPorSquad: 180000,
-  //     totalSquads: 2
-  //   }
-  // }
 };
 
 export const getMetasPorMes = (monthKey: string): MetasMensais => {
-  return METAS_POR_MES[monthKey] || METAS_POR_MES['novembro-2025']; // Default novembro
+  return METAS_POR_MES[monthKey] || METAS_POR_MES['dezembro-2025']; // Default dezembro
 };
 
 export const calcularMetaSemanal = (metaMensal: number): number => {

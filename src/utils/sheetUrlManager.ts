@@ -24,21 +24,21 @@ export const AVAILABLE_MONTHS: AvailableMonth[] = [
     gid: '930588352',
     month: 10,
     year: 2025
+  },
+  {
+    key: 'dezembro-2025',
+    label: 'Dezembro 2025',
+    gid: '581766650',
+    month: 11,
+    year: 2025
   }
-  // Para adicionar dezembro:
-  // {
-  //   key: 'dezembro-2024',
-  //   label: 'Dezembro 2024',
-  //   gid: 'SEU_GID_AQUI',
-  //   month: 11,
-  //   year: 2024
-  // }
 ];
 
 // Mapeamento legado (mantido para compatibilidade)
 const SHEET_GIDS: Record<string, string> = {
   'outubro-2025': '1439614322',
-  'novembro-2025': '930588352'
+  'novembro-2025': '930588352',
+  'dezembro-2025': '581766650'
 };
 
 const BASE_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTiBWb4KkxNxK-WwtnetmSBqedeaGkJ1zyjJf1xd07v_v9LevCbDMX2rSttHCbcWz2dU3ce3JO7lDWv/pub";
@@ -53,13 +53,15 @@ export const getSheetUrlForPeriod = (dateRange: DateRange): string => {
     periodKey = 'outubro-2025';
   } else if (startMonth === 10 && startYear === 2025) { // novembro
     periodKey = 'novembro-2025';
+  } else if (startMonth === 11 && startYear === 2025) { // dezembro
+    periodKey = 'dezembro-2025';
   } else {
     // Padrão: mês atual
     const now = new Date();
-    if (now.getMonth() === 10 && now.getFullYear() === 2025) {
-      periodKey = 'novembro-2025';
+    if (now.getMonth() === 11 && now.getFullYear() === 2025) {
+      periodKey = 'dezembro-2025';
     } else {
-      periodKey = 'novembro-2025'; // Fallback
+      periodKey = 'dezembro-2025'; // Fallback para dezembro
     }
   }
   
