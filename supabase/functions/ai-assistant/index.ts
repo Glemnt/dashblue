@@ -551,7 +551,26 @@ serve(async (req) => {
     let result;
     if (['analysis', 'simulation', 'report'].includes(type)) {
       try {
-        const cleanContent = content.replace(/```json\n?/g, '').replace(/```\n?/g, '');
+        // Remove markdown code blocks and clean up content
+        let cleanContent = content
+          .replace(/^```json\s*/i, '')
+          .replace(/^```\s*/i, '')
+          .replace(/```\s*$/i, '')
+          .trim();
+        
+        // Fix common JSON issues from AI responses:
+        // 1. Replace mathematical expressions like "7/14 * 100" with evaluated numbers
+        cleanContent = cleanContent.replace(
+          /:\s*(\d+)\s*\/\s*(\d+)\s*\*\s*(\d+)/g,
+          (_match: string, a: string, b: string, c: string) => `: ${(parseFloat(a) / parseFloat(b)) * parseFloat(c)}`
+        );
+        
+        // 2. Replace simple division like "7/14"
+        cleanContent = cleanContent.replace(
+          /:\s*(\d+)\s*\/\s*(\d+)([,\s\n\}])/g,
+          (_match: string, a: string, b: string, suffix: string) => `: ${parseFloat(a) / parseFloat(b)}${suffix}`
+        );
+        
         result = JSON.parse(cleanContent);
       } catch (e) {
         console.error('JSON parse error:', e);
