@@ -55,6 +55,11 @@ const SDRComparisonMobileCards = ({ sdrs, destaque }: SDRComparisonMobileCardsPr
               <div className="bg-white/5 rounded-lg p-3">
                 <p className="text-[#94A3B8] text-xs font-semibold uppercase mb-1">Calls</p>
                 <p className="text-white font-outfit text-xl font-bold">{sdr.totalCalls}</p>
+                <p className="text-[#94A3B8] text-xs mt-1">
+                  <span className="text-[#0066FF]">R1: {sdr.callsR1}</span>
+                  {' • '}
+                  <span className="text-[#00E5CC]">R2: {sdr.callsR2}</span>
+                </p>
               </div>
               
               <div className="bg-white/5 rounded-lg p-3">

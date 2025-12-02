@@ -17,6 +17,8 @@ export interface SDRMetrics {
   squadColor: string;
   emoji: string;
   totalCalls: number;
+  callsR1: number;
+  callsR2: number;
   callsQualificadas: number;
   taxaQualificacao: number;
   callsAgendadas: number;
@@ -158,6 +160,17 @@ export const calcularMetricasSDR = (data: any[], dateRange?: DateRange): SDRData
 
     const totalCalls = callsDoSDR.length;
 
+    // Contar calls por tipo (R1 ou R2)
+    const callsR1 = callsDoSDR.filter(row => {
+      const tipoCall = String(row['TIPO DA CALL'] || row['Tipo da Call'] || row['TIPO DA CALL'] || '').trim().toUpperCase();
+      return tipoCall === 'R1';
+    }).length;
+
+    const callsR2 = callsDoSDR.filter(row => {
+      const tipoCall = String(row['TIPO DA CALL'] || row['Tipo da Call'] || row['TIPO DA CALL'] || '').trim().toUpperCase();
+      return tipoCall === 'R2';
+    }).length;
+
     // Contar calls qualificadas (QUALIFICADA (SQL) = "SIM")
     const callsQualificadas = callsDoSDR.filter(row => {
       const qualificada = String(row['QUALIFICADA (SQL)'] || '').trim().toUpperCase();
@@ -234,7 +247,7 @@ export const calcularMetricasSDR = (data: any[], dateRange?: DateRange): SDRData
 
     // Log de debug
     console.log(`📊 SDR: ${nome}`);
-    console.log('  - Total Calls:', totalCalls);
+    console.log('  - Total Calls:', totalCalls, `(R1: ${callsR1}, R2: ${callsR2})`);
     console.log('  - Calls Realizadas:', callsRealizadas);
     console.log('  - No-Shows:', noShows);
     console.log('  - Vendas Originadas:', vendasOriginadas);
@@ -247,6 +260,8 @@ export const calcularMetricasSDR = (data: any[], dateRange?: DateRange): SDRData
       squadColor: squadMap[nome]?.color || '#64748B',
       emoji: squadMap[nome]?.emoji || '⚪',
       totalCalls,
+      callsR1,
+      callsR2,
       callsQualificadas,
       taxaQualificacao,
       callsAgendadas,

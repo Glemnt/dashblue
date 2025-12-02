@@ -80,6 +80,12 @@ const SDRComparisonTable = ({ sdrs, destaque }: SDRComparisonTableProps) => {
                 </div>
               </th>
               <th className="text-center p-4 md:p-6 text-[#64748B] font-outfit text-xs font-semibold uppercase tracking-widest">
+                R1
+              </th>
+              <th className="text-center p-4 md:p-6 text-[#64748B] font-outfit text-xs font-semibold uppercase tracking-widest">
+                R2
+              </th>
+              <th className="text-center p-4 md:p-6 text-[#64748B] font-outfit text-xs font-semibold uppercase tracking-widest">
                 Qualificadas
               </th>
               <th 
@@ -149,6 +155,12 @@ const SDRComparisonTable = ({ sdrs, destaque }: SDRComparisonTableProps) => {
                   </td>
                   <td className="p-4 md:p-6 text-center text-white font-outfit text-xl font-bold">
                     {sdr.totalCalls}
+                  </td>
+                  <td className="p-4 md:p-6 text-center text-[#0066FF] font-outfit text-xl font-bold">
+                    {sdr.callsR1}
+                  </td>
+                  <td className="p-4 md:p-6 text-center text-[#00E5CC] font-outfit text-xl font-bold">
+                    {sdr.callsR2}
                   </td>
                   <td className="p-4 md:p-6 text-center text-white font-outfit text-xl font-bold">
                     {sdr.callsQualificadas}
