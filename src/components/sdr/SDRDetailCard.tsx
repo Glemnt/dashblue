@@ -93,6 +93,35 @@ const SDRDetailCard = ({ sdr, data, metaIndividualCalls }: SDRDetailCardProps) =
                 <p className="text-[#0B1120] font-outfit text-4xl font-black">
                   {sdr.totalCalls}
                 </p>
+                <p className="text-[#64748B] text-sm mt-1">
+                  <span className="text-[#0066FF] font-semibold">R1: {sdr.callsR1}</span>
+                  {' • '}
+                  <span className="text-[#00E5CC] font-semibold">R2: {sdr.callsR2}</span>
+                </p>
+              </div>
+
+              <div className="bg-[#0066FF]/5 rounded-xl p-4 md:p-6 border border-[#0066FF]/20">
+                <div className="flex items-center gap-3 mb-3">
+                  <span className="text-2xl">1️⃣</span>
+                  <p className="text-[#64748B] text-xs font-semibold uppercase tracking-wider">
+                    Calls R1
+                  </p>
+                </div>
+                <p className="text-[#0066FF] font-outfit text-4xl font-black">
+                  {sdr.callsR1}
+                </p>
+              </div>
+
+              <div className="bg-[#00E5CC]/5 rounded-xl p-4 md:p-6 border border-[#00E5CC]/20">
+                <div className="flex items-center gap-3 mb-3">
+                  <span className="text-2xl">2️⃣</span>
+                  <p className="text-[#64748B] text-xs font-semibold uppercase tracking-wider">
+                    Calls R2
+                  </p>
+                </div>
+                <p className="text-[#00E5CC] font-outfit text-4xl font-black">
+                  {sdr.callsR2}
+                </p>
               </div>
 
               <div className="bg-[#00E5CC]/5 rounded-xl p-4 md:p-6 border border-[#00E5CC]/20">
