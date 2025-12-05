@@ -64,6 +64,26 @@ const setCachedData = (monthKey: string, campanhas: CampanhaData[]) => {
   }
 };
 
+const clearCache = (monthKey?: string) => {
+  try {
+    if (monthKey) {
+      localStorage.removeItem(getCacheKey(monthKey));
+      console.log(`Cache cleared for ${monthKey}`);
+    } else {
+      // Clear all meta campaigns cache
+      const keys = Object.keys(localStorage);
+      keys.forEach(key => {
+        if (key.startsWith('meta_campaigns_')) {
+          localStorage.removeItem(key);
+        }
+      });
+      console.log('All Meta campaigns cache cleared');
+    }
+  } catch {
+    // Ignore cache errors
+  }
+};
+
 export const useMetaCampaigns = (
   dateRange: DateRange,
   selectedMonthKey?: string
@@ -142,8 +162,10 @@ export const useMetaCampaigns = (
   }, [dateRange.start, dateRange.end, monthKey]);
 
   const refetch = useCallback(async () => {
+    // Clear cache before refetching
+    clearCache(monthKey);
     await fetchCampaigns(false); // Force refresh, no cache
-  }, [fetchCampaigns]);
+  }, [fetchCampaigns, monthKey]);
 
   // Fetch when dateRange or monthKey changes
   useEffect(() => {
