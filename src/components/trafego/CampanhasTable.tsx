@@ -12,7 +12,9 @@ import {
   formatarPercentual,
   getStatusColor,
   getStatusLabel,
-  CORES_CANAIS
+  CORES_CANAIS,
+  CORES_OBJETIVOS,
+  ObjetivoType
 } from "@/utils/trafegoMetricsCalculator";
 
 interface CampanhasTableProps {
@@ -29,10 +31,16 @@ const CampanhasTable = ({ campanhas, isTVMode = false }: CampanhasTableProps) =>
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
   const [canalFilter, setCanalFilter] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [objetivoFilter, setObjetivoFilter] = useState<string>('all');
 
   const canais = useMemo(() => {
     const uniqueCanais = [...new Set(campanhas.map(c => c.canal))];
     return uniqueCanais;
+  }, [campanhas]);
+
+  const objetivos = useMemo(() => {
+    const uniqueObjetivos = [...new Set(campanhas.map(c => c.objetivo).filter(Boolean))];
+    return uniqueObjetivos as ObjetivoType[];
   }, [campanhas]);
 
   const filteredAndSortedCampanhas = useMemo(() => {
@@ -55,6 +63,11 @@ const CampanhasTable = ({ campanhas, isTVMode = false }: CampanhasTableProps) =>
       result = result.filter(c => c.status === statusFilter);
     }
 
+    // Filter by objetivo
+    if (objetivoFilter !== 'all') {
+      result = result.filter(c => c.objetivo === objetivoFilter);
+    }
+
     // Sort
     result.sort((a, b) => {
       const aValue = a[sortKey];
@@ -70,7 +83,7 @@ const CampanhasTable = ({ campanhas, isTVMode = false }: CampanhasTableProps) =>
     });
 
     return result;
-  }, [campanhas, searchTerm, sortKey, sortDirection, canalFilter, statusFilter]);
+  }, [campanhas, searchTerm, sortKey, sortDirection, canalFilter, statusFilter, objetivoFilter]);
 
   const handleSort = (key: SortKey) => {
     if (sortKey === key) {
@@ -95,10 +108,11 @@ const CampanhasTable = ({ campanhas, isTVMode = false }: CampanhasTableProps) =>
   const cacTotalCalculado = totais.fechamentos > 0 ? totais.investimento / totais.fechamentos : 0;
 
   const exportToCSV = () => {
-    const headers = ['Campanha', 'Canal', 'Investimento', 'Leads', 'Qualificados', 'Fechamentos', 'ROAS', 'ROI', 'CAC', 'Status'];
+    const headers = ['Campanha', 'Canal', 'Objetivo', 'Investimento', 'Leads', 'Qualificados', 'Fechamentos', 'ROAS', 'ROI', 'CAC', 'Status'];
     const rows = filteredAndSortedCampanhas.map(c => [
       c.nome,
       c.canal,
+      c.objetivo || 'Outros',
       c.investimento,
       c.leadsGerados,
       c.leadsQualificados,
@@ -171,6 +185,18 @@ const CampanhasTable = ({ campanhas, isTVMode = false }: CampanhasTableProps) =>
           </SelectContent>
         </Select>
 
+        <Select value={objetivoFilter} onValueChange={setObjetivoFilter}>
+          <SelectTrigger className={`w-[150px] bg-[#0B1120] border-white/10 text-white ${isTVMode ? 'h-14 text-lg' : ''}`}>
+            <SelectValue placeholder="Objetivo" />
+          </SelectTrigger>
+          <SelectContent className="bg-[#151E35] border-white/10">
+            <SelectItem value="all" className="text-white">Todos Objetivos</SelectItem>
+            {objetivos.map(objetivo => (
+              <SelectItem key={objetivo} value={objetivo} className="text-white">{objetivo}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
         <Button onClick={exportToCSV} variant="outline" className={`bg-[#0B1120] border-white/10 text-white hover:bg-white/10 ${isTVMode ? 'h-14 text-lg px-6' : ''}`}>
           <Download className="w-5 h-5 mr-2" />
           Exportar CSV
@@ -196,6 +222,14 @@ const CampanhasTable = ({ campanhas, isTVMode = false }: CampanhasTableProps) =>
               >
                 <div className="flex items-center gap-2">
                   Canal <SortIcon columnKey="canal" />
+                </div>
+              </th>
+              <th 
+                className={`text-left text-[#94A3B8] font-semibold uppercase tracking-wider cursor-pointer hover:text-white ${isTVMode ? 'py-4 px-4 text-base' : 'py-3 px-3 text-xs'}`}
+                onClick={() => handleSort('objetivo')}
+              >
+                <div className="flex items-center gap-2">
+                  Objetivo <SortIcon columnKey="objetivo" />
                 </div>
               </th>
               <th 
@@ -273,6 +307,14 @@ const CampanhasTable = ({ campanhas, isTVMode = false }: CampanhasTableProps) =>
                     {campanha.canal}
                   </Badge>
                 </td>
+                <td className={`${isTVMode ? 'py-4 px-4' : 'py-3 px-3'}`}>
+                  <Badge 
+                    style={{ backgroundColor: CORES_OBJETIVOS[campanha.objetivo] || '#6B7280' }}
+                    className={`text-white border-none ${isTVMode ? 'text-base' : 'text-xs'}`}
+                  >
+                    {campanha.objetivo || 'Outros'}
+                  </Badge>
+                </td>
                 <td className={`text-right text-white ${isTVMode ? 'py-4 px-4 text-lg' : 'py-3 px-3 text-sm'}`}>
                   {formatarMoedaCompacta(campanha.investimento)}
                 </td>
@@ -311,6 +353,7 @@ const CampanhasTable = ({ campanhas, isTVMode = false }: CampanhasTableProps) =>
                   {filteredAndSortedCampanhas.length} campanhas
                 </Badge>
               </td>
+              <td></td>
               <td className={`text-right text-white font-black ${isTVMode ? 'py-4 px-4 text-lg' : 'py-3 px-3 text-sm'}`}>
                 {formatarMoedaCompacta(totais.investimento)}
               </td>
