@@ -14,6 +14,10 @@ import TrafegoFunnel from "@/components/trafego/TrafegoFunnel";
 import CampanhasTable from "@/components/trafego/CampanhasTable";
 import TrafegoCanais from "@/components/trafego/TrafegoCanais";
 import TrafegoCharts from "@/components/trafego/TrafegoCharts";
+import TrafegoPodium from "@/components/trafego/TrafegoPodium";
+import TrafegoProjecoes from "@/components/trafego/TrafegoProjecoes";
+import TrafegoComercial from "@/components/trafego/TrafegoComercial";
+import TrafegoComparativo from "@/components/trafego/TrafegoComparativo";
 import { 
   campanhasMock, 
   calcularTotaisTrafego, 
@@ -242,6 +246,34 @@ const TrafegoPago = () => {
             canais={canais}
             isTVMode={isTVMode}
           />
+        </div>
+      </section>
+
+      {/* SEÇÃO 8: PÓDIO TOP 3 CAMPANHAS */}
+      <section className={`bg-[#0B1120] ${isTVMode ? 'py-8 px-12' : 'py-10 md:py-16 px-4 sm:px-6 md:px-12'}`}>
+        <div className="max-w-[1600px] mx-auto">
+          <TrafegoPodium campanhas={campanhasMock} isTVMode={isTVMode} />
+        </div>
+      </section>
+
+      {/* SEÇÃO 9: PROJEÇÕES E ALERTAS */}
+      <section className={`bg-[#0B1120] ${isTVMode ? 'py-8 px-12' : 'py-10 md:py-16 px-4 sm:px-6 md:px-12'}`}>
+        <div className="max-w-[1600px] mx-auto">
+          <TrafegoProjecoes totais={totais} isTVMode={isTVMode} />
+        </div>
+      </section>
+
+      {/* SEÇÃO 10: CONEXÃO TRÁFEGO → COMERCIAL */}
+      <section className={`bg-[#F8FAFC] ${isTVMode ? 'py-8 px-12' : 'py-10 md:py-16 px-4 sm:px-6 md:px-12'}`}>
+        <div className="max-w-[1600px] mx-auto">
+          <TrafegoComercial isTVMode={isTVMode} />
+        </div>
+      </section>
+
+      {/* SEÇÃO 11: COMPARAÇÃO TEMPORAL */}
+      <section className={`bg-[#0B1120] ${isTVMode ? 'py-8 px-12' : 'py-10 md:py-16 px-4 sm:px-6 md:px-12'}`}>
+        <div className="max-w-[1600px] mx-auto">
+          <TrafegoComparativo isTVMode={isTVMode} />
         </div>
       </section>
 
