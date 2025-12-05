@@ -1,1 +1,7 @@
 project_id = "yneqxhhpjajqrupvactq"
+
+[functions.ai-assistant]
+verify_jwt = false
+
+[functions.fetch-meta-campaigns]
+verify_jwt = false

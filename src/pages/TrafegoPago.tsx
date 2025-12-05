@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { RefreshCw } from "lucide-react";
+import { RefreshCw, Wifi, WifiOff } from "lucide-react";
 import logoWhite from "@/assets/logo-white.png";
 import MobileMenu from '@/components/MobileMenu';
 import { Button } from "@/components/ui/button";
@@ -7,6 +7,7 @@ import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import TVModeToggle from "@/components/TVModeToggle";
 import { useTVMode } from "@/hooks/useTVMode";
+import { useMetaCampaigns } from "@/hooks/useMetaCampaigns";
 import TrafegoMetaBars from "@/components/trafego/TrafegoMetaBars";
 import TrafegoKPICards from "@/components/trafego/TrafegoKPICards";
 import TrafegoROICard from "@/components/trafego/TrafegoROICard";
@@ -18,21 +19,24 @@ import TrafegoPodium from "@/components/trafego/TrafegoPodium";
 import TrafegoProjecoes from "@/components/trafego/TrafegoProjecoes";
 import TrafegoComercial from "@/components/trafego/TrafegoComercial";
 import TrafegoComparativo from "@/components/trafego/TrafegoComparativo";
-import { 
-  campanhasMock, 
-  calcularTotaisTrafego, 
-  calcularMetricasPorCanal 
-} from "@/utils/trafegoMetricsCalculator";
 
 const TrafegoPago = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
-  const [lastUpdate, setLastUpdate] = useState<Date | null>(new Date());
-  const [isRefetching, setIsRefetching] = useState(false);
   const { isTVMode, setIsTVMode } = useTVMode();
 
-  // Calculate metrics from mock data
-  const totais = calcularTotaisTrafego(campanhasMock);
-  const canais = calcularMetricasPorCanal(campanhasMock);
+  // Use Meta campaigns data
+  const { 
+    campanhas, 
+    totais, 
+    canais, 
+    loading, 
+    error, 
+    refetch, 
+    lastUpdate, 
+    isFromMeta 
+  } = useMetaCampaigns();
+
+  const [isRefetching, setIsRefetching] = useState(false);
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
@@ -88,12 +92,10 @@ const TrafegoPago = () => {
     });
   };
 
-  const handleRefetch = () => {
+  const handleRefetch = async () => {
     setIsRefetching(true);
-    setTimeout(() => {
-      setLastUpdate(new Date());
-      setIsRefetching(false);
-    }, 1000);
+    await refetch();
+    setIsRefetching(false);
   };
 
   return (
@@ -157,11 +159,36 @@ const TrafegoPago = () => {
       {/* NAVEGAÇÃO */}
       <Navigation isTVMode={isTVMode} />
 
-      {/* Indicador discreto de atualização */}
-      {isRefetching && (
+      {/* Status indicator */}
+      {(isRefetching || loading) && (
         <div className="bg-[#0066FF]/20 text-[#0066FF] py-2 px-8 flex items-center justify-center gap-2 border-b border-[#0066FF]/30">
           <div className="w-2 h-2 bg-[#0066FF] rounded-full animate-pulse"></div>
-          <span className="font-semibold text-sm">Atualizando...</span>
+          <span className="font-semibold text-sm">
+            {loading ? 'Carregando dados da Meta...' : 'Atualizando...'}
+          </span>
+        </div>
+      )}
+
+      {/* Data source indicator */}
+      {!loading && !isRefetching && (
+        <div className={`py-2 px-8 flex items-center justify-center gap-2 border-b ${
+          isFromMeta 
+            ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' 
+            : 'bg-amber-500/20 text-amber-400 border-amber-500/30'
+        }`}>
+          {isFromMeta ? (
+            <>
+              <Wifi className="w-4 h-4" />
+              <span className="font-semibold text-sm">Dados ao vivo da Meta Ads</span>
+            </>
+          ) : (
+            <>
+              <WifiOff className="w-4 h-4" />
+              <span className="font-semibold text-sm">
+                Dados de demonstração {error && `(${error})`}
+              </span>
+            </>
+          )}
         </div>
       )}
 
@@ -217,7 +244,7 @@ const TrafegoPago = () => {
           <h2 className={`text-white font-black mb-8 ${isTVMode ? 'text-4xl' : 'text-3xl md:text-4xl'}`}>
             📋 Tabela Detalhada de Campanhas
           </h2>
-          <CampanhasTable campanhas={campanhasMock} isTVMode={isTVMode} />
+          <CampanhasTable campanhas={campanhas} isTVMode={isTVMode} />
         </div>
       </section>
 
@@ -242,7 +269,7 @@ const TrafegoPago = () => {
             📈 Gráficos Comparativos
           </h2>
           <TrafegoCharts 
-            campanhas={campanhasMock}
+            campanhas={campanhas}
             canais={canais}
             isTVMode={isTVMode}
           />
@@ -252,7 +279,7 @@ const TrafegoPago = () => {
       {/* SEÇÃO 8: PÓDIO TOP 3 CAMPANHAS */}
       <section className={`bg-[#0B1120] ${isTVMode ? 'py-8 px-12' : 'py-10 md:py-16 px-4 sm:px-6 md:px-12'}`}>
         <div className="max-w-[1600px] mx-auto">
-          <TrafegoPodium campanhas={campanhasMock} isTVMode={isTVMode} />
+          <TrafegoPodium campanhas={campanhas} isTVMode={isTVMode} />
         </div>
       </section>
 
