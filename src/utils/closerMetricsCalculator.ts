@@ -10,6 +10,17 @@ export interface CloserContract {
   observacoes?: string;
 }
 
+export interface CallData {
+  nomeCall: string;
+  data: string;
+  sdr: string;
+  tipoCall: string;
+  qualificada: boolean;
+  fechamento: boolean;
+  valor: number;
+  observacoes: string;
+}
+
 export interface CloserMetrics {
   nome: string;
   nomeOriginal: string;
@@ -27,6 +38,8 @@ export interface CloserMetrics {
   taxaAssinatura: number;
   taxaPagamento: number;
   contratos: CloserContract[];
+  callsRealizadasData: CallData[];
+  callsQualificadasData: CallData[];
   // Dados do Dashboard VENDAS-OUTUBRO
   valorVendasDash?: number;
   percentualVendasDash?: number;
@@ -148,18 +161,28 @@ export const calcularMetricasCloser = (data: any[], dateRange?: DateRange): Clos
   }
 
   const closersMetrics: CloserMetrics[] = closersNomes.map(closer => {
-    // Calls Realizadas: contar linhas onde CLOSER = nome (com matching de abreviações)
-    const callsRealizadas = filteredData.filter(row => {
-      const closerName = String(row['CLOSER'] || '').trim().toUpperCase();
-      return matchCloserName(closerName, closer.original);
-    }).length;
+    // Calls Realizadas: guardar dados completos
+    const callsRealizadasData: CallData[] = filteredData
+      .filter(row => {
+        const closerName = String(row['CLOSER'] || '').trim().toUpperCase();
+        return matchCloserName(closerName, closer.original);
+      })
+      .map(row => ({
+        nomeCall: row['NOME DA CALL'] || 'Sem nome',
+        data: row['DATA'] || row['Data'] || 'Sem data',
+        sdr: row['SDR'] || '',
+        tipoCall: row['TIPO DA CALL'] || '',
+        qualificada: String(row['QUALIFICADA (SQL)'] || '').trim().toUpperCase() === 'SIM',
+        fechamento: String(row['FECHAMENTO'] || '').trim().toUpperCase() === 'SIM',
+        valor: parseValor(row['VALOR'] || '0'),
+        observacoes: row['OBSERVAÇÕES E PRÓXIMOS PASSOS'] || ''
+      }));
 
-    // Calls Qualificadas: CLOSER = nome E QUALIFICADA = "SIM" (com matching de abreviações)
-    const callsQualificadas = filteredData.filter(row => {
-      const closerName = String(row['CLOSER'] || '').trim().toUpperCase();
-      const qualificada = String(row['QUALIFICADA (SQL)'] || '').trim().toUpperCase();
-      return matchCloserName(closerName, closer.original) && qualificada === 'SIM';
-    }).length;
+    const callsRealizadas = callsRealizadasData.length;
+
+    // Calls Qualificadas: filtrar do array de realizadas
+    const callsQualificadasData = callsRealizadasData.filter(call => call.qualificada);
+    const callsQualificadas = callsQualificadasData.length;
 
     // Contratos Fechados e Receitas
     const contratosFechados = filteredData.filter(row => {
@@ -221,7 +244,9 @@ export const calcularMetricasCloser = (data: any[], dateRange?: DateRange): Clos
       ticketMedio,
       taxaAssinatura,
       taxaPagamento,
-      contratos
+      contratos,
+      callsRealizadasData,
+      callsQualificadasData
     };
   });
 
