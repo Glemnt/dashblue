@@ -71,22 +71,29 @@ const isLeadActionType = (actionType: string): boolean => {
 };
 
 const getLeadsFromActions = (actions?: Array<{ action_type: string; value: string }>, campaignName?: string): number => {
-  if (!actions) return 0;
+  if (!actions || actions.length === 0) {
+    console.log(`[${campaignName}] No actions array or empty`);
+    return 0;
+  }
   
   // Log all actions for debugging
-  console.log(`[${campaignName}] All actions:`, JSON.stringify(actions.map(a => ({ type: a.action_type, value: a.value }))));
+  console.log(`[${campaignName}] All actions (${actions.length}):`, JSON.stringify(actions.map(a => ({ type: a.action_type, value: a.value }))));
   
   const leadActions = actions.filter(a => isLeadActionType(a.action_type));
   
   if (leadActions.length > 0) {
-    console.log(`[${campaignName}] Lead actions found:`, JSON.stringify(leadActions));
+    console.log(`[${campaignName}] Lead actions found (${leadActions.length}):`, JSON.stringify(leadActions));
+  } else {
+    console.log(`[${campaignName}] No lead actions matched from ${actions.length} total actions`);
   }
   
   return leadActions.reduce((sum, a) => sum + parseInt(a.value || '0', 10), 0);
 };
 
 const getCPLFromCostPerAction = (costPerAction?: Array<{ action_type: string; value: string }>, campaignName?: string): number => {
-  if (!costPerAction) return 0;
+  if (!costPerAction || costPerAction.length === 0) {
+    return 0;
+  }
   
   const leadCost = costPerAction.find(a => isLeadActionType(a.action_type));
   
@@ -134,6 +141,53 @@ const getCurrentMonthRange = (): { since: string; until: string } => {
     since: formatDate(firstDay),
     until: formatDate(lastDay)
   };
+};
+
+interface MetaPaginatedResponse<T> {
+  data?: T[];
+  paging?: {
+    next?: string;
+    cursors?: {
+      after?: string;
+      before?: string;
+    };
+  };
+  error?: {
+    message: string;
+    code: number;
+  };
+}
+
+// Fetch all pages of data from Meta API with pagination
+const fetchAllPages = async <T>(initialUrl: string): Promise<T[]> => {
+  const allData: T[] = [];
+  let nextUrl: string | null = initialUrl;
+  let pageCount = 0;
+  const maxPages = 10; // Safety limit
+  
+  while (nextUrl && pageCount < maxPages) {
+    pageCount++;
+    console.log(`Fetching page ${pageCount}...`);
+    
+    const response: Response = await fetch(nextUrl);
+    const json: MetaPaginatedResponse<T> = await response.json();
+    
+    if (json.error) {
+      console.error(`Error on page ${pageCount}:`, json.error);
+      throw new Error(json.error.message);
+    }
+    
+    if (json.data && Array.isArray(json.data)) {
+      allData.push(...json.data);
+      console.log(`Page ${pageCount}: Got ${json.data.length} items, total: ${allData.length}`);
+    }
+    
+    // Check for next page
+    nextUrl = json.paging?.next || null;
+  }
+  
+  console.log(`Pagination complete: ${pageCount} pages, ${allData.length} total items`);
+  return allData;
 };
 
 serve(async (req) => {
@@ -185,55 +239,36 @@ serve(async (req) => {
 
     console.log(`Fetching campaigns for account: ${formattedAccountId}`);
 
-    // Step 1: Fetch campaigns
-    const campaignsUrl = `https://graph.facebook.com/v21.0/${formattedAccountId}/campaigns?fields=id,name,status,objective&access_token=${accessToken}`;
+    // Step 1: Fetch ALL campaigns with pagination
+    const campaignsUrl = `https://graph.facebook.com/v21.0/${formattedAccountId}/campaigns?fields=id,name,status,objective&limit=500&access_token=${accessToken}`;
     
-    console.log('Fetching campaigns...');
-    const campaignsResponse = await fetch(campaignsUrl);
-    const campaignsData = await campaignsResponse.json();
+    console.log('Fetching all campaigns with pagination...');
+    const campaigns = await fetchAllPages<MetaCampaign>(campaignsUrl);
+    console.log(`Total campaigns fetched: ${campaigns.length}`);
 
-    if (campaignsData.error) {
-      console.error('Meta API Error (campaigns):', campaignsData.error);
-      return new Response(
-        JSON.stringify({ 
-          error: 'Erro na API da Meta', 
-          details: campaignsData.error.message,
-          code: campaignsData.error.code
-        }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    const campaigns: MetaCampaign[] = campaignsData.data || [];
-    console.log(`Found ${campaigns.length} campaigns`);
-
-    // Step 2: Fetch insights with time_range
+    // Step 2: Fetch ALL insights with pagination
     const timeRangeParam = encodeURIComponent(JSON.stringify(timeRange));
-    const insightsUrl = `https://graph.facebook.com/v21.0/${formattedAccountId}/insights?level=campaign&fields=campaign_id,campaign_name,spend,impressions,clicks,ctr,cpc,actions,cost_per_action_type&time_range=${timeRangeParam}&access_token=${accessToken}`;
+    const insightsUrl = `https://graph.facebook.com/v21.0/${formattedAccountId}/insights?level=campaign&fields=campaign_id,campaign_name,spend,impressions,clicks,ctr,cpc,actions,cost_per_action_type&time_range=${timeRangeParam}&limit=500&access_token=${accessToken}`;
     
-    console.log('Fetching insights with time_range:', timeRange);
-    const insightsResponse = await fetch(insightsUrl);
-    const insightsData = await insightsResponse.json();
+    console.log('Fetching all insights with pagination...');
+    const insights = await fetchAllPages<MetaInsight>(insightsUrl);
+    console.log(`Total insights fetched: ${insights.length}`);
 
-    if (insightsData.error) {
-      console.error('Meta API Error (insights):', insightsData.error);
-      return new Response(
-        JSON.stringify({ 
-          error: 'Erro ao buscar insights', 
-          details: insightsData.error.message 
-        }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    const insights: MetaInsight[] = insightsData.data || [];
-    console.log(`Found ${insights.length} insight records for period`);
+    // Log raw insight data for debugging
+    insights.forEach((insight, idx) => {
+      console.log(`[RAW INSIGHT ${idx + 1}] Campaign: ${insight.campaign_name}, Spend: ${insight.spend}, Actions: ${insight.actions ? insight.actions.length : 0}`);
+      if (insight.actions && insight.actions.length > 0) {
+        console.log(`[RAW ACTIONS ${insight.campaign_name}]:`, JSON.stringify(insight.actions));
+      }
+    });
 
     // Step 3: Map insights to campaigns
     const insightsMap = new Map<string, MetaInsight>();
     insights.forEach(insight => {
       insightsMap.set(insight.campaign_id, insight);
     });
+
+    console.log(`Insights mapped for ${insightsMap.size} campaigns`);
 
     // Step 4: Transform data to CampanhaData format
     const campanhas: CampanhaData[] = campaigns.map((campaign, index) => {
@@ -289,7 +324,13 @@ serve(async (req) => {
     // Filter out campaigns with no spend in the selected period
     const activeCampaigns = campanhas.filter(c => c.investimento > 0);
 
-    console.log(`Returning ${activeCampaigns.length} campaigns with data for period`);
+    // Log summary
+    const totalLeads = activeCampaigns.reduce((sum, c) => sum + c.leadsGerados, 0);
+    const totalInvestimento = activeCampaigns.reduce((sum, c) => sum + c.investimento, 0);
+    console.log(`=== SUMMARY ===`);
+    console.log(`Total campaigns with spend: ${activeCampaigns.length}`);
+    console.log(`Total investimento: R$ ${totalInvestimento.toFixed(2)}`);
+    console.log(`Total leads: ${totalLeads}`);
 
     return new Response(
       JSON.stringify({
@@ -298,6 +339,8 @@ serve(async (req) => {
         meta: {
           totalCampaigns: campaigns.length,
           campaignsWithData: activeCampaigns.length,
+          totalLeads,
+          totalInvestimento,
           timeRange: timeRange,
           fetchedAt: new Date().toISOString()
         }
