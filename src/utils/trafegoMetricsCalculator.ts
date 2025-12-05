@@ -1,8 +1,11 @@
 // Types
+export type ObjetivoType = 'WhatsApp' | 'Formulário' | 'Landing Page' | 'VSL' | 'Outros';
+
 export interface CampanhaData {
   id: number;
   nome: string;
   canal: string;
+  objetivo: ObjetivoType;
   status: 'ativo' | 'pausado' | 'finalizado';
   investimento: number;
   impressoes: number;
@@ -76,6 +79,7 @@ export const campanhasMock: CampanhaData[] = [
     id: 1,
     nome: "Campanha Webinar 2.0",
     canal: "Facebook",
+    objetivo: "Landing Page",
     status: "ativo",
     investimento: 8500,
     impressoes: 425000,
@@ -99,6 +103,7 @@ export const campanhasMock: CampanhaData[] = [
     id: 2,
     nome: "Google Search - SaaS",
     canal: "Google",
+    objetivo: "Landing Page",
     status: "ativo",
     investimento: 12000,
     impressoes: 580000,
@@ -122,6 +127,7 @@ export const campanhasMock: CampanhaData[] = [
     id: 3,
     nome: "LinkedIn B2B Premium",
     canal: "LinkedIn",
+    objetivo: "Formulário",
     status: "ativo",
     investimento: 9000,
     impressoes: 185000,
@@ -145,6 +151,7 @@ export const campanhasMock: CampanhaData[] = [
     id: 4,
     nome: "Instagram Reels",
     canal: "Instagram",
+    objetivo: "WhatsApp",
     status: "ativo",
     investimento: 4500,
     impressoes: 320000,
@@ -168,6 +175,7 @@ export const campanhasMock: CampanhaData[] = [
     id: 5,
     nome: "YouTube Pre-Roll",
     canal: "YouTube",
+    objetivo: "VSL",
     status: "ativo",
     investimento: 3000,
     impressoes: 95000,
@@ -191,6 +199,7 @@ export const campanhasMock: CampanhaData[] = [
     id: 6,
     nome: "Remarketing Geral",
     canal: "Multi",
+    objetivo: "Outros",
     status: "pausado",
     investimento: 2000,
     impressoes: 145000,
@@ -353,6 +362,15 @@ export const CORES_CANAIS: Record<string, string> = {
   'YouTube': '#FF0000',
   'TikTok': '#000000',
   'Multi': '#6B7280'
+};
+
+// Cores dos objetivos
+export const CORES_OBJETIVOS: Record<string, string> = {
+  'WhatsApp': '#25D366',
+  'Formulário': '#1877F2',
+  'Landing Page': '#8B5CF6',
+  'VSL': '#EF4444',
+  'Outros': '#6B7280'
 };
 
 // Status colors

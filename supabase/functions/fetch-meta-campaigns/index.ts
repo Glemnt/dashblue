@@ -24,10 +24,13 @@ interface MetaInsight {
   cost_per_action_type?: Array<{ action_type: string; value: string }>;
 }
 
+type ObjetivoType = 'WhatsApp' | 'Formulário' | 'Landing Page' | 'VSL' | 'Outros';
+
 interface CampanhaData {
   id: number;
   nome: string;
   canal: string;
+  objetivo: ObjetivoType;
   status: 'ativo' | 'pausado' | 'finalizado';
   investimento: number;
   impressoes: number;
@@ -75,6 +78,17 @@ const getCampaignType = (campaignName: string): CampaignType => {
   }
   
   return 'outro';
+};
+
+// Mapeia o tipo interno para o label legível
+const getCampaignObjectiveLabel = (type: CampaignType): ObjetivoType => {
+  switch (type) {
+    case 'whatsapp': return 'WhatsApp';
+    case 'formulario': return 'Formulário';
+    case 'lp': return 'Landing Page';
+    case 'vsl': return 'VSL';
+    default: return 'Outros';
+  }
 };
 
 // Mapeamento de tipos de campanha para action_types específicos
@@ -362,10 +376,13 @@ serve(async (req) => {
       const roi = investimento > 0 ? ((valorFechado - investimento) / investimento) * 100 : 0;
       const cac = fechamentos > 0 ? investimento / fechamentos : 0;
 
+      const campaignType = getCampaignType(campaign.name);
+      
       return {
         id: index + 1,
         nome: campaign.name,
         canal: normalizeCanal(campaign.name),
+        objetivo: getCampaignObjectiveLabel(campaignType),
         status: normalizeStatus(campaign.status),
         investimento,
         impressoes,
