@@ -48,26 +48,51 @@ interface CampanhaData {
   ticketMedio: number;
 }
 
-const getLeadsFromActions = (actions?: Array<{ action_type: string; value: string }>): number => {
+// Helper to check if an action type represents a lead
+const isLeadActionType = (actionType: string): boolean => {
+  return (
+    // Standard lead actions
+    actionType === 'lead' ||
+    actionType === 'leadgen.other' ||
+    actionType === 'onsite_conversion.lead_grouped' ||
+    actionType === 'offsite_conversion.fb_pixel_lead' ||
+    // WhatsApp/Messaging conversions
+    actionType === 'onsite_conversion.messaging_conversation_started_7d' ||
+    actionType === 'onsite_conversion.messaging_first_reply' ||
+    actionType.includes('messaging_conversation') ||
+    // Custom conversions (LP, VSL, forms)
+    actionType.startsWith('offsite_conversion.custom') ||
+    actionType.includes('fb_pixel_custom') ||
+    // Additional lead types
+    actionType === 'onsite_conversion.post_save' ||
+    actionType === 'contact_total' ||
+    actionType === 'contact'
+  );
+};
+
+const getLeadsFromActions = (actions?: Array<{ action_type: string; value: string }>, campaignName?: string): number => {
   if (!actions) return 0;
   
-  const leadActions = actions.filter(a => 
-    a.action_type === 'lead' || 
-    a.action_type === 'onsite_conversion.lead_grouped' ||
-    a.action_type === 'offsite_conversion.fb_pixel_lead'
-  );
+  // Log all actions for debugging
+  console.log(`[${campaignName}] All actions:`, JSON.stringify(actions.map(a => ({ type: a.action_type, value: a.value }))));
+  
+  const leadActions = actions.filter(a => isLeadActionType(a.action_type));
+  
+  if (leadActions.length > 0) {
+    console.log(`[${campaignName}] Lead actions found:`, JSON.stringify(leadActions));
+  }
   
   return leadActions.reduce((sum, a) => sum + parseInt(a.value || '0', 10), 0);
 };
 
-const getCPLFromCostPerAction = (costPerAction?: Array<{ action_type: string; value: string }>): number => {
+const getCPLFromCostPerAction = (costPerAction?: Array<{ action_type: string; value: string }>, campaignName?: string): number => {
   if (!costPerAction) return 0;
   
-  const leadCost = costPerAction.find(a => 
-    a.action_type === 'lead' || 
-    a.action_type === 'onsite_conversion.lead_grouped' ||
-    a.action_type === 'offsite_conversion.fb_pixel_lead'
-  );
+  const leadCost = costPerAction.find(a => isLeadActionType(a.action_type));
+  
+  if (leadCost) {
+    console.log(`[${campaignName}] CPL found:`, leadCost.action_type, leadCost.value);
+  }
   
   return leadCost ? parseFloat(leadCost.value || '0') : 0;
 };
@@ -219,8 +244,8 @@ serve(async (req) => {
       const cliques = parseInt(insight?.clicks || '0', 10);
       const ctr = parseFloat(insight?.ctr || '0');
       const cpc = parseFloat(insight?.cpc || '0');
-      const leadsGerados = getLeadsFromActions(insight?.actions);
-      const cpl = getCPLFromCostPerAction(insight?.cost_per_action_type) || 
+      const leadsGerados = getLeadsFromActions(insight?.actions, campaign.name);
+      const cpl = getCPLFromCostPerAction(insight?.cost_per_action_type, campaign.name) || 
                   (leadsGerados > 0 ? investimento / leadsGerados : 0);
       
       // Estimated values (these would come from CRM in a real scenario)
