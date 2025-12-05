@@ -12,7 +12,7 @@ const Navigation = ({ isTVMode = false }: NavigationProps) => {
     { path: '/financeiro', label: 'Financeiro', enabled: true },
     { path: '/squads', label: 'Squads', enabled: true },
     { path: '/ia', label: 'IA 🤖', enabled: true },
-    { path: '/trafego', label: 'Tráfego', enabled: false }
+    { path: '/trafego', label: 'Tráfego', enabled: true }
   ];
 
   return (
