@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { RefreshCw, Wifi, WifiOff } from "lucide-react";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
 import logoWhite from "@/assets/logo-white.png";
 import MobileMenu from '@/components/MobileMenu';
 import { Button } from "@/components/ui/button";
@@ -8,6 +10,8 @@ import Footer from "@/components/Footer";
 import TVModeToggle from "@/components/TVModeToggle";
 import { useTVMode } from "@/hooks/useTVMode";
 import { useMetaCampaigns } from "@/hooks/useMetaCampaigns";
+import { usePeriodFilter } from "@/contexts/PeriodFilterContext";
+import PeriodFilter from "@/components/sdr/PeriodFilter";
 import TrafegoMetaBars from "@/components/trafego/TrafegoMetaBars";
 import TrafegoKPICards from "@/components/trafego/TrafegoKPICards";
 import TrafegoROICard from "@/components/trafego/TrafegoROICard";
@@ -24,7 +28,16 @@ const TrafegoPago = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const { isTVMode, setIsTVMode } = useTVMode();
 
-  // Use Meta campaigns data
+  // Period filter context
+  const { 
+    periodType, 
+    dateRange, 
+    selectedMonthKey, 
+    updateFilter, 
+    setSelectedMonthKey 
+  } = usePeriodFilter();
+
+  // Use Meta campaigns data with date range
   const { 
     campanhas, 
     totais, 
@@ -34,7 +47,7 @@ const TrafegoPago = () => {
     refetch, 
     lastUpdate, 
     isFromMeta 
-  } = useMetaCampaigns();
+  } = useMetaCampaigns(dateRange, selectedMonthKey);
 
   const [isRefetching, setIsRefetching] = useState(false);
 
@@ -98,6 +111,11 @@ const TrafegoPago = () => {
     setIsRefetching(false);
   };
 
+  // Format selected month for display
+  const getSelectedMonthLabel = () => {
+    return format(dateRange.start, "MMMM 'de' yyyy", { locale: ptBR });
+  };
+
   return (
     <div className="min-h-screen bg-[#0B1120] font-outfit overflow-x-hidden max-w-full">
       {/* HEADER */}
@@ -159,6 +177,22 @@ const TrafegoPago = () => {
       {/* NAVEGAÇÃO */}
       <Navigation isTVMode={isTVMode} />
 
+      {/* FILTRO DE PERÍODO */}
+      {!isTVMode && (
+        <section className="bg-[#0B1120] py-4 px-4 sm:px-6 md:px-12 border-b border-white/5">
+          <div className="max-w-[1600px] mx-auto">
+            <PeriodFilter
+              onFilterChange={updateFilter}
+              onMonthChange={setSelectedMonthKey}
+              currentPeriod={periodType}
+              currentDateRange={dateRange}
+              selectedMonthKey={selectedMonthKey}
+              isTVMode={isTVMode}
+            />
+          </div>
+        </section>
+      )}
+
       {/* Status indicator */}
       {(isRefetching || loading) && (
         <div className="bg-[#0066FF]/20 text-[#0066FF] py-2 px-8 flex items-center justify-center gap-2 border-b border-[#0066FF]/30">
@@ -195,8 +229,8 @@ const TrafegoPago = () => {
       {/* SEÇÃO 1: BARRAS DE META */}
       <section className={`bg-[#0B1120] ${isTVMode ? 'py-8 px-12' : 'py-10 md:py-16 px-4 sm:px-6 md:px-12'}`}>
         <div className="max-w-[1600px] mx-auto">
-          <h2 className={`text-white font-black mb-8 ${isTVMode ? 'text-4xl' : 'text-3xl md:text-4xl'}`}>
-            📊 Metas de Tráfego - Outubro 2025
+          <h2 className={`text-white font-black mb-8 capitalize ${isTVMode ? 'text-4xl' : 'text-3xl md:text-4xl'}`}>
+            📊 Metas de Tráfego - {getSelectedMonthLabel()}
           </h2>
           <TrafegoMetaBars 
             investimentoAtual={totais.investimento}
