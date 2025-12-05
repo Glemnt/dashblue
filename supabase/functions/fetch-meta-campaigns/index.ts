@@ -94,6 +94,23 @@ const normalizeCanal = (campaignName: string): string => {
   return 'Facebook'; // Default for Meta campaigns
 };
 
+// Get current month range as fallback
+const getCurrentMonthRange = (): { since: string; until: string } => {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth();
+  
+  const firstDay = new Date(year, month, 1);
+  const lastDay = new Date(year, month + 1, 0);
+  
+  const formatDate = (d: Date) => d.toISOString().split('T')[0];
+  
+  return {
+    since: formatDate(firstDay),
+    until: formatDate(lastDay)
+  };
+};
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -113,6 +130,29 @@ serve(async (req) => {
         }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
+    }
+
+    // Parse request body for date range
+    let startDate: string | null = null;
+    let endDate: string | null = null;
+    
+    try {
+      const body = await req.json();
+      startDate = body.startDate || null;
+      endDate = body.endDate || null;
+    } catch {
+      // No body or invalid JSON, use defaults
+    }
+
+    // Determine time range
+    let timeRange: { since: string; until: string };
+    
+    if (startDate && endDate) {
+      timeRange = { since: startDate, until: endDate };
+      console.log(`Using custom date range: ${startDate} to ${endDate}`);
+    } else {
+      timeRange = getCurrentMonthRange();
+      console.log(`Using current month range: ${timeRange.since} to ${timeRange.until}`);
     }
 
     // Ensure adAccountId has act_ prefix
@@ -142,10 +182,11 @@ serve(async (req) => {
     const campaigns: MetaCampaign[] = campaignsData.data || [];
     console.log(`Found ${campaigns.length} campaigns`);
 
-    // Step 2: Fetch insights for the account (aggregated by campaign)
-    const insightsUrl = `https://graph.facebook.com/v21.0/${formattedAccountId}/insights?level=campaign&fields=campaign_id,campaign_name,spend,impressions,clicks,ctr,cpc,actions,cost_per_action_type&date_preset=this_month&access_token=${accessToken}`;
+    // Step 2: Fetch insights with time_range
+    const timeRangeParam = encodeURIComponent(JSON.stringify(timeRange));
+    const insightsUrl = `https://graph.facebook.com/v21.0/${formattedAccountId}/insights?level=campaign&fields=campaign_id,campaign_name,spend,impressions,clicks,ctr,cpc,actions,cost_per_action_type&time_range=${timeRangeParam}&access_token=${accessToken}`;
     
-    console.log('Fetching insights...');
+    console.log('Fetching insights with time_range:', timeRange);
     const insightsResponse = await fetch(insightsUrl);
     const insightsData = await insightsResponse.json();
 
@@ -161,7 +202,7 @@ serve(async (req) => {
     }
 
     const insights: MetaInsight[] = insightsData.data || [];
-    console.log(`Found ${insights.length} insight records`);
+    console.log(`Found ${insights.length} insight records for period`);
 
     // Step 3: Map insights to campaigns
     const insightsMap = new Map<string, MetaInsight>();
@@ -220,10 +261,10 @@ serve(async (req) => {
       };
     });
 
-    // Filter out campaigns with no spend
-    const activeCampaigns = campanhas.filter(c => c.investimento > 0 || c.status === 'ativo');
+    // Filter out campaigns with no spend in the selected period
+    const activeCampaigns = campanhas.filter(c => c.investimento > 0);
 
-    console.log(`Returning ${activeCampaigns.length} campaigns with data`);
+    console.log(`Returning ${activeCampaigns.length} campaigns with data for period`);
 
     return new Response(
       JSON.stringify({
@@ -232,7 +273,7 @@ serve(async (req) => {
         meta: {
           totalCampaigns: campaigns.length,
           campaignsWithData: activeCampaigns.length,
-          datePreset: 'this_month',
+          timeRange: timeRange,
           fetchedAt: new Date().toISOString()
         }
       }),
