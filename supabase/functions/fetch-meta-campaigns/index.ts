@@ -48,26 +48,91 @@ interface CampanhaData {
   ticketMedio: number;
 }
 
-// Helper to check if an action type represents a lead
-const isLeadActionType = (actionType: string): boolean => {
-  return (
-    // Standard lead actions
-    actionType === 'lead' ||
-    actionType === 'leadgen.other' ||
-    actionType === 'onsite_conversion.lead_grouped' ||
-    actionType === 'offsite_conversion.fb_pixel_lead' ||
-    // WhatsApp/Messaging conversions
-    actionType === 'onsite_conversion.messaging_conversation_started_7d' ||
-    actionType === 'onsite_conversion.messaging_first_reply' ||
-    actionType.includes('messaging_conversation') ||
-    // Custom conversions (LP, VSL, forms)
-    actionType.startsWith('offsite_conversion.custom') ||
-    actionType.includes('fb_pixel_custom') ||
-    // Additional lead types
-    actionType === 'onsite_conversion.post_save' ||
-    actionType === 'contact_total' ||
-    actionType === 'contact'
-  );
+// Identifica o tipo de campanha pelo nome
+type CampaignType = 'whatsapp' | 'formulario' | 'lp' | 'vsl' | 'outro';
+
+const getCampaignType = (campaignName: string): CampaignType => {
+  const name = campaignName.toLowerCase();
+  
+  // WhatsApp campaigns
+  if (name.includes('whatsapp') || name.includes('wpp') || name.includes('mensagem')) {
+    return 'whatsapp';
+  }
+  
+  // Native form campaigns (formulário nativo do Meta)
+  if (name.includes('formulário') || name.includes('formulario') || name.includes('nativo') || name.includes('b2b')) {
+    return 'formulario';
+  }
+  
+  // VSL campaigns
+  if (name.includes('vsl')) {
+    return 'vsl';
+  }
+  
+  // Landing Page campaigns
+  if (name.includes('landing page') || name.includes('lp ') || name.includes('| lp') || name.includes('lpv')) {
+    return 'lp';
+  }
+  
+  return 'outro';
+};
+
+// Mapeamento de tipos de campanha para action_types específicos
+const CAMPAIGN_ACTION_TYPES: Record<CampaignType, string[]> = {
+  whatsapp: [
+    'onsite_conversion.messaging_conversation_started_7d',
+    'onsite_conversion.messaging_first_reply',
+  ],
+  formulario: [
+    'leadgen.other',
+    'lead',
+  ],
+  lp: [
+    'offsite_conversion.fb_pixel_lead',
+    'lead',
+  ],
+  vsl: [
+    'offsite_conversion.fb_pixel_lead',
+    'offsite_conversion.fb_pixel_custom',
+    'lead',
+  ],
+  outro: [
+    'lead',
+    'leadgen.other',
+    'offsite_conversion.fb_pixel_lead',
+  ],
+};
+
+// Busca leads baseado no tipo de campanha - retorna APENAS o evento correto
+const getLeadsByType = (
+  actions: Array<{ action_type: string; value: string }>,
+  campaignType: CampaignType,
+  campaignName: string
+): number => {
+  const validActionTypes = CAMPAIGN_ACTION_TYPES[campaignType];
+  
+  // Procura o primeiro action_type válido para este tipo de campanha
+  for (const actionType of validActionTypes) {
+    const action = actions.find(a => a.action_type === actionType);
+    if (action) {
+      const leads = parseInt(action.value || '0', 10);
+      console.log(`[${campaignName}] Found ${leads} leads via ${actionType} (type: ${campaignType})`);
+      return leads;
+    }
+  }
+  
+  // Se não encontrou, busca offsite_conversion.custom.* para LP/VSL
+  if (campaignType === 'lp' || campaignType === 'vsl') {
+    const customAction = actions.find(a => a.action_type.startsWith('offsite_conversion.custom.'));
+    if (customAction) {
+      const leads = parseInt(customAction.value || '0', 10);
+      console.log(`[${campaignName}] Found ${leads} leads via custom conversion: ${customAction.action_type}`);
+      return leads;
+    }
+  }
+  
+  console.log(`[${campaignName}] No matching action type found for campaign type: ${campaignType}`);
+  return 0;
 };
 
 const getLeadsFromActions = (actions?: Array<{ action_type: string; value: string }>, campaignName?: string): number => {
@@ -76,18 +141,13 @@ const getLeadsFromActions = (actions?: Array<{ action_type: string; value: strin
     return 0;
   }
   
+  const campaignType = getCampaignType(campaignName || '');
+  
   // Log all actions for debugging
-  console.log(`[${campaignName}] All actions (${actions.length}):`, JSON.stringify(actions.map(a => ({ type: a.action_type, value: a.value }))));
+  console.log(`[${campaignName}] Type: ${campaignType} | Actions (${actions.length}):`, 
+    JSON.stringify(actions.map(a => ({ type: a.action_type, value: a.value }))));
   
-  const leadActions = actions.filter(a => isLeadActionType(a.action_type));
-  
-  if (leadActions.length > 0) {
-    console.log(`[${campaignName}] Lead actions found (${leadActions.length}):`, JSON.stringify(leadActions));
-  } else {
-    console.log(`[${campaignName}] No lead actions matched from ${actions.length} total actions`);
-  }
-  
-  return leadActions.reduce((sum, a) => sum + parseInt(a.value || '0', 10), 0);
+  return getLeadsByType(actions, campaignType, campaignName || '');
 };
 
 const getCPLFromCostPerAction = (costPerAction?: Array<{ action_type: string; value: string }>, campaignName?: string): number => {
@@ -95,13 +155,19 @@ const getCPLFromCostPerAction = (costPerAction?: Array<{ action_type: string; va
     return 0;
   }
   
-  const leadCost = costPerAction.find(a => isLeadActionType(a.action_type));
+  const campaignType = getCampaignType(campaignName || '');
+  const validActionTypes = CAMPAIGN_ACTION_TYPES[campaignType];
   
-  if (leadCost) {
-    console.log(`[${campaignName}] CPL found:`, leadCost.action_type, leadCost.value);
+  // Procura o CPL para o action_type correto
+  for (const actionType of validActionTypes) {
+    const costAction = costPerAction.find(a => a.action_type === actionType);
+    if (costAction) {
+      console.log(`[${campaignName}] CPL found: ${costAction.value} via ${actionType}`);
+      return parseFloat(costAction.value || '0');
+    }
   }
   
-  return leadCost ? parseFloat(leadCost.value || '0') : 0;
+  return 0;
 };
 
 const normalizeStatus = (status: string): 'ativo' | 'pausado' | 'finalizado' => {
