@@ -10,6 +10,7 @@ import Footer from "@/components/Footer";
 import TVModeToggle from "@/components/TVModeToggle";
 import { useTVMode } from "@/hooks/useTVMode";
 import { useMetaCampaigns } from "@/hooks/useMetaCampaigns";
+import { useRealFinancials } from "@/hooks/useRealFinancials";
 import { usePeriodFilter } from "@/contexts/PeriodFilterContext";
 import PeriodFilter from "@/components/sdr/PeriodFilter";
 import TrafegoMetaBars from "@/components/trafego/TrafegoMetaBars";
@@ -37,7 +38,10 @@ const TrafegoPago = () => {
     setSelectedMonthKey 
   } = usePeriodFilter();
 
-  // Use Meta campaigns data with date range
+  // Buscar dados financeiros reais da planilha
+  const realFinancials = useRealFinancials(selectedMonthKey);
+
+  // Use Meta campaigns data with date range + dados financeiros reais
   const { 
     campanhas, 
     totais, 
@@ -47,7 +51,7 @@ const TrafegoPago = () => {
     refetch, 
     lastUpdate, 
     isFromMeta 
-  } = useMetaCampaigns(dateRange, selectedMonthKey);
+  } = useMetaCampaigns(dateRange, selectedMonthKey, realFinancials);
 
   const [isRefetching, setIsRefetching] = useState(false);
 
