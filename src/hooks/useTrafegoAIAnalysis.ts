@@ -27,6 +27,7 @@ interface AIAnalysis {
     fechamentosProjetados: number;
     roasProjetado: number;
     cacProjetado: number;
+    receitaProjetada?: number;
     conclusao: string;
   };
   alertas: {
@@ -117,11 +118,38 @@ export const useTrafegoAIAnalysis = (
 
     try {
       console.log('[useTrafegoAIAnalysis] Iniciando análise da IA...');
+      console.log('[useTrafegoAIAnalysis] Dados enviados:');
+      console.log('  - Fechamentos REAIS:', totais.fechamentos);
+      console.log('  - Receita REAL:', totais.receita);
+      console.log('  - ROAS:', totais.roas);
+      console.log('  - Leads:', totais.leads);
       
       // Calcular dias do mês
       const now = new Date();
       const diasNoMes = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
       const diasDecorridos = now.getDate();
+      const dataAtual = now.toISOString().split('T')[0];
+
+      // Calcular taxas de conversão atuais
+      const taxasConversao = {
+        leadsParaQualificados: totais.leads > 0 && totais.leadsQualificados 
+          ? totais.leadsQualificados / totais.leads 
+          : 0,
+        qualificadosParaCalls: totais.leadsQualificados && totais.callsAgendadas
+          ? totais.callsAgendadas / totais.leadsQualificados 
+          : 0,
+        callsParaFechamentos: totais.callsRealizadas && totais.fechamentos
+          ? totais.fechamentos / totais.callsRealizadas 
+          : 0,
+        leadsParaFechamentos: totais.leads > 0 && totais.fechamentos
+          ? totais.fechamentos / totais.leads 
+          : 0,
+        ticketMedio: totais.fechamentos > 0 && totais.receita
+          ? totais.receita / totais.fechamentos
+          : 8000 // Valor padrão se não houver fechamentos
+      };
+
+      console.log('[useTrafegoAIAnalysis] Taxas de conversão calculadas:', taxasConversao);
 
       const { data, error: fnError } = await supabase.functions.invoke('ai-trafego-analyst', {
         body: {
@@ -129,7 +157,9 @@ export const useTrafegoAIAnalysis = (
           totais,
           canais,
           diasNoMes,
-          diasDecorridos
+          diasDecorridos,
+          dataAtual,
+          taxasConversao
         }
       });
 
@@ -142,6 +172,7 @@ export const useTrafegoAIAnalysis = (
       }
 
       console.log('[useTrafegoAIAnalysis] Análise recebida com sucesso');
+      console.log('[useTrafegoAIAnalysis] Projeções recebidas:', data.analysis.projecoes);
       
       setAnalysis(data.analysis);
       setCachedAnalysis(data.analysis);
