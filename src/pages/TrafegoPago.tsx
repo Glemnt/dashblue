@@ -21,7 +21,7 @@ import CampanhasTable from "@/components/trafego/CampanhasTable";
 import TrafegoCanais from "@/components/trafego/TrafegoCanais";
 
 import TrafegoPodium from "@/components/trafego/TrafegoPodium";
-import TrafegoProjecoes from "@/components/trafego/TrafegoProjecoes";
+import TrafegoAIInsights from "@/components/trafego/TrafegoAIInsights";
 import TrafegoComercial from "@/components/trafego/TrafegoComercial";
 import TrafegoComparativo from "@/components/trafego/TrafegoComparativo";
 
@@ -308,10 +308,15 @@ const TrafegoPago = () => {
         </div>
       </section>
 
-      {/* SEÇÃO 9: PROJEÇÕES E ALERTAS */}
+      {/* SEÇÃO 9: INSIGHTS DO AGENTE DE IA */}
       <section className={`bg-[#0B1120] ${isTVMode ? 'py-8 px-12' : 'py-10 md:py-16 px-4 sm:px-6 md:px-12'}`}>
         <div className="max-w-[1600px] mx-auto">
-          <TrafegoProjecoes totais={totais} isTVMode={isTVMode} />
+          <TrafegoAIInsights 
+            campanhas={campanhas}
+            totais={totais}
+            canais={canais}
+            isTVMode={isTVMode}
+          />
         </div>
       </section>
 

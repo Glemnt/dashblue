@@ -5,3 +5,6 @@ verify_jwt = false
 
 [functions.fetch-meta-campaigns]
 verify_jwt = false
+
+[functions.ai-trafego-analyst]
+verify_jwt = false
