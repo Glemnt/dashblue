@@ -78,7 +78,7 @@ export const campanhasMock: CampanhaData[] = [
   {
     id: 1,
     nome: "Campanha Webinar 2.0",
-    canal: "Facebook",
+    canal: "Meta Ads",
     objetivo: "Landing Page",
     status: "ativo",
     investimento: 8500,
@@ -102,7 +102,7 @@ export const campanhasMock: CampanhaData[] = [
   {
     id: 2,
     nome: "Google Search - SaaS",
-    canal: "Google",
+    canal: "Google Ads",
     objetivo: "Landing Page",
     status: "ativo",
     investimento: 12000,
@@ -126,7 +126,7 @@ export const campanhasMock: CampanhaData[] = [
   {
     id: 3,
     nome: "LinkedIn B2B Premium",
-    canal: "LinkedIn",
+    canal: "LinkedIn Ads",
     objetivo: "Formulário",
     status: "ativo",
     investimento: 9000,
@@ -150,7 +150,7 @@ export const campanhasMock: CampanhaData[] = [
   {
     id: 4,
     nome: "Instagram Reels",
-    canal: "Instagram",
+    canal: "Meta Ads",
     objetivo: "WhatsApp",
     status: "ativo",
     investimento: 4500,
@@ -174,7 +174,7 @@ export const campanhasMock: CampanhaData[] = [
   {
     id: 5,
     nome: "YouTube Pre-Roll",
-    canal: "YouTube",
+    canal: "YouTube Ads",
     objetivo: "VSL",
     status: "ativo",
     investimento: 3000,
@@ -198,7 +198,7 @@ export const campanhasMock: CampanhaData[] = [
   {
     id: 6,
     nome: "Remarketing Geral",
-    canal: "Multi",
+    canal: "Outros",
     objetivo: "Outros",
     status: "pausado",
     investimento: 2000,
@@ -353,15 +353,14 @@ export const formatarPercentual = (valor: number): string => {
   return `${valor.toFixed(1)}%`;
 };
 
-// Cores dos canais
+// Cores dos canais de aquisição (plataformas de mídia paga)
 export const CORES_CANAIS: Record<string, string> = {
-  'Facebook': '#1877F2',
-  'Google': '#4285F4',
-  'LinkedIn': '#0A66C2',
-  'Instagram': '#E4405F',
-  'YouTube': '#FF0000',
-  'TikTok': '#000000',
-  'Multi': '#6B7280'
+  'Meta Ads': '#0866FF',      // Azul Meta
+  'Google Ads': '#4285F4',    // Azul Google
+  'LinkedIn Ads': '#0A66C2',  // Azul LinkedIn
+  'YouTube Ads': '#FF0000',   // Vermelho YouTube
+  'TikTok Ads': '#000000',    // Preto TikTok
+  'Outros': '#6B7280',        // Cinza
 };
 
 // Cores dos objetivos
