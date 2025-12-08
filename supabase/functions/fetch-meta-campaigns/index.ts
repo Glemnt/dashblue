@@ -195,15 +195,24 @@ const normalizeStatus = (status: string): 'ativo' | 'pausado' | 'finalizado' => 
   }
 };
 
-const normalizeCanal = (campaignName: string): string => {
-  const name = campaignName.toLowerCase();
-  if (name.includes('instagram') || name.includes('ig_')) return 'Instagram';
-  if (name.includes('facebook') || name.includes('fb_')) return 'Facebook';
-  if (name.includes('linkedin')) return 'LinkedIn';
-  if (name.includes('google')) return 'Google';
-  if (name.includes('youtube')) return 'YouTube';
-  if (name.includes('tiktok')) return 'TikTok';
-  return 'Facebook'; // Default for Meta campaigns
+// Normaliza o canal de aquisição baseado na fonte de integração
+// Atualmente: Meta Ads (Facebook/Instagram)
+// Futuras integrações: Google Ads, LinkedIn Ads, YouTube Ads, TikTok Ads
+const normalizeCanal = (campaignName: string, source: string = 'meta'): string => {
+  switch (source) {
+    case 'meta':
+      return 'Meta Ads';
+    case 'google':
+      return 'Google Ads';
+    case 'linkedin':
+      return 'LinkedIn Ads';
+    case 'youtube':
+      return 'YouTube Ads';
+    case 'tiktok':
+      return 'TikTok Ads';
+    default:
+      return 'Outros';
+  }
 };
 
 // Get current month range as fallback
