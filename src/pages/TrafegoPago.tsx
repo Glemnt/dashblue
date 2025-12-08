@@ -19,7 +19,7 @@ import TrafegoROICard from "@/components/trafego/TrafegoROICard";
 import TrafegoFunnel from "@/components/trafego/TrafegoFunnel";
 import CampanhasTable from "@/components/trafego/CampanhasTable";
 import TrafegoCanais from "@/components/trafego/TrafegoCanais";
-import TrafegoCharts from "@/components/trafego/TrafegoCharts";
+
 import TrafegoPodium from "@/components/trafego/TrafegoPodium";
 import TrafegoProjecoes from "@/components/trafego/TrafegoProjecoes";
 import TrafegoComercial from "@/components/trafego/TrafegoComercial";
@@ -300,19 +300,6 @@ const TrafegoPago = () => {
         </div>
       </section>
 
-      {/* SEÇÃO 7: GRÁFICOS COMPARATIVOS */}
-      <section className={`bg-[#0B1120] ${isTVMode ? 'py-8 px-12' : 'py-10 md:py-16 px-4 sm:px-6 md:px-12'}`}>
-        <div className="max-w-[1800px] mx-auto">
-          <h2 className={`text-white font-black mb-8 ${isTVMode ? 'text-4xl' : 'text-3xl md:text-4xl'}`}>
-            📈 Gráficos Comparativos
-          </h2>
-          <TrafegoCharts 
-            campanhas={campanhas}
-            canais={canais}
-            isTVMode={isTVMode}
-          />
-        </div>
-      </section>
 
       {/* SEÇÃO 8: PÓDIO TOP 3 CAMPANHAS */}
       <section className={`bg-[#0B1120] ${isTVMode ? 'py-8 px-12' : 'py-10 md:py-16 px-4 sm:px-6 md:px-12'}`}>
