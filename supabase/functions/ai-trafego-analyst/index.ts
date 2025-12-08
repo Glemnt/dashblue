@@ -23,6 +23,9 @@ interface TrafegoTotais {
   investimento: number;
   leads: number;
   cpl: number;
+  leadsQualificados: number;
+  callsAgendadas: number;
+  callsRealizadas: number;
   fechamentos: number;
   receita: number;
   roas: number;
@@ -40,19 +43,31 @@ interface CanalMetrics {
   roas: number;
 }
 
+interface TaxasConversao {
+  leadsParaQualificados: number;
+  qualificadosParaCalls: number;
+  callsParaFechamentos: number;
+  leadsParaFechamentos: number;
+  ticketMedio: number;
+}
+
+interface RequestBody {
+  campanhas: CampanhaData[];
+  totais: TrafegoTotais;
+  canais: CanalMetrics[];
+  diasNoMes: number;
+  diasDecorridos: number;
+  dataAtual: string;
+  taxasConversao: TaxasConversao;
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { campanhas, totais, canais, diasNoMes, diasDecorridos } = await req.json() as {
-      campanhas: CampanhaData[];
-      totais: TrafegoTotais;
-      canais: CanalMetrics[];
-      diasNoMes: number;
-      diasDecorridos: number;
-    };
+    const { campanhas, totais, canais, diasNoMes, diasDecorridos, dataAtual, taxasConversao } = await req.json() as RequestBody;
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
@@ -61,8 +76,28 @@ serve(async (req) => {
 
     console.log('[AI Trafego Analyst] Iniciando análise com', campanhas?.length, 'campanhas');
     console.log('[AI Trafego Analyst] Totais recebidos:', JSON.stringify(totais));
+    console.log('[AI Trafego Analyst] Taxas de conversão:', JSON.stringify(taxasConversao));
+    console.log('[AI Trafego Analyst] Contexto temporal:', { dataAtual, diasDecorridos, diasNoMes });
 
     const percentualMes = Math.round((diasDecorridos / diasNoMes) * 100);
+    const diasRestantes = diasNoMes - diasDecorridos;
+
+    // Pré-calcular projeções para validação
+    const investimentoDia = diasDecorridos > 0 ? totais.investimento / diasDecorridos : 0;
+    const investimentoProjetadoCalc = investimentoDia * diasNoMes;
+    
+    const leadsDia = diasDecorridos > 0 ? totais.leads / diasDecorridos : 0;
+    const leadsProjetadosCalc = leadsDia * diasNoMes;
+    
+    const fechamentosDia = diasDecorridos > 0 ? totais.fechamentos / diasDecorridos : 0;
+    const fechamentosProjetadosCalc = Math.max(
+      fechamentosDia * diasNoMes,
+      totais.fechamentos + 1
+    );
+    
+    const receitaProjetadaCalc = fechamentosProjetadosCalc * taxasConversao.ticketMedio;
+    const roasProjetadoCalc = investimentoProjetadoCalc > 0 ? receitaProjetadaCalc / investimentoProjetadoCalc : 0;
+    const cacProjetadoCalc = fechamentosProjetadosCalc > 0 ? investimentoProjetadoCalc / fechamentosProjetadosCalc : 0;
 
     // Preparar dados das campanhas para análise
     const campanhasResumidas = campanhas.slice(0, 15).map(c => ({
@@ -72,21 +107,57 @@ serve(async (req) => {
       leads: c.leads,
       cpl: c.cpl,
       fechamentos: c.fechamentos,
+      receita: c.receita,
       roas: c.roas,
       ctr: c.ctr || 0
     }));
 
-    const systemPrompt = `Você é um especialista sênior em Tráfego Pago e Media Buying com 15+ anos de experiência em agências de marketing digital de alta performance. Seu expertise inclui:
+    const systemPrompt = `Você é um especialista sênior em Tráfego Pago e Media Buying com 15+ anos de experiência em agências de marketing digital de alta performance.
+
+=== REGRAS CRÍTICAS PARA CÁLCULOS ===
+
+1. NUNCA retorne projeções menores que os valores atuais
+2. Se já existem ${totais.fechamentos} fechamentos REAIS, a projeção de fechamentos DEVE ser >= ${totais.fechamentos}
+3. Se já existem ${totais.leads} leads REAIS, a projeção de leads DEVE ser >= ${totais.leads}
+4. Todas as projeções devem ser baseadas em MATEMÁTICA usando as fórmulas abaixo
+5. Use as taxas de conversão REAIS fornecidas para calcular projeções
+
+=== FÓRMULAS OBRIGATÓRIAS DE CÁLCULO ===
+
+Métricas diárias (já calculadas para você):
+- Investimento por dia: R$ ${investimentoDia.toFixed(2)}
+- Leads por dia: ${leadsDia.toFixed(1)}
+- Fechamentos por dia: ${fechamentosDia.toFixed(2)}
+
+Projeções sugeridas (use como base, pode ajustar com sua análise):
+- Investimento Projetado = ${investimentoDia.toFixed(2)} × ${diasNoMes} = R$ ${investimentoProjetadoCalc.toFixed(2)}
+- Leads Projetados = ${leadsDia.toFixed(1)} × ${diasNoMes} = ${Math.round(leadsProjetadosCalc)}
+- Fechamentos Projetados = MAX(${fechamentosDia.toFixed(2)} × ${diasNoMes}, ${totais.fechamentos} + 1) = ${Math.round(fechamentosProjetadosCalc)}
+- Receita Projetada = ${Math.round(fechamentosProjetadosCalc)} × R$ ${taxasConversao.ticketMedio.toFixed(2)} = R$ ${receitaProjetadaCalc.toFixed(2)}
+- ROAS Projetado = R$ ${receitaProjetadaCalc.toFixed(2)} / R$ ${investimentoProjetadoCalc.toFixed(2)} = ${roasProjetadoCalc.toFixed(2)}x
+- CAC Projetado = R$ ${investimentoProjetadoCalc.toFixed(2)} / ${Math.round(fechamentosProjetadosCalc)} = R$ ${cacProjetadoCalc.toFixed(2)}
+
+=== VALIDAÇÕES OBRIGATÓRIAS ===
+
+Antes de retornar os valores, VALIDE:
+✓ investimentoProjetado >= ${totais.investimento} (valor atual)
+✓ leadsProjetados >= ${totais.leads} (valor atual)
+✓ fechamentosProjetados >= ${totais.fechamentos} (valor atual) - CRÍTICO!
+✓ Todos os valores devem ser números positivos
+✓ ROAS e CAC devem fazer sentido matemático
+
+=== EXPERTISE ===
 
 - Análise avançada de métricas: ROAS, ROI, CAC, CPL, CTR, CPC
 - Otimização de campanhas Meta Ads, Google Ads
-- Estratégias de alocação de budget
-- Projeções baseadas em tendências
-- Identificação de oportunidades e riscos
+- Estratégias de alocação de budget por objetivo
+- Identificação de campanhas que devem ser pausadas (ROAS < 1.0)
+- Identificação de campanhas para escalar (ROAS > 3.0)
+- Análise de tendências e projeções
 
-Você sempre fornece análises acionáveis, com números específicos e recomendações claras.
+IMPORTANTE: Responda APENAS com JSON válido, sem markdown, sem backticks, sem explicações adicionais.
 
-IMPORTANTE: Responda APENAS com JSON válido, sem markdown, sem backticks, sem explicações. O JSON deve seguir exatamente esta estrutura:
+Estrutura EXATA do JSON:
 {
   "executiveSummary": "string com resumo executivo em até 2 frases",
   "projecoes": {
@@ -95,81 +166,73 @@ IMPORTANTE: Responda APENAS com JSON válido, sem markdown, sem backticks, sem e
     "fechamentosProjetados": number,
     "roasProjetado": number,
     "cacProjetado": number,
+    "receitaProjetada": number,
     "conclusao": "string com conclusão e recomendação principal"
   },
   "alertas": {
-    "urgentes": [
-      {
-        "campanha": "nome da campanha ou 'Geral'",
-        "problema": "descrição do problema",
-        "acao": "ação recomendada",
-        "impacto": "impacto estimado em R$ ou %"
-      }
-    ],
-    "atencao": [
-      {
-        "campanha": "nome da campanha ou 'Geral'",
-        "problema": "descrição do problema",
-        "acao": "ação recomendada",
-        "potencial": "potencial de melhoria"
-      }
-    ],
-    "oportunidades": [
-      {
-        "campanha": "nome da campanha ou 'Geral'",
-        "oportunidade": "descrição da oportunidade",
-        "acao": "ação recomendada",
-        "ganhoEstimado": "ganho estimado em R$ ou %"
-      }
-    ]
+    "urgentes": [{"campanha": "nome", "problema": "descrição", "acao": "ação", "impacto": "impacto estimado"}],
+    "atencao": [{"campanha": "nome", "problema": "descrição", "acao": "ação", "potencial": "potencial"}],
+    "oportunidades": [{"campanha": "nome", "oportunidade": "descrição", "acao": "ação", "ganhoEstimado": "ganho"}]
   },
-  "recomendacoes": [
-    {
-      "prioridade": 1,
-      "titulo": "título curto",
-      "descricao": "descrição detalhada da ação",
-      "ganhoEstimado": "estimativa de ganho"
-    }
-  ]
+  "recomendacoes": [{"prioridade": 1, "titulo": "título", "descricao": "descrição", "ganhoEstimado": "ganho"}]
 }`;
 
-    const userPrompt = `Analise os seguintes dados de tráfego pago e forneça insights acionáveis:
+    const userPrompt = `=== CONTEXTO TEMPORAL ===
+Data atual: ${dataAtual}
+Dia do mês: ${diasDecorridos} de ${diasNoMes}
+Dias restantes no mês: ${diasRestantes}
+Progresso do mês: ${percentualMes}%
 
-## MÉTRICAS ATUAIS (${percentualMes}% do mês)
-- Investimento Total: R$ ${totais.investimento.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-- Leads Gerados: ${totais.leads}
+=== MÉTRICAS ATUAIS (DADOS REAIS DO MÊS ATÉ AGORA) ===
+- Investimento até agora: R$ ${totais.investimento.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+- Leads gerados: ${totais.leads}
 - CPL Médio: R$ ${totais.cpl.toFixed(2)}
-- Fechamentos: ${totais.fechamentos}
-- Receita: R$ ${totais.receita.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-- ROAS: ${totais.roas.toFixed(2)}x
-- CAC: R$ ${totais.cac.toFixed(2)}
-- ROI: ${totais.roi.toFixed(1)}%
+- Leads Qualificados: ${totais.leadsQualificados}
+- Calls Agendadas: ${totais.callsAgendadas}
+- Calls Realizadas: ${totais.callsRealizadas}
+- FECHAMENTOS REAIS (já realizados): ${totais.fechamentos} ← JÁ ACONTECERAM!
+- RECEITA REAL: R$ ${totais.receita.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} ← JÁ FATURADO!
+- ROAS Atual: ${totais.roas.toFixed(2)}x
+- ROI Atual: ${totais.roi.toFixed(1)}%
+- CAC Atual: R$ ${totais.cac.toFixed(2)}
 
-## METAS DO MÊS
+=== TAXAS DE CONVERSÃO ATUAIS (baseadas em dados reais) ===
+- Lead → Qualificado: ${(taxasConversao.leadsParaQualificados * 100).toFixed(2)}%
+- Qualificado → Call: ${(taxasConversao.qualificadosParaCalls * 100).toFixed(2)}%
+- Call → Fechamento: ${(taxasConversao.callsParaFechamentos * 100).toFixed(2)}%
+- Lead → Fechamento (taxa geral): ${(taxasConversao.leadsParaFechamentos * 100).toFixed(2)}%
+- Ticket Médio: R$ ${taxasConversao.ticketMedio.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+
+=== METAS DO MÊS ===
 - Investimento Máximo: R$ 110.000
 - Leads Mínimo: 600
 - CAC Máximo: R$ 8.000
 - ROAS Mínimo: 2.0x
 
-## CAMPANHAS ATIVAS (Top 15)
+=== CAMPANHAS ATIVAS (Top 15 por investimento) ===
 ${JSON.stringify(campanhasResumidas, null, 2)}
 
-## PERFORMANCE POR CANAL
+=== PERFORMANCE POR CANAL ===
 ${JSON.stringify(canais, null, 2)}
 
-## DIAS NO MÊS
-- Dias totais: ${diasNoMes}
-- Dias decorridos: ${diasDecorridos}
-- Dias restantes: ${diasNoMes - diasDecorridos}
+=== INSTRUÇÕES FINAIS ===
 
-Com base nesses dados:
-1. Calcule projeções realistas para fim do mês
-2. Identifique campanhas que precisam de atenção urgente (ROAS < 1.5 ou sem leads)
-3. Identifique oportunidades de escalar (ROAS > 3.0)
-4. Sugira realocações de budget se necessário
-5. Forneça 3-5 recomendações priorizadas
+Com base nos dados acima, analise e retorne:
 
-RESPONDA APENAS COM O JSON, SEM NENHUM TEXTO ADICIONAL.`;
+1. PROJEÇÕES PARA FIM DO MÊS:
+   - Use as fórmulas do system prompt
+   - Lembre-se: já temos ${totais.fechamentos} fechamentos, então a projeção DEVE ser >= ${totais.fechamentos}
+   - Já temos ${totais.leads} leads, então a projeção DEVE ser >= ${totais.leads}
+
+2. ALERTAS URGENTES (para campanhas com ROAS < 1.0 ou problemas críticos)
+
+3. ALERTAS DE ATENÇÃO (para campanhas com ROAS entre 1.0 e 1.5)
+
+4. OPORTUNIDADES (para campanhas com ROAS > 3.0 que podem ser escaladas)
+
+5. RECOMENDAÇÕES PRIORIZADAS (3-5 ações específicas com impacto estimado)
+
+RESPONDA APENAS COM O JSON VÁLIDO.`;
 
     console.log('[AI Trafego Analyst] Chamando Lovable AI Gateway...');
 
@@ -185,8 +248,8 @@ RESPONDA APENAS COM O JSON, SEM NENHUM TEXTO ADICIONAL.`;
           { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt }
         ],
-        temperature: 0.7,
-        max_tokens: 2000
+        temperature: 0.3, // Mais determinístico para cálculos
+        max_tokens: 3000
       }),
     });
 
@@ -217,7 +280,6 @@ RESPONDA APENAS COM O JSON, SEM NENHUM TEXTO ADICIONAL.`;
 
     // Limpar e parsear o JSON da resposta
     let cleanContent = content.trim();
-    // Remover possíveis backticks de markdown
     if (cleanContent.startsWith('```json')) {
       cleanContent = cleanContent.slice(7);
     }
@@ -238,7 +300,38 @@ RESPONDA APENAS COM O JSON, SEM NENHUM TEXTO ADICIONAL.`;
       throw new Error('Falha ao processar resposta da IA');
     }
 
+    // Validar e corrigir projeções se necessário
+    if (analysis.projecoes) {
+      const p = analysis.projecoes;
+      
+      // Garantir que projeções sejam >= valores atuais
+      if (p.fechamentosProjetados < totais.fechamentos) {
+        console.log('[AI Trafego Analyst] Corrigindo fechamentos projetados:', p.fechamentosProjetados, '->', Math.round(fechamentosProjetadosCalc));
+        p.fechamentosProjetados = Math.round(fechamentosProjetadosCalc);
+      }
+      
+      if (p.leadsProjetados < totais.leads) {
+        console.log('[AI Trafego Analyst] Corrigindo leads projetados:', p.leadsProjetados, '->', Math.round(leadsProjetadosCalc));
+        p.leadsProjetados = Math.round(leadsProjetadosCalc);
+      }
+      
+      if (p.investimentoProjetado < totais.investimento) {
+        console.log('[AI Trafego Analyst] Corrigindo investimento projetado:', p.investimentoProjetado, '->', Math.round(investimentoProjetadoCalc));
+        p.investimentoProjetado = Math.round(investimentoProjetadoCalc);
+      }
+      
+      // Recalcular ROAS e CAC se corrigidos
+      if (p.receitaProjetada && p.investimentoProjetado > 0) {
+        p.roasProjetado = p.receitaProjetada / p.investimentoProjetado;
+      }
+      
+      if (p.fechamentosProjetados > 0 && p.investimentoProjetado > 0) {
+        p.cacProjetado = p.investimentoProjetado / p.fechamentosProjetados;
+      }
+    }
+
     console.log('[AI Trafego Analyst] Análise concluída com sucesso');
+    console.log('[AI Trafego Analyst] Projeções finais:', JSON.stringify(analysis.projecoes));
 
     return new Response(JSON.stringify({
       success: true,
