@@ -351,6 +351,8 @@ serve(async (req) => {
     console.log(`Insights mapped for ${insightsMap.size} campaigns`);
 
     // Step 4: Transform data to CampanhaData format
+    // NOTA: Métricas financeiras (fechamentos, receita, ROAS, ROI, CAC) serão calculadas
+    // no frontend com base nos dados reais da planilha financeira
     const campanhas: CampanhaData[] = campaigns.map((campaign, index) => {
       const insight = insightsMap.get(campaign.id);
       
@@ -363,21 +365,10 @@ serve(async (req) => {
       const cpl = getCPLFromCostPerAction(insight?.cost_per_action_type, campaign.name) || 
                   (leadsGerados > 0 ? investimento / leadsGerados : 0);
       
-      // Estimated values (these would come from CRM in a real scenario)
-      const taxaQualificacao = 55 + Math.random() * 20; // 55-75%
-      const leadsQualificados = Math.round(leadsGerados * (taxaQualificacao / 100));
-      const callsAgendadas = Math.round(leadsQualificados * 0.45);
-      const callsRealizadas = Math.round(callsAgendadas * 0.85);
-      const fechamentos = Math.round(callsRealizadas * 0.2);
-      const ticketMedio = 8000 + Math.random() * 6000; // R$ 8k - 14k
-      const valorFechado = fechamentos * ticketMedio;
-      
-      const roas = investimento > 0 ? valorFechado / investimento : 0;
-      const roi = investimento > 0 ? ((valorFechado - investimento) / investimento) * 100 : 0;
-      const cac = fechamentos > 0 ? investimento / fechamentos : 0;
-
       const campaignType = getCampaignType(campaign.name);
       
+      // Valores placeholder - serão recalculados no frontend com dados reais
+      // O frontend usará useRealFinancials para pegar os dados da planilha
       return {
         id: index + 1,
         nome: campaign.name,
@@ -391,16 +382,17 @@ serve(async (req) => {
         cpc,
         leadsGerados,
         cpl,
-        leadsQualificados,
-        taxaQualificacao,
-        callsAgendadas,
-        callsRealizadas,
-        fechamentos,
-        valorFechado,
-        roas,
-        roi,
-        cac,
-        ticketMedio
+        // Valores placeholder - serão sobrescritos pelo frontend
+        leadsQualificados: 0,
+        taxaQualificacao: 0,
+        callsAgendadas: 0,
+        callsRealizadas: 0,
+        fechamentos: 0,
+        valorFechado: 0,
+        roas: 0,
+        roi: 0,
+        cac: 0,
+        ticketMedio: 0
       };
     });
 

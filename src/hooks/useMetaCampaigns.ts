@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { format } from 'date-fns';
 import { supabase } from '@/integrations/supabase/client';
 import { DateRange } from '@/utils/dateFilters';
@@ -6,10 +6,10 @@ import {
   CampanhaData, 
   TrafegoTotais, 
   CanalMetrics,
-  calcularTotaisTrafego,
   calcularMetricasPorCanal,
   campanhasMock 
 } from '@/utils/trafegoMetricsCalculator';
+import { RealFinancialsData } from './useRealFinancials';
 
 interface UseMetaCampaignsReturn {
   campanhas: CampanhaData[];
@@ -28,6 +28,7 @@ interface CacheData {
 }
 
 const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+const TAXA_QUALIFICACAO_MERCADO = 0.60; // 60% - média de mercado
 
 const getCacheKey = (monthKey: string) => `meta_campaigns_${monthKey}`;
 
@@ -84,11 +85,133 @@ const clearCache = (monthKey?: string) => {
   }
 };
 
+// Calcula totais com dados financeiros reais
+const calcularTotaisComDadosReais = (
+  campanhas: CampanhaData[],
+  realFinancials: RealFinancialsData
+): TrafegoTotais => {
+  // Totais dos dados da Meta (investimento, leads, cliques, etc.)
+  const totaisBase = campanhas.reduce((acc, c) => ({
+    investimento: acc.investimento + c.investimento,
+    impressoes: acc.impressoes + c.impressoes,
+    cliques: acc.cliques + c.cliques,
+    leads: acc.leads + c.leadsGerados,
+  }), {
+    investimento: 0,
+    impressoes: 0,
+    cliques: 0,
+    leads: 0,
+  });
+
+  // Métricas derivadas dos dados da Meta
+  const ctr = totaisBase.impressoes > 0 ? (totaisBase.cliques / totaisBase.impressoes) * 100 : 0;
+  const cpc = totaisBase.cliques > 0 ? totaisBase.investimento / totaisBase.cliques : 0;
+  const cpl = totaisBase.leads > 0 ? totaisBase.investimento / totaisBase.leads : 0;
+
+  // DADOS REAIS da planilha financeira
+  const fechamentos = realFinancials.totalFechamentos;
+  const receita = realFinancials.receitaTotal;
+
+  // Leads qualificados estimados (usando taxa de mercado)
+  const leadsQualificados = Math.round(totaisBase.leads * TAXA_QUALIFICACAO_MERCADO);
+  const taxaQualificacao = totaisBase.leads > 0 ? (leadsQualificados / totaisBase.leads) * 100 : 0;
+
+  // Calls estimadas (baseadas nos fechamentos reais)
+  // Se temos X fechamentos e taxa de conversão ~20%, temos ~5X calls realizadas
+  const callsRealizadas = fechamentos > 0 ? Math.round(fechamentos / 0.2) : 0;
+  const callsAgendadas = callsRealizadas > 0 ? Math.round(callsRealizadas / 0.85) : 0;
+
+  // Métricas financeiras REAIS
+  const roas = totaisBase.investimento > 0 ? receita / totaisBase.investimento : 0;
+  const roi = totaisBase.investimento > 0 ? ((receita - totaisBase.investimento) / totaisBase.investimento) * 100 : 0;
+  const cac = fechamentos > 0 ? totaisBase.investimento / fechamentos : 0;
+
+  console.log('📊 TOTAIS CALCULADOS COM DADOS REAIS:');
+  console.log('  - Investimento (Meta):', totaisBase.investimento);
+  console.log('  - Leads (Meta):', totaisBase.leads);
+  console.log('  - Fechamentos (Real):', fechamentos);
+  console.log('  - Receita (Real):', receita);
+  console.log('  - ROAS (Real):', roas.toFixed(2));
+  console.log('  - ROI (Real):', roi.toFixed(2) + '%');
+  console.log('  - CAC (Real):', cac.toFixed(2));
+
+  return {
+    investimento: totaisBase.investimento,
+    impressoes: totaisBase.impressoes,
+    cliques: totaisBase.cliques,
+    ctr,
+    cpc,
+    leads: totaisBase.leads,
+    cpl,
+    leadsQualificados,
+    taxaQualificacao,
+    callsAgendadas,
+    callsRealizadas,
+    fechamentos,
+    receita,
+    roas,
+    roi,
+    cac
+  };
+};
+
+// Distribui dados financeiros reais proporcionalmente para cada campanha
+const distribuirDadosReaisParaCampanhas = (
+  campanhas: CampanhaData[],
+  realFinancials: RealFinancialsData
+): CampanhaData[] => {
+  const totalInvestimento = campanhas.reduce((sum, c) => sum + c.investimento, 0);
+  
+  if (totalInvestimento === 0) return campanhas;
+
+  return campanhas.map(campanha => {
+    // Proporção desta campanha no investimento total
+    const proporcao = campanha.investimento / totalInvestimento;
+    
+    // Leads qualificados (taxa de mercado)
+    const leadsQualificados = Math.round(campanha.leadsGerados * TAXA_QUALIFICACAO_MERCADO);
+    const taxaQualificacao = campanha.leadsGerados > 0 
+      ? (leadsQualificados / campanha.leadsGerados) * 100 
+      : 0;
+
+    // Distribuir fechamentos e receita proporcionalmente
+    const fechamentos = Math.round(realFinancials.totalFechamentos * proporcao);
+    const valorFechado = realFinancials.receitaTotal * proporcao;
+    const ticketMedio = fechamentos > 0 ? valorFechado / fechamentos : realFinancials.ticketMedio;
+
+    // Calls estimadas baseadas nos fechamentos
+    const callsRealizadas = fechamentos > 0 ? Math.round(fechamentos / 0.2) : 0;
+    const callsAgendadas = callsRealizadas > 0 ? Math.round(callsRealizadas / 0.85) : 0;
+
+    // Métricas financeiras baseadas nos valores proporcionais
+    const roas = campanha.investimento > 0 ? valorFechado / campanha.investimento : 0;
+    const roi = campanha.investimento > 0 
+      ? ((valorFechado - campanha.investimento) / campanha.investimento) * 100 
+      : 0;
+    const cac = fechamentos > 0 ? campanha.investimento / fechamentos : 0;
+
+    return {
+      ...campanha,
+      leadsQualificados,
+      taxaQualificacao,
+      callsAgendadas,
+      callsRealizadas,
+      fechamentos,
+      valorFechado,
+      roas,
+      roi,
+      cac,
+      ticketMedio
+    };
+  });
+};
+
 export const useMetaCampaigns = (
   dateRange: DateRange,
-  selectedMonthKey?: string
+  selectedMonthKey?: string,
+  realFinancials?: RealFinancialsData
 ): UseMetaCampaignsReturn => {
-  const [campanhas, setCampanhas] = useState<CampanhaData[]>([]);
+  const [rawCampanhas, setRawCampanhas] = useState<CampanhaData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
@@ -106,7 +229,7 @@ export const useMetaCampaigns = (
         const cached = getCachedData(monthKey);
         if (cached && cached.length > 0) {
           console.log(`Using cached Meta campaigns data for ${monthKey}`);
-          setCampanhas(cached);
+          setRawCampanhas(cached);
           setIsFromMeta(true);
           setLastUpdate(new Date());
           setLoading(false);
@@ -136,13 +259,13 @@ export const useMetaCampaigns = (
 
       if (data?.success && data?.campanhas && data.campanhas.length > 0) {
         console.log(`Received ${data.campanhas.length} campaigns from Meta for ${monthKey}`);
-        setCampanhas(data.campanhas);
+        setRawCampanhas(data.campanhas);
         setCachedData(monthKey, data.campanhas);
         setIsFromMeta(true);
         setLastUpdate(new Date(data.meta?.fetchedAt || Date.now()));
       } else {
         console.log(`No campaigns from Meta for ${monthKey}, using mock data`);
-        setCampanhas(campanhasMock);
+        setRawCampanhas(campanhasMock);
         setIsFromMeta(false);
         setLastUpdate(new Date());
       }
@@ -153,7 +276,7 @@ export const useMetaCampaigns = (
       
       // Fallback to mock data
       console.log('Falling back to mock data');
-      setCampanhas(campanhasMock);
+      setRawCampanhas(campanhasMock);
       setIsFromMeta(false);
       setLastUpdate(new Date());
     } finally {
@@ -181,7 +304,57 @@ export const useMetaCampaigns = (
     return () => clearInterval(interval);
   }, [fetchCampaigns]);
 
-  const totais = calcularTotaisTrafego(campanhas);
+  // Campanhas com dados reais distribuídos
+  const campanhas = useMemo(() => {
+    if (!realFinancials || realFinancials.loading || realFinancials.totalFechamentos === 0) {
+      return rawCampanhas;
+    }
+    return distribuirDadosReaisParaCampanhas(rawCampanhas, realFinancials);
+  }, [rawCampanhas, realFinancials]);
+
+  // Totais com dados reais
+  const totais = useMemo(() => {
+    if (!realFinancials || realFinancials.loading) {
+      // Fallback: calcular normalmente sem dados reais
+      return campanhas.reduce((acc, c) => ({
+        investimento: acc.investimento + c.investimento,
+        impressoes: acc.impressoes + c.impressoes,
+        cliques: acc.cliques + c.cliques,
+        ctr: 0,
+        cpc: 0,
+        leads: acc.leads + c.leadsGerados,
+        cpl: 0,
+        leadsQualificados: acc.leadsQualificados + c.leadsQualificados,
+        taxaQualificacao: 0,
+        callsAgendadas: acc.callsAgendadas + c.callsAgendadas,
+        callsRealizadas: acc.callsRealizadas + c.callsRealizadas,
+        fechamentos: acc.fechamentos + c.fechamentos,
+        receita: acc.receita + c.valorFechado,
+        roas: 0,
+        roi: 0,
+        cac: 0
+      }), {
+        investimento: 0,
+        impressoes: 0,
+        cliques: 0,
+        ctr: 0,
+        cpc: 0,
+        leads: 0,
+        cpl: 0,
+        leadsQualificados: 0,
+        taxaQualificacao: 0,
+        callsAgendadas: 0,
+        callsRealizadas: 0,
+        fechamentos: 0,
+        receita: 0,
+        roas: 0,
+        roi: 0,
+        cac: 0
+      });
+    }
+    return calcularTotaisComDadosReais(rawCampanhas, realFinancials);
+  }, [rawCampanhas, campanhas, realFinancials]);
+
   const canais = calcularMetricasPorCanal(campanhas);
 
   return {
