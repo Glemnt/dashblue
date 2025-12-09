@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { CampanhaData, TrafegoTotais, CanalMetrics } from '@/utils/trafegoMetricsCalculator';
+import { getMetasTrafegoAtual } from '@/utils/metasConfig';
 
 interface Alerta {
   campanha: string;
@@ -149,7 +150,11 @@ export const useTrafegoAIAnalysis = (
           : 8000 // Valor padrão se não houver fechamentos
       };
 
+      // Obter metas de tráfego atuais
+      const metasTrafego = getMetasTrafegoAtual();
+
       console.log('[useTrafegoAIAnalysis] Taxas de conversão calculadas:', taxasConversao);
+      console.log('[useTrafegoAIAnalysis] Metas de tráfego:', metasTrafego);
 
       const { data, error: fnError } = await supabase.functions.invoke('ai-trafego-analyst', {
         body: {
@@ -159,7 +164,8 @@ export const useTrafegoAIAnalysis = (
           diasNoMes,
           diasDecorridos,
           dataAtual,
-          taxasConversao
+          taxasConversao,
+          metasTrafego
         }
       });
 

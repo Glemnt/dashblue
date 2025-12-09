@@ -203,11 +203,30 @@ Progresso do mês: ${percentualMes}%
 - Lead → Fechamento (taxa geral): ${(taxasConversao.leadsParaFechamentos * 100).toFixed(2)}%
 - Ticket Médio: R$ ${taxasConversao.ticketMedio.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
 
-=== METAS DO MÊS ===
-- Investimento Máximo: R$ 110.000
-- Leads Mínimo: 600
-- CAC Máximo: R$ 8.000
-- ROAS Mínimo: 2.0x
+=== METAS DO MÊS (FUNIL INVERTIDO BASEADO NA META COMERCIAL) ===
+
+META COMERCIAL:
+- Receita: R$ 325.000
+- Ticket Médio: R$ 4.000
+- Fechamentos necessários: 82
+
+METAS DO FUNIL (de baixo para cima):
+- Fechamentos: 82 (taxa call→fechamento meta: 20%)
+- Calls Realizadas: 410 (taxa agendada→realizada meta: 80%)
+- Calls Agendadas (MQL): 513 (taxa lead→qualificado meta: 50%)
+- Leads: 1.026
+
+METAS DE TRÁFEGO:
+- Investimento: R$ 220.000
+- Leads Mínimo: 1.026
+- CPL Máximo: R$ 214,42
+- CAC Máximo: R$ 2.682,93
+- ROAS Mínimo: 1.48x
+
+TAXAS DE CONVERSÃO META:
+- Lead → Qualificado: 50%
+- Call Agendada → Realizada: 80%
+- Call → Fechamento: 20%
 
 === CAMPANHAS ATIVAS (Top 15 por investimento) ===
 ${JSON.stringify(campanhasResumidas, null, 2)}
