@@ -1,5 +1,6 @@
 import { Progress } from "@/components/ui/progress";
 import { METAS_TRAFEGO, formatarMoeda, formatarNumero } from "@/utils/trafegoMetricsCalculator";
+import { getDiasRestantesNoMes } from "@/utils/dateFilters";
 
 interface TrafegoMetaBarsProps {
   investimentoAtual: number;
@@ -26,7 +27,7 @@ const TrafegoMetaBars = ({
     return 'bg-[#FF4757]';
   };
 
-  const diasRestantes = 12; // Mock - poderia calcular baseado na data atual
+  const diasRestantes = getDiasRestantesNoMes();
   const saldoDisponivel = METAS_TRAFEGO.investimentoMensal - investimentoAtual;
   const leadsFaltando = METAS_TRAFEGO.leadsGerados - leadsAtual;
 

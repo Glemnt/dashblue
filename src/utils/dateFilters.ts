@@ -73,3 +73,21 @@ export const formatMonthYear = (month: number, year: number): string => {
   const date = new Date(year, month, 1);
   return format(date, 'MMMM yyyy', { locale: ptBR });
 };
+
+// Dias restantes no mês atual (incluindo finais de semana)
+export const getDiasRestantesNoMes = (): number => {
+  const now = new Date();
+  const ultimoDiaDoMes = endOfMonth(now).getDate();
+  const diaAtual = now.getDate();
+  return ultimoDiaDoMes - diaAtual;
+};
+
+// Total de dias no mês atual
+export const getDiasNoMes = (): number => {
+  return endOfMonth(new Date()).getDate();
+};
+
+// Dia atual do mês
+export const getDiaAtual = (): number => {
+  return new Date().getDate();
+};
