@@ -63,14 +63,20 @@ export interface TrafegoMetrics {
   porCanal: CanalMetrics[];
 }
 
-// Metas de Tráfego
+// Metas de Tráfego - importar da config centralizada
+import { getMetasTrafegoAtual, MetasTrafego } from './metasConfig';
+
+// Re-exportar para manter compatibilidade
+export const getMetasTrafego = (): MetasTrafego => getMetasTrafegoAtual();
+
+// Alias para compatibilidade com código antigo
 export const METAS_TRAFEGO = {
-  investimentoMensal: 50000,
-  leadsGerados: 800,
-  leadsQualificados: 450,
-  cacMaximo: 1200,
-  roasMinimo: 5.0,
-  taxaQualificacaoMinima: 55
+  get investimentoMensal() { return getMetasTrafegoAtual().investimentoMensal; },
+  get leadsGerados() { return getMetasTrafegoAtual().leads; },
+  get leadsQualificados() { return getMetasTrafegoAtual().callsAgendadas; },
+  get cacMaximo() { return getMetasTrafegoAtual().cacMeta; },
+  get roasMinimo() { return getMetasTrafegoAtual().roasMinimo; },
+  get taxaQualificacaoMinima() { return getMetasTrafegoAtual().taxaLeadParaQualificado * 100; }
 };
 
 // Mock Data para campanhas
