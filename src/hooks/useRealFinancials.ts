@@ -10,6 +10,7 @@ export interface RealFinancialsData {
   ticketMedio: number;
   callsAgendadas: number;
   callsRealizadas: number;
+  callsQualificadas: number;
   loading: boolean;
   error: string | null;
 }
@@ -25,7 +26,8 @@ export const useRealFinancials = (monthKey?: string): RealFinancialsData => {
         receitaPaga: 0,
         ticketMedio: 0,
         callsAgendadas: 0,
-        callsRealizadas: 0
+        callsRealizadas: 0,
+        callsQualificadas: 0
       };
     }
 
@@ -40,6 +42,7 @@ export const useRealFinancials = (monthKey?: string): RealFinancialsData => {
     console.log('  - Receita Paga:', metrics.receitas.paga);
     console.log('  - Calls Agendadas (REAL):', metricasGerais.callsAgendadas);
     console.log('  - Calls Realizadas (REAL):', metricasGerais.callsRealizadas);
+    console.log('  - Calls Qualificadas (REAL):', metricasGerais.callsQualificadas);
     
     const ticketMedio = metrics.contratos.total > 0 
       ? metrics.receitas.total / metrics.contratos.total 
@@ -51,7 +54,8 @@ export const useRealFinancials = (monthKey?: string): RealFinancialsData => {
       receitaPaga: metrics.receitas.paga,
       ticketMedio,
       callsAgendadas: metricasGerais.callsAgendadas,
-      callsRealizadas: metricasGerais.callsRealizadas
+      callsRealizadas: metricasGerais.callsRealizadas,
+      callsQualificadas: metricasGerais.callsQualificadas
     };
   }, [data, loading, monthKey]);
 

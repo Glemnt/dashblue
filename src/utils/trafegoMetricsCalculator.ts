@@ -50,6 +50,7 @@ export interface TrafegoTotais {
   taxaQualificacao: number;
   callsAgendadas: number;
   callsRealizadas: number;
+  callsQualificadas: number;
   fechamentos: number;
   receita: number;
   roas: number;
@@ -237,6 +238,7 @@ export const calcularTotaisTrafego = (campanhas: CampanhaData[]): TrafegoTotais 
     leadsQualificados: acc.leadsQualificados + c.leadsQualificados,
     callsAgendadas: acc.callsAgendadas + c.callsAgendadas,
     callsRealizadas: acc.callsRealizadas + c.callsRealizadas,
+    callsQualificadas: acc.callsQualificadas + (c as any).callsQualificadas || 0,
     fechamentos: acc.fechamentos + c.fechamentos,
     receita: acc.receita + c.valorFechado,
   }), {
@@ -247,6 +249,7 @@ export const calcularTotaisTrafego = (campanhas: CampanhaData[]): TrafegoTotais 
     leadsQualificados: 0,
     callsAgendadas: 0,
     callsRealizadas: 0,
+    callsQualificadas: 0,
     fechamentos: 0,
     receita: 0,
   });

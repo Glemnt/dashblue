@@ -61,13 +61,22 @@ const TrafegoFunnel = ({ totais, isTVMode = false }: TrafegoFunnelProps) => {
       taxa: `${totais.callsAgendadas > 0 ? ((totais.callsRealizadas / totais.callsAgendadas) * 100).toFixed(1) : 0}%`
     },
     {
+      icon: '✅',
+      label: 'CALLS QUALIFICADAS (SQL)',
+      value: formatarNumero(totais.callsQualificadas),
+      detail: `Custo/SQL: ${formatarMoeda(totais.callsQualificadas > 0 ? totais.investimento / totais.callsQualificadas : 0)}`,
+      color: 'from-[#FFB800] to-[#F97316]',
+      width: '35%',
+      taxa: `${totais.callsRealizadas > 0 ? ((totais.callsQualificadas / totais.callsRealizadas) * 100).toFixed(1) : 0}%`
+    },
+    {
       icon: '🎉',
       label: 'FECHAMENTOS',
       value: `${totais.fechamentos}`,
       detail: `CAC: ${formatarMoeda(totais.cac)}`,
-      color: 'from-[#FFB800] to-[#FF8800]',
+      color: 'from-[#F97316] to-[#FF8800]',
       width: '25%',
-      taxa: `${totais.callsRealizadas > 0 ? ((totais.fechamentos / totais.callsRealizadas) * 100).toFixed(1) : 0}%`
+      taxa: `${totais.callsQualificadas > 0 ? ((totais.fechamentos / totais.callsQualificadas) * 100).toFixed(1) : 0}%`
     },
     {
       icon: '💰',
