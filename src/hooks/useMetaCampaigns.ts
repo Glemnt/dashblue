@@ -119,10 +119,12 @@ const calcularTotaisComDadosReais = (
   // DADOS REAIS de calls da planilha de SDRs
   const callsAgendadas = realFinancials.callsAgendadas;
   const callsRealizadas = realFinancials.callsRealizadas;
+  const callsQualificadas = realFinancials.callsQualificadas;
 
   console.log('📞 CALLS REAIS (da planilha SDR):');
   console.log('  - Calls Agendadas:', callsAgendadas);
   console.log('  - Calls Realizadas:', callsRealizadas);
+  console.log('  - Calls Qualificadas (SQL):', callsQualificadas);
 
   // Métricas financeiras REAIS
   const roas = totaisBase.investimento > 0 ? receita / totaisBase.investimento : 0;
@@ -150,6 +152,7 @@ const calcularTotaisComDadosReais = (
     taxaQualificacao,
     callsAgendadas,
     callsRealizadas,
+    callsQualificadas,
     fechamentos,
     receita,
     roas,
@@ -331,6 +334,7 @@ export const useMetaCampaigns = (
         taxaQualificacao: 0,
         callsAgendadas: acc.callsAgendadas + c.callsAgendadas,
         callsRealizadas: acc.callsRealizadas + c.callsRealizadas,
+        callsQualificadas: 0,
         fechamentos: acc.fechamentos + c.fechamentos,
         receita: acc.receita + c.valorFechado,
         roas: 0,
@@ -348,6 +352,7 @@ export const useMetaCampaigns = (
         taxaQualificacao: 0,
         callsAgendadas: 0,
         callsRealizadas: 0,
+        callsQualificadas: 0,
         fechamentos: 0,
         receita: 0,
         roas: 0,
