@@ -116,10 +116,13 @@ const calcularTotaisComDadosReais = (
   const leadsQualificados = Math.round(totaisBase.leads * TAXA_QUALIFICACAO_MERCADO);
   const taxaQualificacao = totaisBase.leads > 0 ? (leadsQualificados / totaisBase.leads) * 100 : 0;
 
-  // Calls estimadas (baseadas nos fechamentos reais)
-  // Se temos X fechamentos e taxa de conversão ~20%, temos ~5X calls realizadas
-  const callsRealizadas = fechamentos > 0 ? Math.round(fechamentos / 0.2) : 0;
-  const callsAgendadas = callsRealizadas > 0 ? Math.round(callsRealizadas / 0.85) : 0;
+  // DADOS REAIS de calls da planilha de SDRs
+  const callsAgendadas = realFinancials.callsAgendadas;
+  const callsRealizadas = realFinancials.callsRealizadas;
+
+  console.log('📞 CALLS REAIS (da planilha SDR):');
+  console.log('  - Calls Agendadas:', callsAgendadas);
+  console.log('  - Calls Realizadas:', callsRealizadas);
 
   // Métricas financeiras REAIS
   const roas = totaisBase.investimento > 0 ? receita / totaisBase.investimento : 0;
@@ -179,9 +182,9 @@ const distribuirDadosReaisParaCampanhas = (
     const valorFechado = realFinancials.receitaTotal * proporcao;
     const ticketMedio = fechamentos > 0 ? valorFechado / fechamentos : realFinancials.ticketMedio;
 
-    // Calls estimadas baseadas nos fechamentos
-    const callsRealizadas = fechamentos > 0 ? Math.round(fechamentos / 0.2) : 0;
-    const callsAgendadas = callsRealizadas > 0 ? Math.round(callsRealizadas / 0.85) : 0;
+    // Calls proporcionais baseadas nos dados reais
+    const callsAgendadas = Math.round(realFinancials.callsAgendadas * proporcao);
+    const callsRealizadas = Math.round(realFinancials.callsRealizadas * proporcao);
 
     // Métricas financeiras baseadas nos valores proporcionais
     const roas = campanha.investimento > 0 ? valorFechado / campanha.investimento : 0;
