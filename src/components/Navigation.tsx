@@ -7,12 +7,12 @@ interface NavigationProps {
 const Navigation = ({ isTVMode = false }: NavigationProps) => {
   const menuItems = [
     { path: '/', label: 'Visão Geral', enabled: true },
-    { path: '/sdr', label: 'SDR', enabled: true },
     { path: '/closer', label: 'Closer', enabled: true },
-    { path: '/financeiro', label: 'Financeiro', enabled: true },
+    { path: '/sdr', label: 'SDR', enabled: true },
     { path: '/squads', label: 'Squads', enabled: true },
-    { path: '/ia', label: 'IA 🤖', enabled: true },
-    { path: '/trafego', label: 'Tráfego', enabled: true }
+    { path: '/financeiro', label: 'Financeiro', enabled: true },
+    { path: '/trafego', label: 'Tráfego', enabled: true },
+    { path: '/ia', label: 'IA 🤖', enabled: false }
   ];
 
   return (

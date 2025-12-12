@@ -13,12 +13,12 @@ const MobileMenu = ({ isTVMode = false }: MobileMenuProps) => {
 
   const menuItems = [
     { path: '/', label: 'Visão Geral', icon: Home, enabled: true },
-    { path: '/sdr', label: 'SDR', icon: Users, enabled: true },
     { path: '/closer', label: 'Closer', icon: Target, enabled: true },
-    { path: '/financeiro', label: 'Financeiro', icon: DollarSign, enabled: true },
+    { path: '/sdr', label: 'SDR', icon: Users, enabled: true },
     { path: '/squads', label: 'Squads', icon: Trophy, enabled: true },
-    { path: '/ia', label: 'IA 🤖', icon: Sparkles, enabled: true },
-    { path: '/trafego', label: 'Tráfego', icon: TrendingUp, enabled: false }
+    { path: '/financeiro', label: 'Financeiro', icon: DollarSign, enabled: true },
+    { path: '/trafego', label: 'Tráfego', icon: TrendingUp, enabled: true },
+    { path: '/ia', label: 'IA 🤖', icon: Sparkles, enabled: false }
   ];
 
   // Não mostrar no TV Mode
