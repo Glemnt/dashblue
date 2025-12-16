@@ -239,7 +239,30 @@ const CampanhasTable = ({ campanhas, isTVMode = false }: CampanhasTableProps) =>
               selected={dateFilter}
               onSelect={setDateFilter}
               locale={ptBR}
-              className="pointer-events-auto"
+              className="pointer-events-auto bg-[#151E35]"
+              classNames={{
+                months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
+                month: "space-y-4",
+                caption: "flex justify-center pt-1 relative items-center",
+                caption_label: "text-sm font-medium text-white",
+                nav: "space-x-1 flex items-center",
+                nav_button: "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100 text-white border border-white/20 rounded",
+                nav_button_previous: "absolute left-1",
+                nav_button_next: "absolute right-1",
+                table: "w-full border-collapse space-y-1",
+                head_row: "flex",
+                head_cell: "text-white/60 rounded-md w-9 font-normal text-[0.8rem]",
+                row: "flex w-full mt-2",
+                cell: "h-9 w-9 text-center text-sm p-0 relative text-white",
+                day: "h-9 w-9 p-0 font-normal text-white hover:bg-white/10 rounded-md",
+                day_range_end: "day-range-end",
+                day_selected: "bg-[#0066FF] text-white hover:bg-[#0066FF] hover:text-white focus:bg-[#0066FF] focus:text-white rounded-md",
+                day_today: "bg-white/10 text-white",
+                day_outside: "text-white/30 opacity-50",
+                day_disabled: "text-white/20 opacity-50",
+                day_range_middle: "bg-[#0066FF]/30 text-white",
+                day_hidden: "invisible",
+              }}
               initialFocus
             />
           </PopoverContent>
