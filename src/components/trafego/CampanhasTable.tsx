@@ -37,7 +37,11 @@ const CampanhasTable = ({ campanhas, isTVMode = false }: CampanhasTableProps) =>
   const [canalFilter, setCanalFilter] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [objetivoFilter, setObjetivoFilter] = useState<string>('all');
-  const [dateFilter, setDateFilter] = useState<DateRange | undefined>(undefined);
+  
+  // Estados para filtro de data com botão aplicar
+  const [appliedDateFilter, setAppliedDateFilter] = useState<DateRange | undefined>(undefined);
+  const [tempDateFilter, setTempDateFilter] = useState<DateRange | undefined>(undefined);
+  const [datePopoverOpen, setDatePopoverOpen] = useState(false);
 
   const canais = useMemo(() => {
     const uniqueCanais = [...new Set(campanhas.map(c => c.canal))];
@@ -74,13 +78,13 @@ const CampanhasTable = ({ campanhas, isTVMode = false }: CampanhasTableProps) =>
       result = result.filter(c => c.objetivo === objetivoFilter);
     }
 
-    // Filter by date range
-    if (dateFilter?.from) {
+    // Filter by date range - usa appliedDateFilter
+    if (appliedDateFilter?.from) {
       result = result.filter(c => {
-        if (!c.dataInicio) return true;
+        if (!c.dataInicio) return false; // Campanhas sem data NÃO passam quando há filtro ativo
         const campanhaDate = new Date(c.dataInicio);
-        const fromDate = dateFilter.from!;
-        const toDate = dateFilter.to || dateFilter.from!;
+        const fromDate = appliedDateFilter.from!;
+        const toDate = appliedDateFilter.to || appliedDateFilter.from!;
         return campanhaDate >= fromDate && campanhaDate <= toDate;
       });
     }
@@ -100,7 +104,7 @@ const CampanhasTable = ({ campanhas, isTVMode = false }: CampanhasTableProps) =>
     });
 
     return result;
-  }, [campanhas, searchTerm, sortKey, sortDirection, canalFilter, statusFilter, objetivoFilter, dateFilter]);
+  }, [campanhas, searchTerm, sortKey, sortDirection, canalFilter, statusFilter, objetivoFilter, appliedDateFilter]);
 
   const handleSort = (key: SortKey) => {
     if (sortKey === key) {
@@ -215,18 +219,24 @@ const CampanhasTable = ({ campanhas, isTVMode = false }: CampanhasTableProps) =>
         </Select>
 
         {/* Date Filter */}
-        <Popover>
+        <Popover open={datePopoverOpen} onOpenChange={(open) => {
+          setDatePopoverOpen(open);
+          if (open) {
+            // Ao abrir, sincronizar estado temporário com o aplicado
+            setTempDateFilter(appliedDateFilter);
+          }
+        }}>
           <PopoverTrigger asChild>
             <Button 
               variant="outline" 
               className={`bg-[#0B1120] border-white/10 text-white hover:bg-white/10 ${isTVMode ? 'h-14 text-lg' : ''}`}
             >
               <Calendar className="w-5 h-5 mr-2" />
-              {dateFilter?.from ? (
-                dateFilter.to ? (
-                  `${format(dateFilter.from, "dd/MM", { locale: ptBR })} - ${format(dateFilter.to, "dd/MM", { locale: ptBR })}`
+              {appliedDateFilter?.from ? (
+                appliedDateFilter.to ? (
+                  `${format(appliedDateFilter.from, "dd/MM", { locale: ptBR })} - ${format(appliedDateFilter.to, "dd/MM", { locale: ptBR })}`
                 ) : (
-                  format(dateFilter.from, "dd/MM/yyyy", { locale: ptBR })
+                  format(appliedDateFilter.from, "dd/MM/yyyy", { locale: ptBR })
                 )
               ) : (
                 "Filtrar Data"
@@ -236,8 +246,8 @@ const CampanhasTable = ({ campanhas, isTVMode = false }: CampanhasTableProps) =>
           <PopoverContent className="w-auto p-0 bg-[#151E35] border-white/10" align="start">
             <CalendarComponent
               mode="range"
-              selected={dateFilter}
-              onSelect={setDateFilter}
+              selected={tempDateFilter}
+              onSelect={setTempDateFilter}
               locale={ptBR}
               className="pointer-events-auto bg-[#151E35]"
               classNames={{
@@ -265,18 +275,45 @@ const CampanhasTable = ({ campanhas, isTVMode = false }: CampanhasTableProps) =>
               }}
               initialFocus
             />
+            {/* Botões Limpar e Aplicar */}
+            <div className="flex gap-2 p-3 border-t border-white/10">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setTempDateFilter(undefined);
+                }}
+                className="flex-1 text-white/60 hover:text-white hover:bg-white/10"
+              >
+                Limpar
+              </Button>
+              <Button
+                size="sm"
+                onClick={() => {
+                  setAppliedDateFilter(tempDateFilter);
+                  setDatePopoverOpen(false);
+                }}
+                className="flex-1 bg-[#0066FF] text-white hover:bg-[#0066FF]/80"
+                disabled={!tempDateFilter?.from}
+              >
+                Aplicar
+              </Button>
+            </div>
           </PopoverContent>
         </Popover>
 
-        {dateFilter?.from && (
+        {appliedDateFilter?.from && (
           <Button 
             variant="ghost" 
             size="sm" 
-            onClick={() => setDateFilter(undefined)}
+            onClick={() => {
+              setAppliedDateFilter(undefined);
+              setTempDateFilter(undefined);
+            }}
             className="text-white/60 hover:text-white hover:bg-white/10"
           >
             <X className="w-4 h-4 mr-1" />
-            Limpar
+            Limpar Data
           </Button>
         )}
 
