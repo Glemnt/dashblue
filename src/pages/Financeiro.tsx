@@ -4,6 +4,7 @@ import logoWhite from "@/assets/logo-white.png";
 import MobileMenu from '@/components/MobileMenu';
 import { useGoogleSheets } from "@/hooks/useGoogleSheets";
 import { calcularMetricasFinanceiras, formatarReal } from "@/utils/financialMetricsCalculator";
+import { getMetasPorMes } from "@/utils/metasConfig";
 import { filterDataByDateRange } from '@/utils/dateFilters';
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -30,6 +31,11 @@ const Financeiro = () => {
   // Filtrar dados por período e calcular métricas
   const filteredData = data.length > 0 ? filterDataByDateRange(data, dateRange) : [];
   const metricas = filteredData.length > 0 ? calcularMetricasFinanceiras(filteredData) : null;
+  
+  // Metas dinâmicas do metasConfig
+  const configMeta = getMetasPorMes(selectedMonthKey);
+  const metaTaxaRecebimento = configMeta.metaTaxaRecebimentoMinimo || 90;
+  const metaReceita = configMeta.metaMensal;
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
@@ -339,7 +345,7 @@ const Financeiro = () => {
         <h2 className={`text-[#0B1120] font-black mb-8 ${isTVMode ? 'text-4xl' : 'text-5xl'}`}>
           Funil Financeiro
         </h2>
-        <FinancialFunnel metricas={metricas} isTVMode={isTVMode} />
+        <FinancialFunnel metricas={metricas} isTVMode={isTVMode} metaTaxaRecebimento={metaTaxaRecebimento} />
       </section>
 
       {/* SEÇÃO 3: ANÁLISE POR SQUAD */}
@@ -625,7 +631,7 @@ const Financeiro = () => {
                   <XAxis dataKey="dia" />
                   <YAxis />
                   <Tooltip formatter={(value) => formatarReal(value as number)} />
-                  <ReferenceLine y={650000} stroke="#0066FF" strokeDasharray="3 3" label="Meta R$ 650k" />
+                  <ReferenceLine y={metaReceita} stroke="#0066FF" strokeDasharray="3 3" label={`Meta ${formatarReal(metaReceita)}`} />
                   <Line type="monotone" dataKey="acumulado" stroke="#00E5CC" strokeWidth={3} />
                 </LineChart>
               </ResponsiveContainer>
