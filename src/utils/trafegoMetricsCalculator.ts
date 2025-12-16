@@ -106,7 +106,9 @@ export const campanhasMock: CampanhaData[] = [
     roas: 8.19,
     roi: 719,
     cac: 1416.67,
-    ticketMedio: 11600
+    ticketMedio: 11600,
+    dataInicio: '2024-12-01',
+    dataFim: '2024-12-31'
   },
   {
     id: 2,
@@ -130,7 +132,9 @@ export const campanhasMock: CampanhaData[] = [
     roas: 9.1,
     roi: 810,
     cac: 1500,
-    ticketMedio: 13650
+    ticketMedio: 13650,
+    dataInicio: '2024-12-01',
+    dataFim: '2024-12-31'
   },
   {
     id: 3,
@@ -154,7 +158,9 @@ export const campanhasMock: CampanhaData[] = [
     roas: 6.8,
     roi: 580,
     cac: 1800,
-    ticketMedio: 12240
+    ticketMedio: 12240,
+    dataInicio: '2024-12-01',
+    dataFim: '2024-12-31'
   },
   {
     id: 4,
@@ -178,7 +184,9 @@ export const campanhasMock: CampanhaData[] = [
     roas: 4.2,
     roi: 320,
     cac: 1500,
-    ticketMedio: 6300
+    ticketMedio: 6300,
+    dataInicio: '2024-12-05',
+    dataFim: '2024-12-31'
   },
   {
     id: 5,
@@ -202,7 +210,9 @@ export const campanhasMock: CampanhaData[] = [
     roas: 2.1,
     roi: 110,
     cac: 3000,
-    ticketMedio: 6300
+    ticketMedio: 6300,
+    dataInicio: '2024-12-10',
+    dataFim: '2024-12-31'
   },
   {
     id: 6,
@@ -226,7 +236,9 @@ export const campanhasMock: CampanhaData[] = [
     roas: 0,
     roi: -100,
     cac: 0,
-    ticketMedio: 0
+    ticketMedio: 0,
+    dataInicio: '2024-11-15',
+    dataFim: '2024-12-15'
   }
 ];
 

@@ -49,6 +49,8 @@ interface CampanhaData {
   roi: number;
   cac: number;
   ticketMedio: number;
+  dataInicio?: string;
+  dataFim?: string;
 }
 
 // Identifica o tipo de campanha pelo nome
@@ -401,7 +403,9 @@ serve(async (req) => {
         roas: 0,
         roi: 0,
         cac: 0,
-        ticketMedio: 0
+        ticketMedio: 0,
+        dataInicio: timeRange.since,
+        dataFim: timeRange.until
       };
     });
 
