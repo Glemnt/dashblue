@@ -111,3 +111,41 @@ export const calcularDiasUteisRestantes = (): number => {
   }
   return diasUteis;
 };
+
+// Meses disponíveis no sistema
+const MESES_DISPONIVEIS = ['outubro-2025', 'novembro-2025', 'dezembro-2025'];
+
+// Obter chave do mês anterior
+export const getPreviousMonthKey = (currentMonthKey: string): string | null => {
+  const index = MESES_DISPONIVEIS.indexOf(currentMonthKey);
+  if (index <= 0) return null; // Não há mês anterior
+  return MESES_DISPONIVEIS[index - 1];
+};
+
+// Obter label do mês a partir da chave
+export const getMonthLabel = (monthKey: string): string => {
+  const parts = monthKey.split('-');
+  if (parts.length !== 2) return monthKey;
+  
+  const mesNome = parts[0].charAt(0).toUpperCase() + parts[0].slice(1);
+  return mesNome;
+};
+
+// Obter DateRange a partir de monthKey
+export const getDateRangeFromMonthKey = (monthKey: string): DateRange | null => {
+  const parts = monthKey.split('-');
+  if (parts.length !== 2) return null;
+  
+  const mesesMap: Record<string, number> = {
+    'janeiro': 0, 'fevereiro': 1, 'marco': 2, 'abril': 3,
+    'maio': 4, 'junho': 5, 'julho': 6, 'agosto': 7,
+    'setembro': 8, 'outubro': 9, 'novembro': 10, 'dezembro': 11
+  };
+  
+  const mes = mesesMap[parts[0]];
+  const ano = parseInt(parts[1]);
+  
+  if (mes === undefined || isNaN(ano)) return null;
+  
+  return getMonthRange(mes, ano);
+};
