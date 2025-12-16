@@ -1,4 +1,5 @@
 import { formatarReal } from '@/utils/financialMetricsCalculator';
+import { getMetasPorMes } from '@/utils/metasConfig';
 
 interface SquadsMetaIndividualProps {
   hotDogs: {
@@ -142,6 +143,11 @@ export const SquadsMetaIndividual = ({
     );
   };
 
+  // Extrair nome do mês e modelo dinamicamente
+  const configMeta = getMetasPorMes(monthKey);
+  const [mes, ano] = monthKey.split('-');
+  const nomeMes = mes.charAt(0).toUpperCase() + mes.slice(1);
+
   return (
     <div className="max-w-[1600px] mx-auto">
       <div className="text-center mb-10">
@@ -153,7 +159,7 @@ export const SquadsMetaIndividual = ({
         <p className={`text-[#64748B] font-outfit ${
           isTVMode ? 'text-lg' : 'text-xl'
         }`}>
-          {monthKey.includes('novembro') ? 'Novembro' : 'Outubro'} 2025 • Modelo {monthKey.includes('novembro') ? 'MRR' : 'TCV'}
+          {nomeMes} {ano} • Modelo {configMeta.modelo}
         </p>
       </div>
 

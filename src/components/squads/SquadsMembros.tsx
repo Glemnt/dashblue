@@ -3,14 +3,20 @@ import { SquadMetrics } from '@/utils/squadsMetricsCalculator';
 import { Card } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
+import { getMetasPorMes } from '@/utils/metasConfig';
 
 interface SquadsMembrosProps {
   hotDogs: SquadMetrics;
   corvoAzul: SquadMetrics;
   isTVMode: boolean;
+  monthKey: string;
 }
 
-export const SquadsMembros = ({ hotDogs, corvoAzul, isTVMode }: SquadsMembrosProps) => {
+export const SquadsMembros = ({ hotDogs, corvoAzul, isTVMode, monthKey }: SquadsMembrosProps) => {
+  // Metas dinâmicas do metasConfig
+  const configMeta = getMetasPorMes(monthKey);
+  const metaIndividual = configMeta.metaIndividualCloser || 65000;
+  const metaTaxaConversao = configMeta.metaTaxaConversao || 28;
   const renderSquadCard = (squad: SquadMetrics) => {
     return (
       <Card className={`bg-[#151E35] border-l-8 p-6 md:p-8 ${
@@ -87,13 +93,13 @@ export const SquadsMembros = ({ hotDogs, corvoAzul, isTVMode }: SquadsMembrosPro
                           👑
                         </span>
                       )}
-                      {membro.receitaIndividual >= 100000 && (
-                        <span className={isTVMode ? 'text-3xl' : 'text-2xl'} title="Meta Batida">
+                      {membro.receitaIndividual >= metaIndividual && (
+                        <span className={isTVMode ? 'text-3xl' : 'text-2xl'} title={`Meta Batida (${formatarReal(metaIndividual)})`}>
                           🔥
                         </span>
                       )}
-                      {membro.taxaConversao >= 25 && (
-                        <span className={isTVMode ? 'text-3xl' : 'text-2xl'} title="Melhor Taxa">
+                      {membro.taxaConversao >= metaTaxaConversao && (
+                        <span className={isTVMode ? 'text-3xl' : 'text-2xl'} title={`Taxa >= ${metaTaxaConversao}%`}>
                           ⭐
                         </span>
                       )}
