@@ -77,31 +77,50 @@ export interface MetasTrafego {
 }
 
 export const METAS_TRAFEGO_POR_MES: Record<string, MetasTrafego> = {
-  'dezembro-2025': {
-    // Metas base
+  'outubro-2025': {
     investimentoMensal: 220000,
     metaReceita: 325000,
     ticketMedio: 4000,
-    
-    // Funil invertido:
-    // Meta 325k / Ticket 4k = 82 vendas
-    // 82 vendas / 20% taxa fechamento = 410 calls realizadas
-    // 410 calls / 80% taxa realização = 513 calls agendadas (MQL)
-    // 513 MQL / 50% taxa qualificação = 1026 leads
     fechamentos: 82,
     callsRealizadas: 410,
     callsAgendadas: 513,
     leads: 1026,
-    
-    // Taxas de conversão meta
     taxaLeadParaQualificado: 0.50,
     taxaCallAgendadaParaRealizada: 0.80,
     taxaCallParaFechamento: 0.20,
-    
-    // Métricas derivadas
-    cplMeta: 214.42,    // 220k / 1026 leads
-    cacMeta: 2682.93,   // 220k / 82 fechamentos
-    roasMinimo: 1.48    // 325k / 220k
+    cplMeta: 214.42,
+    cacMeta: 2682.93,
+    roasMinimo: 1.48
+  },
+  'novembro-2025': {
+    investimentoMensal: 220000,
+    metaReceita: 325000,
+    ticketMedio: 4000,
+    fechamentos: 82,
+    callsRealizadas: 410,
+    callsAgendadas: 513,
+    leads: 1026,
+    taxaLeadParaQualificado: 0.50,
+    taxaCallAgendadaParaRealizada: 0.80,
+    taxaCallParaFechamento: 0.20,
+    cplMeta: 214.42,
+    cacMeta: 2682.93,
+    roasMinimo: 1.48
+  },
+  'dezembro-2025': {
+    investimentoMensal: 220000,
+    metaReceita: 325000,
+    ticketMedio: 4000,
+    fechamentos: 82,
+    callsRealizadas: 410,
+    callsAgendadas: 513,
+    leads: 1026,
+    taxaLeadParaQualificado: 0.50,
+    taxaCallAgendadaParaRealizada: 0.80,
+    taxaCallParaFechamento: 0.20,
+    cplMeta: 214.42,
+    cacMeta: 2682.93,
+    roasMinimo: 1.48
   }
 };
 
@@ -129,7 +148,15 @@ export const METAS_POR_MES: Record<string, MetasMensais> = {
     squads: {
       metaPorSquad: 325000,
       totalSquads: 2
-    }
+    },
+    metaTicketMedioCloser: 4200,
+    metaTaxaConversao: 28,
+    metaTaxaAssinatura: 100,
+    metaTaxaPagamento: 100,
+    metaTaxaRecebimentoMinimo: 90,
+    metaTaxaQualificacaoSDR: 50,
+    metaTaxaShowSDR: 75,
+    numSDRs: 3
   },
   'novembro-2025': {
     metaMensal: 360000,
@@ -138,7 +165,15 @@ export const METAS_POR_MES: Record<string, MetasMensais> = {
     squads: {
       metaPorSquad: 180000,
       totalSquads: 2
-    }
+    },
+    metaTicketMedioCloser: 4200,
+    metaTaxaConversao: 28,
+    metaTaxaAssinatura: 100,
+    metaTaxaPagamento: 100,
+    metaTaxaRecebimentoMinimo: 90,
+    metaTaxaQualificacaoSDR: 50,
+    metaTaxaShowSDR: 75,
+    numSDRs: 3
   },
   'dezembro-2025': {
     metaMensal: 325000,
