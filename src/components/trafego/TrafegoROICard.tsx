@@ -10,7 +10,7 @@ interface TrafegoROICardProps {
 const TrafegoROICard = ({ investimento, receita, isTVMode = false }: TrafegoROICardProps) => {
   const lucroLiquido = receita - investimento;
   const roi = investimento > 0 ? ((receita - investimento) / investimento) * 100 : 0;
-  const roiMultiplo = investimento > 0 ? lucroLiquido / investimento : 0;
+  const roiMultiplo = investimento > 0 ? receita / investimento : 0;
 
   return (
     <div className={`bg-gradient-to-r from-[#151E35] via-[#1a2744] to-[#151E35] rounded-2xl border-2 border-[#00E5CC]/30 ${isTVMode ? 'p-10' : 'p-6 sm:p-8'}`}>
