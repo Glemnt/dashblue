@@ -485,7 +485,7 @@ export const calcularMetricas = (
     },
     funil: {
       leads: dadosMarketing?.totalLeads || 0,
-      mqls: dadosMarketing?.totalMQLs ?? callsQualificadas,
+      mqls: callsAgendadas,
       callsAgendadas: callsAgendadas,
       callsRealizadas: callsRealizadas,
       callsQualificadas: callsQualificadas,

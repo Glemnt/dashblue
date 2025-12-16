@@ -518,10 +518,10 @@ const Index = () => {
               {formatarValor(metricas.ticketMedio)}
             </p>
             <div className="h-2 bg-[#F8FAFC] rounded-full mb-4">
-              <div className="h-full bg-[#00E5CC] rounded-full" style={{ width: `${Math.min((metricas.ticketMedio / 12000) * 100, 100)}%` }}></div>
+              <div className="h-full bg-[#00E5CC] rounded-full" style={{ width: `${Math.min((metricas.ticketMedio / 4200) * 100, 100)}%` }}></div>
             </div>
             <p className="text-gray-medium font-outfit text-base">
-              Meta: R$ 12.000
+              Meta: R$ 4.200
             </p>
           </div>
 
