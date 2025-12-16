@@ -253,6 +253,7 @@ const GuerraSquads = () => {
           hotDogs={metricas.hotDogs}
           corvoAzul={metricas.corvoAzul}
           isTVMode={isTVMode}
+          monthKey={selectedMonthKey}
         />
       </section>
 
