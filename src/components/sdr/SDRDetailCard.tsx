@@ -10,9 +10,11 @@ interface SDRDetailCardProps {
   sdr: SDRMetrics;
   data: any[];
   metaIndividualCalls: number;
+  metaTaxaQualificacao?: number;
+  metaTaxaShow?: number;
 }
 
-const SDRDetailCard = ({ sdr, data, metaIndividualCalls }: SDRDetailCardProps) => {
+const SDRDetailCard = ({ sdr, data, metaIndividualCalls, metaTaxaQualificacao = 50, metaTaxaShow = 75 }: SDRDetailCardProps) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const getProgressColor = (value: number, meta: number) => {
@@ -210,14 +212,14 @@ const SDRDetailCard = ({ sdr, data, metaIndividualCalls }: SDRDetailCardProps) =
                 <div>
                   <div className="flex justify-between mb-2">
                     <span className="text-[#64748B] text-sm font-outfit">
-                      Taxa de Qualificação vs Meta (35%)
+                      Taxa de Qualificação vs Meta ({metaTaxaQualificacao}%)
                     </span>
                     <span className="text-[#0B1120] text-sm font-outfit font-semibold">
                       {sdr.taxaQualificacao.toFixed(1)}%
                     </span>
                   </div>
                   <Progress 
-                    value={Math.min(sdr.taxaQualificacao, 100)} 
+                    value={(sdr.taxaQualificacao / metaTaxaQualificacao) * 100} 
                     className="h-3"
                   />
                 </div>
@@ -225,14 +227,14 @@ const SDRDetailCard = ({ sdr, data, metaIndividualCalls }: SDRDetailCardProps) =
                 <div>
                   <div className="flex justify-between mb-2">
                     <span className="text-[#64748B] text-sm font-outfit">
-                      Taxa de Show vs Meta (75%)
+                      Taxa de Show vs Meta ({metaTaxaShow}%)
                     </span>
                     <span className="text-[#0B1120] text-sm font-outfit font-semibold">
                       {sdr.taxaShow.toFixed(1)}%
                     </span>
                   </div>
                   <Progress 
-                    value={Math.min(sdr.taxaShow, 100)} 
+                    value={(sdr.taxaShow / metaTaxaShow) * 100} 
                     className="h-3"
                   />
                 </div>
