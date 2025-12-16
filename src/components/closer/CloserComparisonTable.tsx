@@ -143,7 +143,7 @@ const CloserComparisonTable = ({ closers, destaque }: CloserComparisonTableProps
                 <td className="px-6 py-6">
                   <div className="space-y-2">
                     <div className="flex items-center gap-2">
-                      <span className="text-2xl">{getIndicador(closer.taxaConversao, 25, 15)}</span>
+                      <span className="text-2xl">{getIndicador(closer.taxaConversao, 28, 20)}</span>
                       <span className="text-white font-outfit text-lg font-bold">
                         {closer.taxaConversao.toFixed(1)}%
                       </span>
@@ -167,7 +167,7 @@ const CloserComparisonTable = ({ closers, destaque }: CloserComparisonTableProps
                 {/* Ticket Médio */}
                 <td className="px-6 py-6">
                   <div className="flex items-center gap-2">
-                    <span className="text-2xl">{getIndicador(closer.ticketMedio, 12000, 8000)}</span>
+                    <span className="text-2xl">{getIndicador(closer.ticketMedio, 4200, 3000)}</span>
                     <span className="text-white font-outfit text-lg font-bold">
                       {formatarReal(closer.ticketMedio)}
                     </span>
