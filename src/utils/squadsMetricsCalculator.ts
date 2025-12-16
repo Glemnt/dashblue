@@ -1,7 +1,7 @@
 import { format, startOfMonth, endOfMonth } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { DateRange } from './dateFilters';
-import { getMetasPorMes } from './metasConfig';
+import { getMetasPorMes, getMetasTrafegoAtual } from './metasConfig';
 
 export interface SquadMemberMetrics {
   nome: string;
@@ -347,9 +347,10 @@ export const calcularMetricasSquads = (data: any[], dateRange?: DateRange, month
     const taxaPagamento = numeroContratos > 0 ? (contratos.filter(c => c.pago).length / numeroContratos) * 100 : 0;
     
     // Performance - Metas Dinâmicas
-    const configMeta = getMetasPorMes(monthKey || 'novembro-2025');
+    const configMeta = getMetasPorMes(monthKey || 'dezembro-2025');
     const metaReceita = configMeta.squads.metaPorSquad;
-    const metaContratos = 27;
+    const metasTrafegoSquad = getMetasTrafegoAtual(monthKey);
+    const metaContratos = Math.ceil(metasTrafegoSquad.fechamentos / 2); // 82 / 2 = 41 por squad
     const progressoMeta = (receitaTotal / metaReceita) * 100;
     const contratosMeta = (numeroContratos / metaContratos) * 100;
     const progressoMetaIndividual = (receitaTotal / metaReceita) * 100;

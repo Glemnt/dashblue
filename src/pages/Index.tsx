@@ -14,7 +14,8 @@ import PeriodFilter from "@/components/sdr/PeriodFilter";
 import TVModeToggle from "@/components/TVModeToggle";
 import { useTVMode } from "@/hooks/useTVMode";
 import { usePeriodFilter } from "@/contexts/PeriodFilterContext";
-import { filterDataByDateRange } from '@/utils/dateFilters';
+import { filterDataByDateRange, calcularDiasUteisRestantes } from '@/utils/dateFilters';
+import { getMetasTrafegoAtual } from '@/utils/metasConfig';
 
 // Função auxiliar para interpolar entre duas cores hex
 const interpolateColor = (color1: string, color2: string, ratio: number): string => {
@@ -122,6 +123,9 @@ const Index = () => {
   
   // Filtrar dados por período antes de calcular métricas
   const filteredData = data.length > 0 ? filterDataByDateRange(data, dateRange) : [];
+  
+  // Obter metas dinâmicas para o mês selecionado
+  const metasTrafego = getMetasTrafegoAtual(selectedMonthKey);
   
   // Calcular métricas com dados filtrados
   const metricas = filteredData.length > 0 ? calcularMetricas(filteredData, {
@@ -345,7 +349,7 @@ const Index = () => {
               </p>
               {!isTVMode && (
                 <p className="text-[#94A3B8] font-outfit text-sm">
-                  15 dias úteis restantes
+                  {calcularDiasUteisRestantes()} dias úteis restantes
                 </p>
               )}
             </div>
@@ -534,10 +538,10 @@ const Index = () => {
               {metricas.totalContratos}
             </p>
             <div className="h-2 bg-white/20 rounded-full mb-4">
-              <div className="h-full bg-white rounded-full" style={{ width: `${Math.min((metricas.totalContratos / 55) * 100, 100)}%` }}></div>
+              <div className="h-full bg-white rounded-full" style={{ width: `${Math.min((metricas.totalContratos / metasTrafego.fechamentos) * 100, 100)}%` }}></div>
             </div>
             <p className="text-white/80 font-outfit text-base">
-              Meta mensal: 55 ({((metricas.totalContratos / 55) * 100).toFixed(0)}%)
+              Meta mensal: {metasTrafego.fechamentos} ({((metricas.totalContratos / metasTrafego.fechamentos) * 100).toFixed(0)}%)
             </p>
           </div>
 
