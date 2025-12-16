@@ -10,11 +10,22 @@ import ColaboradorAvatar from '@/components/ColaboradorAvatar';
 interface CloserDetailCardProps {
   closer: CloserMetrics;
   metaIndividual: number;
+  metaTicketMedio?: number;
+  metaTaxaConversao?: number;
+  metaTaxaAssinatura?: number;
+  metaTaxaPagamento?: number;
 }
 
 type DetailView = 'none' | 'callsRealizadas' | 'qualificadas' | 'contratos' | 'assinada' | 'paga';
 
-const CloserDetailCard = ({ closer, metaIndividual }: CloserDetailCardProps) => {
+const CloserDetailCard = ({ 
+  closer, 
+  metaIndividual,
+  metaTicketMedio = 4200,
+  metaTaxaConversao = 28,
+  metaTaxaAssinatura = 100,
+  metaTaxaPagamento = 100
+}: CloserDetailCardProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedView, setSelectedView] = useState<DetailView>('none');
 
@@ -378,17 +389,17 @@ const CloserDetailCard = ({ closer, metaIndividual }: CloserDetailCardProps) => 
                 <div>
                   <div className="flex justify-between mb-2">
                     <span className="text-[#64748B] text-sm font-outfit">
-                      Ticket Médio vs Meta (R$ 4.000)
+                      Ticket Médio vs Meta ({formatarReal(metaTicketMedio)})
                     </span>
                     <span className="text-[#0B1120] text-sm font-outfit font-semibold">
                       {formatarReal(closer.ticketMedio)}
                     </span>
                   </div>
                   <Progress 
-                    value={Math.min((closer.ticketMedio / 4000) * 100, 100)} 
+                    value={Math.min((closer.ticketMedio / metaTicketMedio) * 100, 100)} 
                     className="h-3"
                     style={{ 
-                      '--progress-background': getProgressColor(closer.ticketMedio, 4000) 
+                      '--progress-background': getProgressColor(closer.ticketMedio, metaTicketMedio) 
                     } as any}
                   />
                 </div>
@@ -397,17 +408,17 @@ const CloserDetailCard = ({ closer, metaIndividual }: CloserDetailCardProps) => 
                 <div>
                   <div className="flex justify-between mb-2">
                     <span className="text-[#64748B] text-sm font-outfit">
-                      Taxa de Conversão vs Meta (25%)
+                      Taxa de Conversão vs Meta ({metaTaxaConversao}%)
                     </span>
                     <span className="text-[#0B1120] text-sm font-outfit font-semibold">
                       {closer.taxaConversao.toFixed(1)}%
                     </span>
                   </div>
                   <Progress 
-                    value={Math.min(closer.taxaConversao, 100)} 
+                    value={Math.min((closer.taxaConversao / metaTaxaConversao) * 100, 100)} 
                     className="h-3"
                     style={{ 
-                      '--progress-background': getProgressColor(closer.taxaConversao, 25) 
+                      '--progress-background': getProgressColor(closer.taxaConversao, metaTaxaConversao) 
                     } as any}
                   />
                 </div>
@@ -416,17 +427,17 @@ const CloserDetailCard = ({ closer, metaIndividual }: CloserDetailCardProps) => 
                 <div>
                   <div className="flex justify-between mb-2">
                     <span className="text-[#64748B] text-sm font-outfit">
-                      Taxa de Assinatura vs Meta (90%)
+                      Taxa de Assinatura vs Meta ({metaTaxaAssinatura}%)
                     </span>
                     <span className="text-[#0B1120] text-sm font-outfit font-semibold">
                       {closer.taxaAssinatura.toFixed(1)}%
                     </span>
                   </div>
                   <Progress 
-                    value={Math.min(closer.taxaAssinatura, 100)} 
+                    value={Math.min((closer.taxaAssinatura / metaTaxaAssinatura) * 100, 100)} 
                     className="h-3"
                     style={{ 
-                      '--progress-background': getProgressColor(closer.taxaAssinatura, 90) 
+                      '--progress-background': getProgressColor(closer.taxaAssinatura, metaTaxaAssinatura) 
                     } as any}
                   />
                 </div>
@@ -435,17 +446,17 @@ const CloserDetailCard = ({ closer, metaIndividual }: CloserDetailCardProps) => 
                 <div>
                   <div className="flex justify-between mb-2">
                     <span className="text-[#64748B] text-sm font-outfit">
-                      Taxa de Pagamento vs Meta (95%)
+                      Taxa de Pagamento vs Meta ({metaTaxaPagamento}%)
                     </span>
                     <span className="text-[#0B1120] text-sm font-outfit font-semibold">
                       {closer.taxaPagamento.toFixed(1)}%
                     </span>
                   </div>
                   <Progress 
-                    value={Math.min(closer.taxaPagamento, 100)} 
+                    value={Math.min((closer.taxaPagamento / metaTaxaPagamento) * 100, 100)} 
                     className="h-3"
                     style={{ 
-                      '--progress-background': getProgressColor(closer.taxaPagamento, 95) 
+                      '--progress-background': getProgressColor(closer.taxaPagamento, metaTaxaPagamento) 
                     } as any}
                   />
                 </div>

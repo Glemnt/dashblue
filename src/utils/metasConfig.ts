@@ -8,6 +8,11 @@ interface MetasMensais {
   metaIndividualCloser: number;
   modelo: 'TCV' | 'MRR';
   squads: MetasSquads;
+  // Metas Closer (opcionais para retrocompatibilidade)
+  metaTicketMedioCloser?: number;
+  metaTaxaConversao?: number;
+  metaTaxaAssinatura?: number;
+  metaTaxaPagamento?: number;
 }
 
 // ==========================================
@@ -108,7 +113,12 @@ export const METAS_POR_MES: Record<string, MetasMensais> = {
     squads: {
       metaPorSquad: 162500,
       totalSquads: 2
-    }
+    },
+    // Metas Closer
+    metaTicketMedioCloser: 4200,
+    metaTaxaConversao: 28,
+    metaTaxaAssinatura: 100,
+    metaTaxaPagamento: 100
   }
 };
 

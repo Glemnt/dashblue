@@ -93,8 +93,10 @@ const PerformanceCloser = () => {
   const configMeta = getMetasPorMes(selectedMonthKey);
   const metaMensalReceita = configMeta.metaMensal;
   const metaIndividualReceita = configMeta.metaIndividualCloser;
-  const metaTicketMedio = 4000;
-  const metaTaxaConversao = 25;
+  const metaTicketMedio = configMeta.metaTicketMedioCloser || 4200;
+  const metaTaxaConversao = configMeta.metaTaxaConversao || 28;
+  const metaTaxaAssinatura = configMeta.metaTaxaAssinatura || 100;
+  const metaTaxaPagamento = configMeta.metaTaxaPagamento || 100;
 
   console.log('🎯 Performance Closer - Metas:', {
     mes: selectedMonthKey,
@@ -377,7 +379,7 @@ const PerformanceCloser = () => {
             <p className={`text-[#64748B] font-outfit ${
               isTVMode ? 'text-base' : 'text-lg'
             }`}>
-              Modelo {configMeta.modelo} • {selectedMonthKey.includes('novembro') ? 'Novembro' : 'Outubro'} 2025
+              Modelo {configMeta.modelo} • {selectedMonthKey.split('-')[0].charAt(0).toUpperCase() + selectedMonthKey.split('-')[0].slice(1)} {selectedMonthKey.split('-')[1]}
             </p>
           </div>
 
@@ -536,6 +538,10 @@ const PerformanceCloser = () => {
               key={closer.nomeOriginal}
               closer={closer}
               metaIndividual={metaIndividualReceita}
+              metaTicketMedio={metaTicketMedio}
+              metaTaxaConversao={metaTaxaConversao}
+              metaTaxaAssinatura={metaTaxaAssinatura}
+              metaTaxaPagamento={metaTaxaPagamento}
             />
           ))}
         </div>
