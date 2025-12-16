@@ -12,6 +12,7 @@ import { useTVMode } from "@/hooks/useTVMode";
 import { useMetaCampaigns } from "@/hooks/useMetaCampaigns";
 import { useRealFinancials } from "@/hooks/useRealFinancials";
 import { usePeriodFilter } from "@/contexts/PeriodFilterContext";
+import { useComparativoMensal } from "@/hooks/useComparativoMensal";
 import PeriodFilter from "@/components/sdr/PeriodFilter";
 import TrafegoMetaBars from "@/components/trafego/TrafegoMetaBars";
 import TrafegoKPICards from "@/components/trafego/TrafegoKPICards";
@@ -52,6 +53,9 @@ const TrafegoPago = () => {
     lastUpdate, 
     isFromMeta 
   } = useMetaCampaigns(dateRange, selectedMonthKey, realFinancials);
+
+  // Dados comparativos com mês anterior
+  const comparativo = useComparativoMensal();
 
   const [isRefetching, setIsRefetching] = useState(false);
 
@@ -251,7 +255,12 @@ const TrafegoPago = () => {
           <h2 className={`text-white font-black mb-8 ${isTVMode ? 'text-4xl' : 'text-3xl md:text-4xl'}`}>
             💰 Métricas Principais
           </h2>
-          <TrafegoKPICards totais={totais} isTVMode={isTVMode} />
+          <TrafegoKPICards 
+            totais={totais} 
+            isTVMode={isTVMode} 
+            variacoes={comparativo.variacoes}
+            temComparativo={comparativo.temComparativo}
+          />
         </div>
       </section>
 

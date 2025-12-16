@@ -2,12 +2,24 @@ import { DollarSign, Users, UserCheck, Target, TrendingUp, Wallet } from "lucide
 import { Badge } from "@/components/ui/badge";
 import { TrafegoTotais, METAS_TRAFEGO, formatarMoeda, formatarNumero, formatarPercentual } from "@/utils/trafegoMetricsCalculator";
 
+interface Variacoes {
+  investimento: number;
+  leads: number;
+  leadsQualificados: number;
+  fechamentos: number;
+  roas: number;
+  cac: number;
+  receita: number;
+}
+
 interface TrafegoKPICardsProps {
   totais: TrafegoTotais;
   isTVMode?: boolean;
+  variacoes?: Variacoes;
+  temComparativo?: boolean;
 }
 
-const TrafegoKPICards = ({ totais, isTVMode = false }: TrafegoKPICardsProps) => {
+const TrafegoKPICards = ({ totais, isTVMode = false, variacoes, temComparativo = false }: TrafegoKPICardsProps) => {
   const getRoasColor = (roas: number) => {
     if (roas >= 5) return 'text-[#10B981]';
     if (roas >= 3) return 'text-[#34D399]';
@@ -22,9 +34,27 @@ const TrafegoKPICards = ({ totais, isTVMode = false }: TrafegoKPICardsProps) => 
     return { text: 'Atenção', color: 'bg-[#EF4444]' };
   };
 
+  // Formata a variação para exibição
+  const formatVariacao = (valor: number, invertido: boolean = false) => {
+    if (!temComparativo) return null;
+    const sinal = valor >= 0 ? '+' : '';
+    // Para métricas invertidas (CAC), positivo é quando diminui
+    const isPositive = invertido ? valor <= 0 : valor >= 0;
+    return {
+      text: `${sinal}${valor.toFixed(0)}% vs mês anterior`,
+      isPositive,
+      valor
+    };
+  };
+
   const cacDentroMeta = totais.cac <= METAS_TRAFEGO.cacMaximo;
   const taxaQualificacaoBoa = totais.taxaQualificacao >= 55;
   const investimentoDentro = totais.investimento <= METAS_TRAFEGO.investimentoMensal;
+
+  const varInvestimento = variacoes ? formatVariacao(variacoes.investimento) : null;
+  const varLeads = variacoes ? formatVariacao(variacoes.leads) : null;
+  const varQualificados = variacoes ? formatVariacao(variacoes.leadsQualificados) : null;
+  const varCac = variacoes ? formatVariacao(variacoes.cac, true) : null;
 
   const cards = [
     {
@@ -38,8 +68,9 @@ const TrafegoKPICards = ({ totais, isTVMode = false }: TrafegoKPICardsProps) => 
       badge: investimentoDentro 
         ? { text: 'No Budget', color: 'bg-[#10B981]' }
         : { text: 'Atenção ao Budget', color: 'bg-[#FBBF24]' },
-      trend: '+12% vs mês passado',
-      trendUp: true
+      trend: varInvestimento?.text || null,
+      trendUp: varInvestimento ? varInvestimento.valor >= 0 : null,
+      trendNeutral: true // Investimento é neutro
     },
     {
       icon: Users,
@@ -50,8 +81,8 @@ const TrafegoKPICards = ({ totais, isTVMode = false }: TrafegoKPICardsProps) => 
       valueColor: 'text-white',
       subtitle: `Média: ${(totais.leads / 30).toFixed(1)} leads/dia`,
       badge: null,
-      trend: '+18% vs mês passado',
-      trendUp: true
+      trend: varLeads?.text || null,
+      trendUp: varLeads?.isPositive ?? null
     },
     {
       icon: UserCheck,
@@ -66,8 +97,8 @@ const TrafegoKPICards = ({ totais, isTVMode = false }: TrafegoKPICardsProps) => 
         : totais.taxaQualificacao >= 40
           ? { text: 'Bom', color: 'bg-[#FBBF24]' }
           : { text: 'Baixa', color: 'bg-[#EF4444]' },
-      trend: '+15% vs mês passado',
-      trendUp: true
+      trend: varQualificados?.text || null,
+      trendUp: varQualificados?.isPositive ?? null
     },
     {
       icon: Target,
@@ -106,8 +137,9 @@ const TrafegoKPICards = ({ totais, isTVMode = false }: TrafegoKPICardsProps) => 
       badge: cacDentroMeta
         ? { text: 'Dentro da Meta ✅', color: 'bg-[#10B981]' }
         : { text: 'Acima da Meta ⚠️', color: 'bg-[#EF4444]' },
-      trend: '-15% vs mês passado',
-      trendUp: false
+      trend: varCac?.text || null,
+      trendUp: varCac?.isPositive ?? null, // Para CAC, menor é melhor
+      invertido: true
     }
   ];
 
@@ -143,12 +175,13 @@ const TrafegoKPICards = ({ totais, isTVMode = false }: TrafegoKPICardsProps) => 
 
           {card.trend && (
             <p className={`font-semibold ${isTVMode ? 'text-base' : 'text-sm'} ${
+              card.trendNeutral ? 'text-[#94A3B8]' :
               card.trendUp === true ? 'text-[#10B981]' : 
-              card.trendUp === false ? 'text-[#10B981]' : 
+              card.trendUp === false ? 'text-[#EF4444]' : 
               'text-[#94A3B8]'
             }`}>
-              {card.trendUp === true && '↑ '}
-              {card.trendUp === false && '↓ '}
+              {card.trendUp === true && !card.trendNeutral && '↑ '}
+              {card.trendUp === false && !card.trendNeutral && '↓ '}
               {card.trend}
             </p>
           )}
