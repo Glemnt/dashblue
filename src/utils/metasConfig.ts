@@ -13,6 +13,8 @@ interface MetasMensais {
   metaTaxaConversao?: number;
   metaTaxaAssinatura?: number;
   metaTaxaPagamento?: number;
+  // Metas Financeiras
+  metaTaxaRecebimentoMinimo?: number;
   // Metas SDR
   metaTaxaQualificacaoSDR?: number;
   metaTaxaShowSDR?: number;
@@ -123,6 +125,8 @@ export const METAS_POR_MES: Record<string, MetasMensais> = {
     metaTaxaConversao: 28,
     metaTaxaAssinatura: 100,
     metaTaxaPagamento: 100,
+    // Metas Financeiras
+    metaTaxaRecebimentoMinimo: 90,
     // Metas SDR
     metaTaxaQualificacaoSDR: 50,
     metaTaxaShowSDR: 75,

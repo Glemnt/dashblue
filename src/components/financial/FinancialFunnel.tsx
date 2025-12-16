@@ -5,9 +5,10 @@ import { Badge } from '@/components/ui/badge';
 interface Props {
   metricas: FinancialMetrics;
   isTVMode: boolean;
+  metaTaxaRecebimento?: number;
 }
 
-const FinancialFunnel = ({ metricas, isTVMode }: Props) => {
+const FinancialFunnel = ({ metricas, isTVMode, metaTaxaRecebimento = 90 }: Props) => {
   return (
     <div className="max-w-[900px] mx-auto space-y-6">
       {/* Etapa 1: Receita Total */}
@@ -82,8 +83,8 @@ const FinancialFunnel = ({ metricas, isTVMode }: Props) => {
             </div>
           </div>
           <div className="mt-4">
-            <Badge className={metricas.receitas.taxaRecebimentoTotal >= 90 ? 'bg-green-500' : 'bg-yellow-500'}>
-              {metricas.receitas.taxaRecebimentoTotal >= 90 ? '✅ Meta Atingida' : '⚠️ Meta: 90%'}
+            <Badge className={metricas.receitas.taxaRecebimentoTotal >= metaTaxaRecebimento ? 'bg-green-500' : 'bg-yellow-500'}>
+              {metricas.receitas.taxaRecebimentoTotal >= metaTaxaRecebimento ? '✅ Meta Atingida' : `⚠️ Meta: ${metaTaxaRecebimento}%`}
             </Badge>
           </div>
         </div>
