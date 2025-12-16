@@ -78,14 +78,18 @@ const CampanhasTable = ({ campanhas, isTVMode = false }: CampanhasTableProps) =>
       result = result.filter(c => c.objetivo === objetivoFilter);
     }
 
-    // Filter by date range - usa appliedDateFilter
+    // Filter by date range - verifica sobreposição de períodos
     if (appliedDateFilter?.from) {
       result = result.filter(c => {
-        if (!c.dataInicio) return false; // Campanhas sem data NÃO passam quando há filtro ativo
-        const campanhaDate = new Date(c.dataInicio);
-        const fromDate = appliedDateFilter.from!;
-        const toDate = appliedDateFilter.to || appliedDateFilter.from!;
-        return campanhaDate >= fromDate && campanhaDate <= toDate;
+        if (!c.dataInicio || !c.dataFim) return true; // Campanhas sem data passam
+        
+        const campanhaStart = new Date(c.dataInicio);
+        const campanhaEnd = new Date(c.dataFim);
+        const filterStart = appliedDateFilter.from!;
+        const filterEnd = appliedDateFilter.to || appliedDateFilter.from!;
+        
+        // Há sobreposição se: campanhaStart <= filterEnd E campanhaEnd >= filterStart
+        return campanhaStart <= filterEnd && campanhaEnd >= filterStart;
       });
     }
 
