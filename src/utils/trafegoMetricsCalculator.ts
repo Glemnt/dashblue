@@ -24,6 +24,8 @@ export interface CampanhaData {
   roi: number;
   cac: number;
   ticketMedio: number;
+  dataInicio?: string;
+  dataFim?: string;
 }
 
 export interface CanalMetrics {
