@@ -91,3 +91,23 @@ export const getDiasNoMes = (): number => {
 export const getDiaAtual = (): number => {
   return new Date().getDate();
 };
+
+// Calcular dias úteis restantes no mês (excluindo finais de semana)
+export const calcularDiasUteisRestantes = (): number => {
+  const now = new Date();
+  const brasiliaTime = new Date(now.toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }));
+  const ano = brasiliaTime.getFullYear();
+  const mes = brasiliaTime.getMonth();
+  const dia = brasiliaTime.getDate();
+  const ultimoDiaMes = new Date(ano, mes + 1, 0).getDate();
+  
+  let diasUteis = 0;
+  for (let d = dia + 1; d <= ultimoDiaMes; d++) {
+    const tempDate = new Date(ano, mes, d);
+    const tempDiaSemana = tempDate.getDay();
+    if (tempDiaSemana !== 0 && tempDiaSemana !== 6) {
+      diasUteis++;
+    }
+  }
+  return diasUteis;
+};

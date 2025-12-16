@@ -5,7 +5,7 @@ import { useGoogleSheetsLeads } from '@/hooks/useGoogleSheetsLeads';
 import { calcularMetricas } from '@/utils/metricsCalculator';
 import { usePeriodFilter } from '@/contexts/PeriodFilterContext';
 import { useTVMode } from '@/hooks/useTVMode';
-import { PeriodType, DateRange } from '@/utils/dateFilters';
+import { PeriodType, DateRange, calcularDiasUteisRestantes } from '@/utils/dateFilters';
 import { supabase } from '@/integrations/supabase/client';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
@@ -51,27 +51,6 @@ const AssistenteIA = () => {
   const metricas = rawData.length > 0
     ? calcularMetricas(rawData, { totalLeads, totalMQLs: totalMQLs + mqlsLeads }, selectedMonthKey)
     : null;
-
-  // Calcular dias úteis restantes no mês
-  const calcularDiasUteisRestantes = () => {
-    const now = new Date();
-    const brasiliaTime = new Date(now.toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }));
-    const ano = brasiliaTime.getFullYear();
-    const mes = brasiliaTime.getMonth();
-    const dia = brasiliaTime.getDate();
-    const ultimoDiaMes = new Date(ano, mes + 1, 0).getDate();
-    
-    let diasUteis = 0;
-    for (let d = dia + 1; d <= ultimoDiaMes; d++) {
-      const tempDate = new Date(ano, mes, d);
-      const tempDiaSemana = tempDate.getDay();
-      if (tempDiaSemana !== 0 && tempDiaSemana !== 6) {
-        diasUteis++;
-      }
-    }
-    return diasUteis;
-  };
-
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
