@@ -19,6 +19,7 @@ import TVModeToggle from '@/components/TVModeToggle';
 import ColaboradorAvatar from '@/components/ColaboradorAvatar';
 import { useTVMode } from '@/hooks/useTVMode';
 import { usePeriodFilter } from '@/contexts/PeriodFilterContext';
+import { getMetasPorMes, getMetasTrafegoAtual } from '@/utils/metasConfig';
 
 const PerformanceSDR = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -135,8 +136,18 @@ const PerformanceSDR = () => {
     return null;
   }
 
-  const metaMensalCalls = 367;
-  const metaIndividualCalls = Math.ceil(metaMensalCalls / 4);
+  // Metas dinâmicas baseadas no mês selecionado
+  const configMeta = getMetasPorMes(selectedMonthKey);
+  const metasTrafego = getMetasTrafegoAtual(selectedMonthKey);
+  
+  // Meta de calls = 50% dos leads gerados (callsAgendadas já representa isso)
+  const metaMensalCalls = metasTrafego.callsAgendadas;
+  const numSDRs = configMeta.numSDRs || 3;
+  const metaIndividualCalls = Math.ceil(metaMensalCalls / numSDRs);
+  
+  // Metas de taxas SDR
+  const metaTaxaQualificacao = configMeta.metaTaxaQualificacaoSDR || 50;
+  const metaTaxaShow = configMeta.metaTaxaShowSDR || 75;
 
   const getProgressColor = (value: number, meta: number) => {
     const percentage = (value / meta) * 100;
@@ -277,20 +288,20 @@ const PerformanceSDR = () => {
                 {metricas.totais.taxaQualificacaoMedia.toFixed(1)}%
               </p>
               <p className={`text-[#94A3B8] font-outfit ${isTVMode ? 'text-sm mb-3' : 'text-lg mb-6'}`}>
-                Meta: 50%
+                Meta: {metaTaxaQualificacao}%
               </p>
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
                   <span className="text-[#94A3B8]">Progresso</span>
                   <span className="text-white font-semibold">
-                    {((metricas.totais.taxaQualificacaoMedia / 50) * 100).toFixed(0)}%
+                    {((metricas.totais.taxaQualificacaoMedia / metaTaxaQualificacao) * 100).toFixed(0)}%
                   </span>
                 </div>
                 <Progress 
                   value={Math.min(metricas.totais.taxaQualificacaoMedia, 100)} 
                   className={isTVMode ? 'h-2' : 'h-3'}
                   style={{
-                    '--progress-background': getProgressColor(metricas.totais.taxaQualificacaoMedia, 50)
+                    '--progress-background': getProgressColor(metricas.totais.taxaQualificacaoMedia, metaTaxaQualificacao)
                   } as any}
                 />
               </div>
@@ -311,20 +322,20 @@ const PerformanceSDR = () => {
                 {metricas.totais.taxaShowMedia.toFixed(1)}%
               </p>
               <p className={`text-[#94A3B8] font-outfit ${isTVMode ? 'text-sm mb-3' : 'text-lg mb-6'}`}>
-                Meta: 75%
+                Meta: {metaTaxaShow}%
               </p>
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
                   <span className="text-[#94A3B8]">Progresso</span>
                   <span className="text-white font-semibold">
-                    {((metricas.totais.taxaShowMedia / 75) * 100).toFixed(0)}%
+                    {((metricas.totais.taxaShowMedia / metaTaxaShow) * 100).toFixed(0)}%
                   </span>
                 </div>
                 <Progress 
                   value={Math.min(metricas.totais.taxaShowMedia, 100)} 
                   className={isTVMode ? 'h-2' : 'h-3'}
                   style={{
-                    '--progress-background': getProgressColor(metricas.totais.taxaShowMedia, 75)
+                    '--progress-background': getProgressColor(metricas.totais.taxaShowMedia, metaTaxaShow)
                   } as any}
                 />
               </div>
@@ -376,7 +387,7 @@ const PerformanceSDR = () => {
           Comparação de Performance
         </h2>
         <div className="max-w-[1800px] mx-auto">
-          <SDRComparisonTable sdrs={metricas.sdrs} destaque={metricas.destaque} />
+          <SDRComparisonTable sdrs={metricas.sdrs} destaque={metricas.destaque} metaTaxaQualificacao={metaTaxaQualificacao} metaTaxaShow={metaTaxaShow} />
         </div>
       </section>
 
@@ -392,6 +403,8 @@ const PerformanceSDR = () => {
               sdr={sdr}
               data={data}
               metaIndividualCalls={metaIndividualCalls}
+              metaTaxaQualificacao={metaTaxaQualificacao}
+              metaTaxaShow={metaTaxaShow}
             />
           ))}
         </div>

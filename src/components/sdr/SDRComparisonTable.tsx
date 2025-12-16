@@ -8,11 +8,13 @@ import SDRComparisonMobileCards from './SDRComparisonMobileCards';
 interface SDRComparisonTableProps {
   sdrs: SDRMetrics[];
   destaque: SDRMetrics | null;
+  metaTaxaQualificacao?: number;
+  metaTaxaShow?: number;
 }
 
 type SortField = 'nome' | 'totalCalls' | 'taxaQualificacao' | 'taxaShow' | 'vendasOriginadas';
 
-const SDRComparisonTable = ({ sdrs, destaque }: SDRComparisonTableProps) => {
+const SDRComparisonTable = ({ sdrs, destaque, metaTaxaQualificacao = 50, metaTaxaShow = 75 }: SDRComparisonTableProps) => {
   const [sortField, setSortField] = useState<SortField>('vendasOriginadas');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
 
@@ -171,13 +173,13 @@ const SDRComparisonTable = ({ sdrs, destaque }: SDRComparisonTableProps) => {
                         <span className="text-white font-outfit text-xl font-bold">
                           {sdr.taxaQualificacao.toFixed(1)}%
                         </span>
-                        <span>{getIndicator(sdr.taxaQualificacao, 50)}</span>
+                        <span>{getIndicator(sdr.taxaQualificacao, metaTaxaQualificacao)}</span>
                       </div>
                       <div className="w-full h-2 bg-white/10 rounded-full">
                         <div 
                           className={`h-full rounded-full ${
-                            sdr.taxaQualificacao >= 50 ? 'bg-[#00E5CC]' : 
-                            sdr.taxaQualificacao >= 35 ? 'bg-[#FFB800]' : 
+                            sdr.taxaQualificacao >= metaTaxaQualificacao ? 'bg-[#00E5CC]' : 
+                            sdr.taxaQualificacao >= metaTaxaQualificacao * 0.7 ? 'bg-[#FFB800]' : 
                             'bg-[#FF4757]'
                           }`}
                           style={{ width: `${Math.min(sdr.taxaQualificacao, 100)}%` }}
@@ -197,13 +199,13 @@ const SDRComparisonTable = ({ sdrs, destaque }: SDRComparisonTableProps) => {
                         <span className="text-white font-outfit text-xl font-bold">
                           {sdr.taxaShow.toFixed(1)}%
                         </span>
-                        <span>{getIndicator(sdr.taxaShow, 75)}</span>
+                        <span>{getIndicator(sdr.taxaShow, metaTaxaShow)}</span>
                       </div>
                       <div className="w-full h-2 bg-white/10 rounded-full">
                         <div 
                           className={`h-full rounded-full ${
-                            sdr.taxaShow >= 75 ? 'bg-[#00E5CC]' : 
-                            sdr.taxaShow >= 50 ? 'bg-[#FFB800]' : 
+                            sdr.taxaShow >= metaTaxaShow ? 'bg-[#00E5CC]' : 
+                            sdr.taxaShow >= metaTaxaShow * 0.7 ? 'bg-[#FFB800]' : 
                             'bg-[#FF4757]'
                           }`}
                           style={{ width: `${Math.min(sdr.taxaShow, 100)}%` }}
