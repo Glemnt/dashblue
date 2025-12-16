@@ -80,16 +80,27 @@ const CampanhasTable = ({ campanhas, isTVMode = false }: CampanhasTableProps) =>
 
     // Filter by date range - verifica sobreposição de períodos
     if (appliedDateFilter?.from) {
+      // Normaliza data para início do dia (remove horas/minutos/segundos)
+      const normalizeDate = (date: Date): Date => {
+        const d = new Date(date);
+        d.setHours(0, 0, 0, 0);
+        return d;
+      };
+
+      const filterStart = normalizeDate(appliedDateFilter.from);
+      const filterEnd = normalizeDate(appliedDateFilter.to || appliedDateFilter.from);
+
       result = result.filter(c => {
         if (!c.dataInicio || !c.dataFim) return true; // Campanhas sem data passam
         
-        const campanhaStart = new Date(c.dataInicio);
-        const campanhaEnd = new Date(c.dataFim);
-        const filterStart = appliedDateFilter.from!;
-        const filterEnd = appliedDateFilter.to || appliedDateFilter.from!;
+        // Adiciona 'T00:00:00' para forçar interpretação no timezone local
+        const campanhaStart = new Date(c.dataInicio + 'T00:00:00');
+        const campanhaEnd = new Date(c.dataFim + 'T00:00:00');
         
         // Há sobreposição se: campanhaStart <= filterEnd E campanhaEnd >= filterStart
-        return campanhaStart <= filterEnd && campanhaEnd >= filterStart;
+        const hasOverlap = campanhaStart <= filterEnd && campanhaEnd >= filterStart;
+        
+        return hasOverlap;
       });
     }
 
