@@ -5,6 +5,7 @@ import MobileMenu from '@/components/MobileMenu';
 import { useGoogleSheets } from "@/hooks/useGoogleSheets";
 import { calcularMetricasFinanceiras, formatarReal } from "@/utils/financialMetricsCalculator";
 import { getMetasPorMes } from "@/utils/metasConfig";
+import { getProgressColorByValue, isGapFinanceiroAlerta } from "@/utils/progressColorUtils";
 import { filterDataByDateRange } from '@/utils/dateFilters';
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -91,12 +92,8 @@ const Financeiro = () => {
     });
   };
 
-  const getProgressColor = (value: number, meta: number) => {
-    const percentage = (value / meta) * 100;
-    if (percentage >= 100) return 'bg-[#00E5CC]';
-    if (percentage >= 80) return 'bg-[#FFB800]';
-    return 'bg-[#FF4757]';
-  };
+  const getProgressColor = (value: number, meta: number) => 
+    getProgressColorByValue(value, meta, 'class', 'default');
 
   // Loading state
   if (loading) {
@@ -321,7 +318,7 @@ const Financeiro = () => {
               <div className={`bg-[#FF4757]/20 rounded-2xl ${isTVMode ? 'p-4' : 'p-6'}`}>
                 <AlertTriangle className={`text-[#FF4757] ${isTVMode ? 'w-7 h-7' : 'w-10 h-10'}`} />
               </div>
-              {(metricas.receitas.gapFinanceiroTotal / metricas.receitas.total) > 0.3 && (
+              {isGapFinanceiroAlerta(metricas.receitas.gapFinanceiroTotal, metricas.receitas.total) && (
                 <Badge variant="destructive" className={isTVMode ? 'text-xs' : 'text-sm'}>
                   ⚠️ Atenção
                 </Badge>

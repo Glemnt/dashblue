@@ -20,6 +20,7 @@ import ColaboradorAvatar from '@/components/ColaboradorAvatar';
 import { useTVMode } from '@/hooks/useTVMode';
 import { usePeriodFilter } from '@/contexts/PeriodFilterContext';
 import { getMetasPorMes, getMetasTrafegoAtual } from '@/utils/metasConfig';
+import { getProgressColorByValue } from '@/utils/progressColorUtils';
 
 const PerformanceSDR = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -149,12 +150,8 @@ const PerformanceSDR = () => {
   const metaTaxaQualificacao = configMeta.metaTaxaQualificacaoSDR || 50;
   const metaTaxaShow = configMeta.metaTaxaShowSDR || 75;
 
-  const getProgressColor = (value: number, meta: number) => {
-    const percentage = (value / meta) * 100;
-    if (percentage >= 90) return '#00E5CC';
-    if (percentage >= 70) return '#FFB800';
-    return '#FF4757';
-  };
+  const getProgressColor = (value: number, meta: number) => 
+    getProgressColorByValue(value, meta, 'hex', 'performance');
 
   return (
     <div className="min-h-screen bg-[#0B1120] font-outfit overflow-x-hidden max-w-full">

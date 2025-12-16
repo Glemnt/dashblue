@@ -1,6 +1,7 @@
 import { Progress } from "@/components/ui/progress";
 import { METAS_TRAFEGO, formatarMoeda, formatarNumero } from "@/utils/trafegoMetricsCalculator";
 import { getDiasRestantesNoMes } from "@/utils/dateFilters";
+import { getProgressColor as getProgressColorUtil } from "@/utils/progressColorUtils";
 
 interface TrafegoMetaBarsProps {
   investimentoAtual: number;
@@ -21,11 +22,8 @@ const TrafegoMetaBars = ({
   const cacDentroMeta = cacAtual <= METAS_TRAFEGO.cacMaximo;
   const percentualCac = cacAtual > 0 ? Math.min((cacAtual / METAS_TRAFEGO.cacMaximo) * 100, 150) : 0;
 
-  const getProgressColor = (percentage: number) => {
-    if (percentage >= 100) return 'bg-[#00E5CC]';
-    if (percentage >= 80) return 'bg-[#FFB800]';
-    return 'bg-[#FF4757]';
-  };
+  const getProgressColor = (percentage: number) => 
+    getProgressColorUtil(percentage, 'class', 'default');
 
   const diasRestantes = getDiasRestantesNoMes();
   const saldoDisponivel = METAS_TRAFEGO.investimentoMensal - investimentoAtual;
