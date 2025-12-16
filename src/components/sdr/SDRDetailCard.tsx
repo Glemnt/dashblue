@@ -5,6 +5,7 @@ import { formatarReal } from '@/utils/metricsCalculator';
 import { Progress } from '@/components/ui/progress';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import ColaboradorAvatar from '@/components/ColaboradorAvatar';
+import { getProgressColorByValue } from '@/utils/progressColorUtils';
 
 interface SDRDetailCardProps {
   sdr: SDRMetrics;
@@ -17,12 +18,8 @@ interface SDRDetailCardProps {
 const SDRDetailCard = ({ sdr, data, metaIndividualCalls, metaTaxaQualificacao = 50, metaTaxaShow = 75 }: SDRDetailCardProps) => {
   const [isOpen, setIsOpen] = useState(false);
 
-  const getProgressColor = (value: number, meta: number) => {
-    const percentage = (value / meta) * 100;
-    if (percentage >= 90) return '#00E5CC';
-    if (percentage >= 70) return '#FFB800';
-    return '#FF4757';
-  };
+  const getProgressColor = (value: number, meta: number) => 
+    getProgressColorByValue(value, meta, 'hex', 'performance');
 
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen}>

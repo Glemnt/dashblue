@@ -19,6 +19,7 @@ import { calcularMetricasCloser } from '@/utils/closerMetricsCalculator';
 import { formatarReal } from '@/utils/metricsCalculator';
 import { usePeriodFilter } from '@/contexts/PeriodFilterContext';
 import { getMetasPorMes } from '@/utils/metasConfig';
+import { getProgressColorByValue } from '@/utils/progressColorUtils';
 
 const PerformanceCloser = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -134,12 +135,8 @@ const PerformanceCloser = () => {
     return null;
   }
 
-  const getProgressColor = (value: number, meta: number) => {
-    const percentage = (value / meta) * 100;
-    if (percentage >= 90) return '#00E5CC';
-    if (percentage >= 70) return '#FFB800';
-    return '#FF4757';
-  };
+  const getProgressColor = (value: number, meta: number) => 
+    getProgressColorByValue(value, meta, 'hex', 'performance');
 
   return (
     <div className="min-h-screen bg-[#0B1120] font-outfit overflow-x-hidden max-w-full">

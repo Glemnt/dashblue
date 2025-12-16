@@ -1,3 +1,31 @@
+// ==========================================
+// THRESHOLDS GLOBAIS
+// ==========================================
+
+export const THRESHOLDS_GLOBAIS = {
+  // Thresholds para barras de progresso (padrão simples - metas absolutas)
+  progressoVerde: 100,    // >= 100% = verde
+  progressoAmarelo: 80,   // >= 80% = amarelo
+  
+  // Thresholds alternativos para métricas de performance
+  progressoVerdePerformance: 90,   // >= 90% = verde
+  progressoAmareloPerformance: 70, // >= 70% = amarelo
+  
+  // Alerta de gap financeiro
+  alertaGapFinanceiro: 0.3,  // > 30% do total = alerta
+  
+  // Cores padrão
+  cores: {
+    verde: '#00E5CC',
+    amarelo: '#FFB800',
+    vermelho: '#FF4757'
+  }
+};
+
+// ==========================================
+// INTERFACES
+// ==========================================
+
 interface MetasSquads {
   metaPorSquad: number;
   totalSquads: number;
