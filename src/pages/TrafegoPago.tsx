@@ -267,12 +267,14 @@ const TrafegoPago = () => {
       </section>
 
       {/* SEÇÃO 4: FUNIL DE TRÁFEGO */}
-      <section className={`bg-[#F8FAFC] ${isTVMode ? 'py-8 px-12' : 'py-10 md:py-16 px-4 sm:px-6 md:px-12'}`}>
+      <section className={`bg-navy-ultra-dark ${isTVMode ? 'py-8 px-12' : 'py-10 md:py-16 px-4 sm:px-6 md:px-12'}`}>
         <div className="max-w-[1400px] mx-auto">
-          <h2 className={`text-[#0B1120] font-black mb-8 ${isTVMode ? 'text-4xl' : 'text-3xl md:text-4xl'}`}>
-            🎯 Funil de Tráfego - Jornada Completa do Lead
+          <h2 className={`text-white font-black mb-8 ${isTVMode ? 'text-4xl' : 'text-3xl md:text-4xl'}`}>
+            Funil de Tráfego - Jornada Completa do Lead
           </h2>
-          <TrafegoFunnel totais={totais} isTVMode={isTVMode} />
+          <div className="bg-navy-ultra-dark rounded-3xl p-6 md:p-10">
+            <TrafegoFunnel totais={totais} isTVMode={isTVMode} />
+          </div>
         </div>
       </section>
 
