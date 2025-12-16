@@ -1,9 +1,14 @@
 import { useState, useMemo } from "react";
-import { ChevronDown, ChevronUp, Search, Download, Filter } from "lucide-react";
+import { ChevronDown, ChevronUp, Search, Download, Calendar, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
+import { DateRange } from "react-day-picker";
 import { 
   CampanhaData, 
   formatarMoeda, 
@@ -32,6 +37,7 @@ const CampanhasTable = ({ campanhas, isTVMode = false }: CampanhasTableProps) =>
   const [canalFilter, setCanalFilter] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [objetivoFilter, setObjetivoFilter] = useState<string>('all');
+  const [dateFilter, setDateFilter] = useState<DateRange | undefined>(undefined);
 
   const canais = useMemo(() => {
     const uniqueCanais = [...new Set(campanhas.map(c => c.canal))];
@@ -68,6 +74,17 @@ const CampanhasTable = ({ campanhas, isTVMode = false }: CampanhasTableProps) =>
       result = result.filter(c => c.objetivo === objetivoFilter);
     }
 
+    // Filter by date range
+    if (dateFilter?.from) {
+      result = result.filter(c => {
+        if (!c.dataInicio) return true;
+        const campanhaDate = new Date(c.dataInicio);
+        const fromDate = dateFilter.from!;
+        const toDate = dateFilter.to || dateFilter.from!;
+        return campanhaDate >= fromDate && campanhaDate <= toDate;
+      });
+    }
+
     // Sort
     result.sort((a, b) => {
       const aValue = a[sortKey];
@@ -83,7 +100,7 @@ const CampanhasTable = ({ campanhas, isTVMode = false }: CampanhasTableProps) =>
     });
 
     return result;
-  }, [campanhas, searchTerm, sortKey, sortDirection, canalFilter, statusFilter, objetivoFilter]);
+  }, [campanhas, searchTerm, sortKey, sortDirection, canalFilter, statusFilter, objetivoFilter, dateFilter]);
 
   const handleSort = (key: SortKey) => {
     if (sortKey === key) {
@@ -196,6 +213,49 @@ const CampanhasTable = ({ campanhas, isTVMode = false }: CampanhasTableProps) =>
             ))}
           </SelectContent>
         </Select>
+
+        {/* Date Filter */}
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button 
+              variant="outline" 
+              className={`bg-[#0B1120] border-white/10 text-white hover:bg-white/10 ${isTVMode ? 'h-14 text-lg' : ''}`}
+            >
+              <Calendar className="w-5 h-5 mr-2" />
+              {dateFilter?.from ? (
+                dateFilter.to ? (
+                  `${format(dateFilter.from, "dd/MM", { locale: ptBR })} - ${format(dateFilter.to, "dd/MM", { locale: ptBR })}`
+                ) : (
+                  format(dateFilter.from, "dd/MM/yyyy", { locale: ptBR })
+                )
+              ) : (
+                "Filtrar Data"
+              )}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0 bg-[#151E35] border-white/10" align="start">
+            <CalendarComponent
+              mode="range"
+              selected={dateFilter}
+              onSelect={setDateFilter}
+              locale={ptBR}
+              className="pointer-events-auto"
+              initialFocus
+            />
+          </PopoverContent>
+        </Popover>
+
+        {dateFilter?.from && (
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={() => setDateFilter(undefined)}
+            className="text-white/60 hover:text-white hover:bg-white/10"
+          >
+            <X className="w-4 h-4 mr-1" />
+            Limpar
+          </Button>
+        )}
 
         <Button onClick={exportToCSV} variant="outline" className={`bg-[#0B1120] border-white/10 text-white hover:bg-white/10 ${isTVMode ? 'h-14 text-lg px-6' : ''}`}>
           <Download className="w-5 h-5 mr-2" />
