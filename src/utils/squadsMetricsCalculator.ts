@@ -338,10 +338,14 @@ export const calcularMetricasSquads = (data: any[], dateRange?: DateRange, month
     const callsAgendadas = calls.filter(c => 
       String(c['TIPO DA REUNIÃO'] || c['TIPO DA REUNIAO'] || '').trim() !== ''
     ).length;
+    const callsRealizadas = calls.filter(c => {
+      const closer = String(c['CLOSER'] || '').trim().toUpperCase();
+      return closer.length > 0 && closer !== 'NO-SHOW';
+    }).length;
     
     // Taxas
     const taxaQualificacao = totalCalls > 0 ? (callsQualificadas / totalCalls) * 100 : 0;
-    const taxaShow = callsAgendadas > 0 ? (numeroContratos / callsAgendadas) * 100 : 0;
+    const taxaShow = callsAgendadas > 0 ? (callsRealizadas / callsAgendadas) * 100 : 0;
     const taxaConversao = totalCalls > 0 ? (numeroContratos / totalCalls) * 100 : 0;
     const taxaAssinatura = numeroContratos > 0 ? (contratos.filter(c => c.assinado).length / numeroContratos) * 100 : 0;
     const taxaPagamento = numeroContratos > 0 ? (contratos.filter(c => c.pago).length / numeroContratos) * 100 : 0;
