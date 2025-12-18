@@ -39,8 +39,8 @@ const TrafegoPago = () => {
     setSelectedMonthKey 
   } = usePeriodFilter();
 
-  // Buscar dados financeiros reais da planilha
-  const realFinancials = useRealFinancials(selectedMonthKey);
+  // Buscar dados financeiros reais da planilha (com filtro de período)
+  const realFinancials = useRealFinancials(selectedMonthKey, dateRange);
 
   // Use Meta campaigns data with date range + dados financeiros reais
   const { 

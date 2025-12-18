@@ -30,31 +30,31 @@ interface CacheData {
 const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 const TAXA_QUALIFICACAO_MERCADO = 0.60; // 60% - média de mercado
 
-const getCacheKey = (monthKey: string) => `meta_campaigns_${monthKey}`;
+const getCacheKey = (startDate: string, endDate: string) => `meta_campaigns_${startDate}_${endDate}`;
 
-const getCachedData = (monthKey: string): CampanhaData[] | null => {
+const getCachedData = (startDate: string, endDate: string): CampanhaData[] | null => {
   try {
-    const cacheKey = getCacheKey(monthKey);
+    const cacheKey = getCacheKey(startDate, endDate);
     const cached = localStorage.getItem(cacheKey);
     if (!cached) return null;
     
-    const data: CacheData = JSON.parse(cached);
+    const cacheData: CacheData = JSON.parse(cached);
     const now = Date.now();
     
-    if (now - data.timestamp > CACHE_DURATION) {
+    if (now - cacheData.timestamp > CACHE_DURATION) {
       localStorage.removeItem(cacheKey);
       return null;
     }
     
-    return data.campanhas;
+    return cacheData.campanhas;
   } catch {
     return null;
   }
 };
 
-const setCachedData = (monthKey: string, campanhas: CampanhaData[]) => {
+const setCachedData = (startDate: string, endDate: string, campanhas: CampanhaData[]) => {
   try {
-    const cacheKey = getCacheKey(monthKey);
+    const cacheKey = getCacheKey(startDate, endDate);
     const data: CacheData = {
       campanhas,
       timestamp: Date.now()
@@ -65,11 +65,11 @@ const setCachedData = (monthKey: string, campanhas: CampanhaData[]) => {
   }
 };
 
-const clearCache = (monthKey?: string) => {
+const clearCache = (startDate?: string, endDate?: string) => {
   try {
-    if (monthKey) {
-      localStorage.removeItem(getCacheKey(monthKey));
-      console.log(`Cache cleared for ${monthKey}`);
+    if (startDate && endDate) {
+      localStorage.removeItem(getCacheKey(startDate, endDate));
+      console.log(`Cache cleared for ${startDate} to ${endDate}`);
     } else {
       // Clear all meta campaigns cache
       const keys = Object.keys(localStorage);
@@ -226,15 +226,19 @@ export const useMetaCampaigns = (
   const monthKey = selectedMonthKey || format(dateRange.start, 'yyyy-MM');
 
   const fetchCampaigns = useCallback(async (useCache = true) => {
+    // Format dates for the API (declare early so we can use for cache key)
+    const startDate = format(dateRange.start, 'yyyy-MM-dd');
+    const endDate = format(dateRange.end, 'yyyy-MM-dd');
+
     try {
       setLoading(true);
       setError(null);
 
       // Check cache first
       if (useCache) {
-        const cached = getCachedData(monthKey);
+        const cached = getCachedData(startDate, endDate);
         if (cached && cached.length > 0) {
-          console.log(`Using cached Meta campaigns data for ${monthKey}`);
+          console.log(`Using cached Meta campaigns data for ${startDate} to ${endDate}`);
           setRawCampanhas(cached);
           setIsFromMeta(true);
           setLastUpdate(new Date());
@@ -243,13 +247,9 @@ export const useMetaCampaigns = (
         }
       }
 
-      // Format dates for the API
-      const startDate = format(dateRange.start, 'yyyy-MM-dd');
-      const endDate = format(dateRange.end, 'yyyy-MM-dd');
-
       console.log(`Fetching Meta campaigns from ${startDate} to ${endDate}...`);
       
-      const { data, error: fetchError } = await supabase.functions.invoke('fetch-meta-campaigns', {
+      const { data: responseData, error: fetchError } = await supabase.functions.invoke('fetch-meta-campaigns', {
         body: { startDate, endDate }
       });
 
@@ -258,17 +258,17 @@ export const useMetaCampaigns = (
         throw new Error(fetchError.message || 'Erro ao conectar com a API da Meta');
       }
 
-      if (data?.error) {
-        console.error('Meta API error:', data.error, data.details);
-        throw new Error(data.details || data.message || 'Erro na API da Meta');
+      if (responseData?.error) {
+        console.error('Meta API error:', responseData.error, responseData.details);
+        throw new Error(responseData.details || responseData.message || 'Erro na API da Meta');
       }
 
-      if (data?.success && data?.campanhas && data.campanhas.length > 0) {
-        console.log(`Received ${data.campanhas.length} campaigns from Meta for ${monthKey}`);
-        setRawCampanhas(data.campanhas);
-        setCachedData(monthKey, data.campanhas);
+      if (responseData?.success && responseData?.campanhas && responseData.campanhas.length > 0) {
+        console.log(`Received ${responseData.campanhas.length} campaigns from Meta for ${startDate} to ${endDate}`);
+        setRawCampanhas(responseData.campanhas);
+        setCachedData(startDate, endDate, responseData.campanhas);
         setIsFromMeta(true);
-        setLastUpdate(new Date(data.meta?.fetchedAt || Date.now()));
+        setLastUpdate(new Date(responseData.meta?.fetchedAt || Date.now()));
       } else {
         console.log(`No campaigns from Meta for ${monthKey}, using mock data`);
         setRawCampanhas(campanhasMock);
@@ -292,9 +292,11 @@ export const useMetaCampaigns = (
 
   const refetch = useCallback(async () => {
     // Clear cache before refetching
-    clearCache(monthKey);
+    const startDate = format(dateRange.start, 'yyyy-MM-dd');
+    const endDate = format(dateRange.end, 'yyyy-MM-dd');
+    clearCache(startDate, endDate);
     await fetchCampaigns(false); // Force refresh, no cache
-  }, [fetchCampaigns, monthKey]);
+  }, [fetchCampaigns, dateRange.start, dateRange.end]);
 
   // Fetch when dateRange or monthKey changes
   useEffect(() => {

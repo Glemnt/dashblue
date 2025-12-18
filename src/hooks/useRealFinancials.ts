@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { useGoogleSheets } from './useGoogleSheets';
 import { calcularMetricasFinanceiras } from '@/utils/financialMetricsCalculator';
 import { calcularMetricas } from '@/utils/metricsCalculator';
+import { filterDataByDateRange, DateRange } from '@/utils/dateFilters';
 
 export interface RealFinancialsData {
   totalFechamentos: number;
@@ -15,8 +16,8 @@ export interface RealFinancialsData {
   error: string | null;
 }
 
-export const useRealFinancials = (monthKey?: string): RealFinancialsData => {
-  const { data, loading, error } = useGoogleSheets(undefined, monthKey);
+export const useRealFinancials = (monthKey?: string, dateRange?: DateRange): RealFinancialsData => {
+  const { data, loading, error } = useGoogleSheets(dateRange, monthKey);
 
   const financials = useMemo(() => {
     if (loading || !data || data.length === 0) {
@@ -31,10 +32,18 @@ export const useRealFinancials = (monthKey?: string): RealFinancialsData => {
       };
     }
 
-    const metrics = calcularMetricasFinanceiras(data);
+    // Filtrar dados pelo período selecionado
+    const filteredData = dateRange ? filterDataByDateRange(data, dateRange) : data;
+    
+    console.log('📅 FILTRO DE PERÍODO APLICADO:');
+    console.log('  - Dados originais:', data.length);
+    console.log('  - Dados filtrados:', filteredData.length);
+    console.log('  - Período:', dateRange ? `${dateRange.start.toLocaleDateString()} - ${dateRange.end.toLocaleDateString()}` : 'Todo o mês');
+
+    const metrics = calcularMetricasFinanceiras(filteredData);
     
     // Calcular métricas de calls usando o mesmo cálculo dos SDRs
-    const metricasGerais = calcularMetricas(data, undefined, monthKey);
+    const metricasGerais = calcularMetricas(filteredData, undefined, monthKey);
     
     console.log('📊 FINANCIALS REAIS CALCULADOS:');
     console.log('  - Fechamentos:', metrics.contratos.total);
@@ -57,7 +66,7 @@ export const useRealFinancials = (monthKey?: string): RealFinancialsData => {
       callsRealizadas: metricasGerais.callsRealizadas,
       callsQualificadas: metricasGerais.callsQualificadas
     };
-  }, [data, loading, monthKey]);
+  }, [data, loading, monthKey, dateRange]);
 
   return {
     ...financials,
