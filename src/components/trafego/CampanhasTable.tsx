@@ -1,14 +1,9 @@
 import { useState, useMemo } from "react";
-import { ChevronDown, ChevronUp, Search, Download, Calendar, X } from "lucide-react";
+import { ChevronDown, ChevronUp, Search, Download } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Calendar as CalendarComponent } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { format } from "date-fns";
-import { ptBR } from "date-fns/locale";
-import { DateRange } from "react-day-picker";
 import { 
   CampanhaData, 
   formatarMoeda, 
@@ -37,11 +32,6 @@ const CampanhasTable = ({ campanhas, isTVMode = false }: CampanhasTableProps) =>
   const [canalFilter, setCanalFilter] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [objetivoFilter, setObjetivoFilter] = useState<string>('all');
-  
-  // Estados para filtro de data com botão aplicar
-  const [appliedDateFilter, setAppliedDateFilter] = useState<DateRange | undefined>(undefined);
-  const [tempDateFilter, setTempDateFilter] = useState<DateRange | undefined>(undefined);
-  const [datePopoverOpen, setDatePopoverOpen] = useState(false);
 
   const canais = useMemo(() => {
     const uniqueCanais = [...new Set(campanhas.map(c => c.canal))];
@@ -78,31 +68,6 @@ const CampanhasTable = ({ campanhas, isTVMode = false }: CampanhasTableProps) =>
       result = result.filter(c => c.objetivo === objetivoFilter);
     }
 
-    // Filter by date range - verifica sobreposição de períodos
-    if (appliedDateFilter?.from) {
-      // Normaliza data para início do dia (remove horas/minutos/segundos)
-      const normalizeDate = (date: Date): Date => {
-        const d = new Date(date);
-        d.setHours(0, 0, 0, 0);
-        return d;
-      };
-
-      const filterStart = normalizeDate(appliedDateFilter.from);
-      const filterEnd = normalizeDate(appliedDateFilter.to || appliedDateFilter.from);
-
-      result = result.filter(c => {
-        if (!c.dataInicio || !c.dataFim) return true; // Campanhas sem data passam
-        
-        // Adiciona 'T00:00:00' para forçar interpretação no timezone local
-        const campanhaStart = new Date(c.dataInicio + 'T00:00:00');
-        const campanhaEnd = new Date(c.dataFim + 'T00:00:00');
-        
-        // Há sobreposição se: campanhaStart <= filterEnd E campanhaEnd >= filterStart
-        const hasOverlap = campanhaStart <= filterEnd && campanhaEnd >= filterStart;
-        
-        return hasOverlap;
-      });
-    }
 
     // Sort
     result.sort((a, b) => {
@@ -119,7 +84,7 @@ const CampanhasTable = ({ campanhas, isTVMode = false }: CampanhasTableProps) =>
     });
 
     return result;
-  }, [campanhas, searchTerm, sortKey, sortDirection, canalFilter, statusFilter, objetivoFilter, appliedDateFilter]);
+  }, [campanhas, searchTerm, sortKey, sortDirection, canalFilter, statusFilter, objetivoFilter]);
 
   const handleSort = (key: SortKey) => {
     if (sortKey === key) {
@@ -232,105 +197,6 @@ const CampanhasTable = ({ campanhas, isTVMode = false }: CampanhasTableProps) =>
             ))}
           </SelectContent>
         </Select>
-
-        {/* Date Filter */}
-        <Popover open={datePopoverOpen} onOpenChange={(open) => {
-          setDatePopoverOpen(open);
-          if (open) {
-            // Ao abrir, sincronizar estado temporário com o aplicado
-            setTempDateFilter(appliedDateFilter);
-          }
-        }}>
-          <PopoverTrigger asChild>
-            <Button 
-              variant="outline" 
-              className={`bg-[#0B1120] border-white/10 text-white hover:bg-white/10 ${isTVMode ? 'h-14 text-lg' : ''}`}
-            >
-              <Calendar className="w-5 h-5 mr-2" />
-              {appliedDateFilter?.from ? (
-                appliedDateFilter.to ? (
-                  `${format(appliedDateFilter.from, "dd/MM", { locale: ptBR })} - ${format(appliedDateFilter.to, "dd/MM", { locale: ptBR })}`
-                ) : (
-                  format(appliedDateFilter.from, "dd/MM/yyyy", { locale: ptBR })
-                )
-              ) : (
-                "Filtrar Data"
-              )}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0 bg-[#151E35] border-white/10" align="start">
-            <CalendarComponent
-              mode="range"
-              selected={tempDateFilter}
-              onSelect={setTempDateFilter}
-              locale={ptBR}
-              className="pointer-events-auto bg-[#151E35]"
-              classNames={{
-                months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
-                month: "space-y-4",
-                caption: "flex justify-center pt-1 relative items-center",
-                caption_label: "text-sm font-medium text-white",
-                nav: "space-x-1 flex items-center",
-                nav_button: "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100 text-white border border-white/20 rounded",
-                nav_button_previous: "absolute left-1",
-                nav_button_next: "absolute right-1",
-                table: "w-full border-collapse space-y-1",
-                head_row: "flex",
-                head_cell: "text-white/60 rounded-md w-9 font-normal text-[0.8rem]",
-                row: "flex w-full mt-2",
-                cell: "h-9 w-9 text-center text-sm p-0 relative text-white",
-                day: "h-9 w-9 p-0 font-normal text-white hover:bg-white/10 rounded-md",
-                day_range_end: "day-range-end",
-                day_selected: "bg-[#0066FF] text-white hover:bg-[#0066FF] hover:text-white focus:bg-[#0066FF] focus:text-white rounded-md",
-                day_today: "bg-white/10 text-white",
-                day_outside: "text-white/30 opacity-50",
-                day_disabled: "text-white/20 opacity-50",
-                day_range_middle: "bg-[#0066FF]/30 text-white",
-                day_hidden: "invisible",
-              }}
-              initialFocus
-            />
-            {/* Botões Limpar e Aplicar */}
-            <div className="flex gap-2 p-3 border-t border-white/10">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  setTempDateFilter(undefined);
-                }}
-                className="flex-1 text-white/60 hover:text-white hover:bg-white/10"
-              >
-                Limpar
-              </Button>
-              <Button
-                size="sm"
-                onClick={() => {
-                  setAppliedDateFilter(tempDateFilter);
-                  setDatePopoverOpen(false);
-                }}
-                className="flex-1 bg-[#0066FF] text-white hover:bg-[#0066FF]/80"
-                disabled={!tempDateFilter?.from}
-              >
-                Aplicar
-              </Button>
-            </div>
-          </PopoverContent>
-        </Popover>
-
-        {appliedDateFilter?.from && (
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            onClick={() => {
-              setAppliedDateFilter(undefined);
-              setTempDateFilter(undefined);
-            }}
-            className="text-white/60 hover:text-white hover:bg-white/10"
-          >
-            <X className="w-4 h-4 mr-1" />
-            Limpar Data
-          </Button>
-        )}
 
         <Button onClick={exportToCSV} variant="outline" className={`bg-[#0B1120] border-white/10 text-white hover:bg-white/10 ${isTVMode ? 'h-14 text-lg px-6' : ''}`}>
           <Download className="w-5 h-5 mr-2" />
