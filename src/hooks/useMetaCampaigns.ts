@@ -278,7 +278,17 @@ export const useMetaCampaigns = (
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erro desconhecido';
       console.error('Error fetching Meta campaigns:', errorMessage);
-      setError(errorMessage);
+      
+      // Detectar rate limiting da Meta
+      const isRateLimited = errorMessage.includes('too many calls') || 
+                            errorMessage.includes('rate-limiting') ||
+                            errorMessage.includes('Wait a bit');
+      
+      if (isRateLimited) {
+        setError('Limite de requisições da Meta atingido. Aguarde alguns minutos.');
+      } else {
+        setError(errorMessage);
+      }
       
       // Fallback to mock data
       console.log('Falling back to mock data');
