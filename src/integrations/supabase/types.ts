@@ -14,7 +14,137 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      leads_crm: {
+        Row: {
+          closer_nome: string | null
+          created_at: string | null
+          data_closer: string | null
+          data_entrada: string | null
+          data_ganho: string | null
+          data_mql: string | null
+          data_perdido: string | null
+          data_reuniao: string | null
+          email: string | null
+          empresa: string | null
+          id: string
+          is_mql: boolean | null
+          kommo_id: number
+          kommo_payload: Json | null
+          motivo_perda: string | null
+          nome: string | null
+          pipeline_nome: string | null
+          responsavel_id: number | null
+          responsavel_nome: string | null
+          sdr_nome: string | null
+          stage_nome: string | null
+          status: string
+          tags: string[] | null
+          telefone: string | null
+          updated_at: string | null
+          valor_contrato: number | null
+        }
+        Insert: {
+          closer_nome?: string | null
+          created_at?: string | null
+          data_closer?: string | null
+          data_entrada?: string | null
+          data_ganho?: string | null
+          data_mql?: string | null
+          data_perdido?: string | null
+          data_reuniao?: string | null
+          email?: string | null
+          empresa?: string | null
+          id?: string
+          is_mql?: boolean | null
+          kommo_id: number
+          kommo_payload?: Json | null
+          motivo_perda?: string | null
+          nome?: string | null
+          pipeline_nome?: string | null
+          responsavel_id?: number | null
+          responsavel_nome?: string | null
+          sdr_nome?: string | null
+          stage_nome?: string | null
+          status?: string
+          tags?: string[] | null
+          telefone?: string | null
+          updated_at?: string | null
+          valor_contrato?: number | null
+        }
+        Update: {
+          closer_nome?: string | null
+          created_at?: string | null
+          data_closer?: string | null
+          data_entrada?: string | null
+          data_ganho?: string | null
+          data_mql?: string | null
+          data_perdido?: string | null
+          data_reuniao?: string | null
+          email?: string | null
+          empresa?: string | null
+          id?: string
+          is_mql?: boolean | null
+          kommo_id?: number
+          kommo_payload?: Json | null
+          motivo_perda?: string | null
+          nome?: string | null
+          pipeline_nome?: string | null
+          responsavel_id?: number | null
+          responsavel_nome?: string | null
+          sdr_nome?: string | null
+          stage_nome?: string | null
+          status?: string
+          tags?: string[] | null
+          telefone?: string | null
+          updated_at?: string | null
+          valor_contrato?: number | null
+        }
+        Relationships: []
+      }
+      leads_crm_historico: {
+        Row: {
+          campo_alterado: string | null
+          created_at: string | null
+          id: string
+          kommo_id: number | null
+          lead_id: string | null
+          status_anterior: string | null
+          status_novo: string | null
+          valor_anterior: string | null
+          valor_novo: string | null
+        }
+        Insert: {
+          campo_alterado?: string | null
+          created_at?: string | null
+          id?: string
+          kommo_id?: number | null
+          lead_id?: string | null
+          status_anterior?: string | null
+          status_novo?: string | null
+          valor_anterior?: string | null
+          valor_novo?: string | null
+        }
+        Update: {
+          campo_alterado?: string | null
+          created_at?: string | null
+          id?: string
+          kommo_id?: number | null
+          lead_id?: string | null
+          status_anterior?: string | null
+          status_novo?: string | null
+          valor_anterior?: string | null
+          valor_novo?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "leads_crm_historico_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads_crm"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
