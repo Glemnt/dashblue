@@ -8,3 +8,6 @@ verify_jwt = false
 
 [functions.ai-trafego-analyst]
 verify_jwt = false
+
+[functions.kommo-webhook]
+verify_jwt = false
