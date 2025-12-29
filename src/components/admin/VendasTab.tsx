@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useVendas, Venda } from '@/hooks/admin/useVendas';
 import { useColaboradores } from '@/hooks/admin/useColaboradores';
 import { Button } from '@/components/ui/button';
@@ -10,11 +10,12 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Pencil, Trash2 } from 'lucide-react';
+import { Plus, Pencil, Trash2, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import ImportarVendasButton from './ImportarVendasButton';
+import { importVendasFromAllMonths } from '@/utils/importVendas';
+import { useQueryClient } from '@tanstack/react-query';
 
 interface VendasTabProps {
   mesKey: string;
@@ -28,8 +29,11 @@ const VendasTab = ({ mesKey }: VendasTabProps) => {
   const { vendas, isLoading, totalVendas, vendasPorOrigem, addVenda, updateVenda, deleteVenda } = useVendas(mesKey);
   const { closers } = useColaboradores();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [isOpen, setIsOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [isSyncing, setIsSyncing] = useState(false);
+  const hasSyncedRef = useRef(false);
   const [formData, setFormData] = useState({
     colaborador_id: '',
     colaborador_nome: '',
@@ -125,8 +129,41 @@ const VendasTab = ({ mesKey }: VendasTabProps) => {
     inbound: 'bg-green-500/20 text-green-400'
   };
 
-  if (isLoading) {
-    return <div className="text-white">Carregando...</div>;
+  // Sincronização automática única quando tabela está vazia
+  useEffect(() => {
+    const syncVendas = async () => {
+      if (hasSyncedRef.current || isLoading || vendas.length > 0) return;
+      
+      hasSyncedRef.current = true;
+      setIsSyncing(true);
+      
+      try {
+        const result = await importVendasFromAllMonths();
+        
+        if (result.total > 0) {
+          toast({
+            title: 'Dados importados!',
+            description: `${result.total} vendas carregadas da planilha.`,
+          });
+          queryClient.invalidateQueries({ queryKey: ['vendas'] });
+        }
+      } catch (error) {
+        console.error('Erro na sincronização:', error);
+      } finally {
+        setIsSyncing(false);
+      }
+    };
+
+    syncVendas();
+  }, [isLoading, vendas.length, queryClient, toast]);
+
+  if (isLoading || isSyncing) {
+    return (
+      <div className="flex flex-col items-center justify-center py-12 text-white gap-3">
+        <Loader2 className="h-8 w-8 animate-spin text-[#0066FF]" />
+        <p>{isSyncing ? 'Importando dados da planilha...' : 'Carregando...'}</p>
+      </div>
+    );
   }
 
   return (
@@ -169,9 +206,7 @@ const VendasTab = ({ mesKey }: VendasTabProps) => {
       <Card className="bg-[#1A1F2E] border-white/10">
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="text-white">Vendas Registradas</CardTitle>
-          <div className="flex gap-2">
-            <ImportarVendasButton />
-            <Dialog open={isOpen} onOpenChange={(open) => { setIsOpen(open); if (!open) resetForm(); }}>
+          <Dialog open={isOpen} onOpenChange={(open) => { setIsOpen(open); if (!open) resetForm(); }}>
               <DialogTrigger asChild>
                 <Button className="bg-[#0066FF] hover:bg-[#0066FF]/80">
                   <Plus className="h-4 w-4 mr-2" />
@@ -261,7 +296,6 @@ const VendasTab = ({ mesKey }: VendasTabProps) => {
               </div>
             </DialogContent>
           </Dialog>
-          </div>
         </CardHeader>
         <CardContent>
           <Table>
