@@ -57,7 +57,7 @@ const VendasTab = ({ mesKey }: VendasTabProps) => {
       colaborador_id: venda.colaborador_id || '',
       colaborador_nome: venda.colaborador_nome,
       valor: Number(venda.valor),
-      origem: venda.origem,
+      origem: venda.origem as 'indicacao' | 'outbound' | 'inbound',
       lead_nome: venda.lead_nome || '',
       data_fechamento: venda.data_fechamento,
       observacao: venda.observacao || ''

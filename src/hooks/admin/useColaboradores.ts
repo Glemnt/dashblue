@@ -4,10 +4,10 @@ import { supabase } from '@/integrations/supabase/client';
 export interface Colaborador {
   id: string;
   nome: string;
-  tipo: 'sdr' | 'closer';
+  tipo: string;
   squad: string | null;
-  ativo: boolean;
-  created_at: string;
+  ativo: boolean | null;
+  created_at: string | null;
 }
 
 export const useColaboradores = () => {
@@ -16,75 +16,57 @@ export const useColaboradores = () => {
   const { data: colaboradores = [], isLoading, error } = useQuery({
     queryKey: ['colaboradores'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('colaboradores' as any)
+      const { data, error } = await (supabase as any)
+        .from('colaboradores')
         .select('*')
         .order('tipo', { ascending: true })
         .order('nome', { ascending: true });
       
       if (error) throw error;
-      return data as Colaborador[];
+      return (data || []) as Colaborador[];
     }
   });
 
   const addColaborador = useMutation({
     mutationFn: async (colaborador: Omit<Colaborador, 'id' | 'created_at'>) => {
-      const { data, error } = await supabase
-        .from('colaboradores' as any)
-        .insert(colaborador as any)
+      const { data, error } = await (supabase as any)
+        .from('colaboradores')
+        .insert(colaborador)
         .select()
         .single();
-      
       if (error) throw error;
       return data;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['colaboradores'] });
-    }
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['colaboradores'] })
   });
 
   const updateColaborador = useMutation({
     mutationFn: async ({ id, ...updates }: Partial<Colaborador> & { id: string }) => {
-      const { data, error } = await supabase
-        .from('colaboradores' as any)
-        .update(updates as any)
+      const { data, error } = await (supabase as any)
+        .from('colaboradores')
+        .update(updates)
         .eq('id', id)
         .select()
         .single();
-      
       if (error) throw error;
       return data;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['colaboradores'] });
-    }
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['colaboradores'] })
   });
 
   const deleteColaborador = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from('colaboradores' as any)
+      const { error } = await (supabase as any)
+        .from('colaboradores')
         .delete()
         .eq('id', id);
-      
       if (error) throw error;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['colaboradores'] });
-    }
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['colaboradores'] })
   });
 
   const sdrs = colaboradores.filter(c => c.tipo === 'sdr' && c.ativo);
   const closers = colaboradores.filter(c => c.tipo === 'closer' && c.ativo);
 
-  return {
-    colaboradores,
-    sdrs,
-    closers,
-    isLoading,
-    error,
-    addColaborador,
-    updateColaborador,
-    deleteColaborador
-  };
+  return { colaboradores, sdrs, closers, isLoading, error, addColaborador, updateColaborador, deleteColaborador };
 };
