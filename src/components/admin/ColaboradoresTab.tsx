@@ -137,23 +137,21 @@ const ColaboradoresTab = () => {
                   </SelectContent>
                 </Select>
               </div>
-              {formData.tipo === 'closer' && (
-                <div className="space-y-2">
-                  <Label className="text-white">Squad</Label>
-                  <Select
-                    value={formData.squad}
-                    onValueChange={(value) => setFormData({ ...formData, squad: value })}
-                  >
-                    <SelectTrigger className="bg-[#151E35] border-white/10 text-white">
-                      <SelectValue placeholder="Selecione o squad" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-[#151E35] border-white/10">
-                      <SelectItem value="Alfa">Alfa</SelectItem>
-                      <SelectItem value="Beta">Beta</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              )}
+              <div className="space-y-2">
+                <Label className="text-white">Squad</Label>
+                <Select
+                  value={formData.squad}
+                  onValueChange={(value) => setFormData({ ...formData, squad: value })}
+                >
+                  <SelectTrigger className="bg-[#151E35] border-white/10 text-white">
+                    <SelectValue placeholder="Selecione o squad" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-[#151E35] border-white/10">
+                    <SelectItem value="Hot Dogs">🔴 Hot Dogs</SelectItem>
+                    <SelectItem value="Corvo Azul">🔵 Corvo Azul</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
               <div className="flex items-center justify-between">
                 <Label className="text-white">Ativo</Label>
                 <Switch
