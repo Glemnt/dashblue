@@ -14,6 +14,93 @@ export type Database = {
   }
   public: {
     Tables: {
+      agendamentos: {
+        Row: {
+          closer_id: string | null
+          closer_nome: string | null
+          created_at: string | null
+          data_agendamento: string
+          id: string
+          lead_nome: string | null
+          observacao: string | null
+          origem: string | null
+          qualificado: boolean | null
+          sdr_id: string | null
+          sdr_nome: string
+          status: string | null
+        }
+        Insert: {
+          closer_id?: string | null
+          closer_nome?: string | null
+          created_at?: string | null
+          data_agendamento: string
+          id?: string
+          lead_nome?: string | null
+          observacao?: string | null
+          origem?: string | null
+          qualificado?: boolean | null
+          sdr_id?: string | null
+          sdr_nome: string
+          status?: string | null
+        }
+        Update: {
+          closer_id?: string | null
+          closer_nome?: string | null
+          created_at?: string | null
+          data_agendamento?: string
+          id?: string
+          lead_nome?: string | null
+          observacao?: string | null
+          origem?: string | null
+          qualificado?: boolean | null
+          sdr_id?: string | null
+          sdr_nome?: string
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agendamentos_closer_id_fkey"
+            columns: ["closer_id"]
+            isOneToOne: false
+            referencedRelation: "colaboradores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agendamentos_sdr_id_fkey"
+            columns: ["sdr_id"]
+            isOneToOne: false
+            referencedRelation: "colaboradores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      colaboradores: {
+        Row: {
+          ativo: boolean | null
+          created_at: string | null
+          id: string
+          nome: string
+          squad: string | null
+          tipo: string
+        }
+        Insert: {
+          ativo?: boolean | null
+          created_at?: string | null
+          id?: string
+          nome: string
+          squad?: string | null
+          tipo: string
+        }
+        Update: {
+          ativo?: boolean | null
+          created_at?: string | null
+          id?: string
+          nome?: string
+          squad?: string | null
+          tipo?: string
+        }
+        Relationships: []
+      }
       leads_crm: {
         Row: {
           closer_nome: string | null
@@ -141,6 +228,89 @@ export type Database = {
             columns: ["lead_id"]
             isOneToOne: false
             referencedRelation: "leads_crm"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      metas_mensais: {
+        Row: {
+          created_at: string | null
+          id: string
+          mes: string
+          meta_individual_closer: number | null
+          meta_mensal: number
+          meta_taxa_conversao: number | null
+          meta_taxa_qualificacao_sdr: number | null
+          meta_taxa_show_sdr: number | null
+          meta_ticket_medio: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          mes: string
+          meta_individual_closer?: number | null
+          meta_mensal?: number
+          meta_taxa_conversao?: number | null
+          meta_taxa_qualificacao_sdr?: number | null
+          meta_taxa_show_sdr?: number | null
+          meta_ticket_medio?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          mes?: string
+          meta_individual_closer?: number | null
+          meta_mensal?: number
+          meta_taxa_conversao?: number | null
+          meta_taxa_qualificacao_sdr?: number | null
+          meta_taxa_show_sdr?: number | null
+          meta_ticket_medio?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      vendas: {
+        Row: {
+          colaborador_id: string | null
+          colaborador_nome: string
+          created_at: string | null
+          data_fechamento: string
+          id: string
+          lead_nome: string | null
+          observacao: string | null
+          origem: string
+          valor: number
+        }
+        Insert: {
+          colaborador_id?: string | null
+          colaborador_nome: string
+          created_at?: string | null
+          data_fechamento?: string
+          id?: string
+          lead_nome?: string | null
+          observacao?: string | null
+          origem: string
+          valor: number
+        }
+        Update: {
+          colaborador_id?: string | null
+          colaborador_nome?: string
+          created_at?: string | null
+          data_fechamento?: string
+          id?: string
+          lead_nome?: string | null
+          observacao?: string | null
+          origem?: string
+          valor?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vendas_colaborador_id_fkey"
+            columns: ["colaborador_id"]
+            isOneToOne: false
+            referencedRelation: "colaboradores"
             referencedColumns: ["id"]
           },
         ]
