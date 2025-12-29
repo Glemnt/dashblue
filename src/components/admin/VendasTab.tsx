@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState } from 'react';
 import { useVendas, Venda } from '@/hooks/admin/useVendas';
 import { useColaboradores } from '@/hooks/admin/useColaboradores';
 import { Button } from '@/components/ui/button';
@@ -14,8 +14,6 @@ import { Plus, Pencil, Trash2, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { importVendasFromAllMonths } from '@/utils/importVendas';
-import { useQueryClient } from '@tanstack/react-query';
 
 interface VendasTabProps {
   mesKey: string;
@@ -29,11 +27,8 @@ const VendasTab = ({ mesKey }: VendasTabProps) => {
   const { vendas, isLoading, totalVendas, vendasPorOrigem, addVenda, updateVenda, deleteVenda } = useVendas(mesKey);
   const { closers } = useColaboradores();
   const { toast } = useToast();
-  const queryClient = useQueryClient();
   const [isOpen, setIsOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [isSyncing, setIsSyncing] = useState(false);
-  const hasSyncedRef = useRef(false);
   const [formData, setFormData] = useState({
     colaborador_id: '',
     colaborador_nome: '',
@@ -129,39 +124,11 @@ const VendasTab = ({ mesKey }: VendasTabProps) => {
     inbound: 'bg-green-500/20 text-green-400'
   };
 
-  // Sincronização automática única quando tabela está vazia
-  useEffect(() => {
-    const syncVendas = async () => {
-      if (hasSyncedRef.current || isLoading || vendas.length > 0) return;
-      
-      hasSyncedRef.current = true;
-      setIsSyncing(true);
-      
-      try {
-        const result = await importVendasFromAllMonths();
-        
-        if (result.total > 0) {
-          toast({
-            title: 'Dados importados!',
-            description: `${result.total} vendas carregadas da planilha.`,
-          });
-          queryClient.invalidateQueries({ queryKey: ['vendas'] });
-        }
-      } catch (error) {
-        console.error('Erro na sincronização:', error);
-      } finally {
-        setIsSyncing(false);
-      }
-    };
-
-    syncVendas();
-  }, [isLoading, vendas.length, queryClient, toast]);
-
-  if (isLoading || isSyncing) {
+  if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center py-12 text-white gap-3">
         <Loader2 className="h-8 w-8 animate-spin text-[#0066FF]" />
-        <p>{isSyncing ? 'Importando dados da planilha...' : 'Carregando...'}</p>
+        <p>Carregando...</p>
       </div>
     );
   }

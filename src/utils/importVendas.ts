@@ -35,11 +35,12 @@ const normalizeCloserName = (name: string): string => {
 const mapCloserToColaborador = (closerName: string, colaboradores: Colaborador[]): Colaborador | null => {
   const normalized = normalizeCloserName(closerName);
   
+  // Mapeamento atualizado com os nomes reais da planilha
   const closerMappings: Record<string, string[]> = {
     'Bruno': ['BRUNO'],
     'Cauã': ['CAUA', 'CAUÃ'],
-    'Fernandes': ['GABRIEL FERNANDES', 'FERNANDES'],
-    'Franklin': ['GABRIEL FRANKLIN', 'FRANKLIN'],
+    'Fernandes': ['G. FERNANDES', 'GABRIEL FERNANDES', 'FERNANDES'],
+    'Franklin': ['G. FRANKLIN', 'GABRIEL FRANKLIN', 'FRANKLIN'],
     'Marcos': ['MARCOS']
   };
 
@@ -86,9 +87,9 @@ const parseValor = (valorStr: string): number => {
 };
 
 const determineOrigem = (row: any): string => {
-  const origem = (row['ORIGEM'] || row['FONTE'] || '').toLowerCase();
-  if (origem.includes('indicacao') || origem.includes('indicação')) return 'indicacao';
-  if (origem.includes('outbound')) return 'outbound';
+  const canal = (row['CANAL DE AQUISIÇÃO'] || row['ORIGEM'] || row['FONTE'] || '').toLowerCase();
+  if (canal.includes('indicacao') || canal.includes('indicação')) return 'indicacao';
+  if (canal.includes('outbound')) return 'outbound';
   return 'inbound';
 };
 
@@ -134,18 +135,55 @@ export const parseVendasFromSheet = (
     
     if (valor <= 0) continue;
 
+    // Usar DATA DE ENTRADA como data de fechamento (é a data real da venda)
+    const dataFechamento = parseDate(row['DATA DE ENTRADA'] || row['DATA'] || '', monthInfo.month, monthInfo.year);
+    
     vendas.push({
       colaborador_id: colaborador?.id || null,
       colaborador_nome: colaborador?.nome || closerName.trim(),
       valor,
       origem: determineOrigem(row),
       lead_nome: row['NOME DA CALL'] || row['LEAD'] || null,
-      data_fechamento: parseDate(row['DATA'] || row['DATA DE ENTRADA'] || '', monthInfo.month, monthInfo.year),
+      data_fechamento: dataFechamento,
       observacao: null
     });
   }
 
   return vendas;
+};
+
+export const importVendasFromMonth = async (
+  monthKey: string,
+  onProgress?: (message: string) => void
+): Promise<{ total: number }> => {
+  const monthInfo = MONTH_GIDS[monthKey];
+  if (!monthInfo) throw new Error(`Mês não encontrado: ${monthKey}`);
+
+  onProgress?.('Buscando colaboradores...');
+  
+  const { data: colaboradores, error: colabError } = await (supabase as any)
+    .from('colaboradores')
+    .select('id, nome, tipo')
+    .eq('tipo', 'closer');
+
+  if (colabError) throw new Error(`Erro ao buscar colaboradores: ${colabError.message}`);
+
+  onProgress?.(`Buscando dados de ${monthKey}...`);
+  
+  const data = await fetchSheetData(monthInfo.gid);
+  const vendas = parseVendasFromSheet(data, monthKey, colaboradores || []);
+  
+  if (vendas.length > 0) {
+    onProgress?.(`Inserindo ${vendas.length} vendas de ${monthKey}...`);
+    
+    const { error } = await (supabase as any)
+      .from('vendas')
+      .insert(vendas);
+
+    if (error) throw new Error(`Erro ao inserir vendas de ${monthKey}: ${error.message}`);
+  }
+
+  return { total: vendas.length };
 };
 
 export const importVendasFromAllMonths = async (
@@ -192,4 +230,3 @@ export const importVendasFromAllMonths = async (
 
   return { total, byMonth: results };
 };
-
