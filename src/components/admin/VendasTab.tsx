@@ -14,6 +14,7 @@ import { Plus, Pencil, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import ImportarVendasButton from './ImportarVendasButton';
 
 interface VendasTabProps {
   mesKey: string;
@@ -168,12 +169,14 @@ const VendasTab = ({ mesKey }: VendasTabProps) => {
       <Card className="bg-[#1A1F2E] border-white/10">
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="text-white">Vendas Registradas</CardTitle>
-          <Dialog open={isOpen} onOpenChange={(open) => { setIsOpen(open); if (!open) resetForm(); }}>
-            <DialogTrigger asChild>
-              <Button className="bg-[#0066FF] hover:bg-[#0066FF]/80">
-                <Plus className="h-4 w-4 mr-2" />
-                Registrar Venda
-              </Button>
+          <div className="flex gap-2">
+            <ImportarVendasButton />
+            <Dialog open={isOpen} onOpenChange={(open) => { setIsOpen(open); if (!open) resetForm(); }}>
+              <DialogTrigger asChild>
+                <Button className="bg-[#0066FF] hover:bg-[#0066FF]/80">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Registrar Venda
+                </Button>
             </DialogTrigger>
             <DialogContent className="bg-[#1A1F2E] border-white/10">
               <DialogHeader>
@@ -258,6 +261,7 @@ const VendasTab = ({ mesKey }: VendasTabProps) => {
               </div>
             </DialogContent>
           </Dialog>
+          </div>
         </CardHeader>
         <CardContent>
           <Table>
