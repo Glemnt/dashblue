@@ -63,9 +63,9 @@ const AgendamentosTab = ({ mesKey }: AgendamentosTabProps) => {
       closer_nome: agendamento.closer_nome || '',
       lead_nome: agendamento.lead_nome || '',
       data_agendamento: agendamento.data_agendamento,
-      status: agendamento.status,
-      qualificado: agendamento.qualificado,
-      origem: agendamento.origem || 'inbound',
+      status: (agendamento.status || 'agendado') as 'agendado' | 'realizado' | 'no_show' | 'cancelado',
+      qualificado: agendamento.qualificado ?? false,
+      origem: (agendamento.origem || 'inbound') as 'indicacao' | 'outbound' | 'inbound',
       observacao: agendamento.observacao || ''
     });
     setEditingId(agendamento.id);
@@ -347,10 +347,10 @@ const AgendamentosTab = ({ mesKey }: AgendamentosTabProps) => {
                     <TableCell className="text-white">{agendamento.lead_nome || '-'}</TableCell>
                     <TableCell>
                       <Select
-                        value={agendamento.status}
+                        value={agendamento.status || 'agendado'}
                         onValueChange={(value) => handleStatusChange(agendamento, value)}
                       >
-                        <SelectTrigger className={`w-28 border-0 ${statusColors[agendamento.status]}`}>
+                        <SelectTrigger className={`w-28 border-0 ${statusColors[agendamento.status || 'agendado']}`}>
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent className="bg-[#151E35] border-white/10">
@@ -362,8 +362,8 @@ const AgendamentosTab = ({ mesKey }: AgendamentosTabProps) => {
                       </Select>
                     </TableCell>
                     <TableCell>
-                      <Badge className={agendamento.qualificado ? 'bg-green-500/20 text-green-400' : 'bg-gray-500/20 text-gray-400'}>
-                        {agendamento.qualificado ? 'Sim' : 'Não'}
+                      <Badge className={(agendamento.qualificado ?? false) ? 'bg-green-500/20 text-green-400' : 'bg-gray-500/20 text-gray-400'}>
+                        {(agendamento.qualificado ?? false) ? 'Sim' : 'Não'}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right">

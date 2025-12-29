@@ -12,6 +12,7 @@ import GuerraSquads from "./pages/GuerraSquads";
 import AssistenteIA from "./pages/AssistenteIA";
 import TrafegoPago from "./pages/TrafegoPago";
 import TrafegoIA from "./pages/TrafegoIA";
+import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -32,6 +33,7 @@ const App = () => (
             <Route path="/ia" element={<AssistenteIA />} />
             <Route path="/trafego" element={<TrafegoPago />} />
             <Route path="/trafego/ia" element={<TrafegoIA />} />
+            <Route path="/admin" element={<Admin />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { Menu, Home, Users, Target, DollarSign, Trophy, Sparkles, TrendingUp } from 'lucide-react';
+import { Menu, Home, Users, Target, DollarSign, Trophy, Sparkles, TrendingUp, Settings } from 'lucide-react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 
@@ -18,6 +18,7 @@ const MobileMenu = ({ isTVMode = false }: MobileMenuProps) => {
     { path: '/squads', label: 'Squads', icon: Trophy, enabled: true },
     { path: '/financeiro', label: 'Financeiro', icon: DollarSign, enabled: true },
     { path: '/trafego', label: 'Tráfego', icon: TrendingUp, enabled: true },
+    { path: '/admin', label: 'Admin', icon: Settings, enabled: true },
     { path: '/ia', label: 'IA 🤖', icon: Sparkles, enabled: false }
   ];
 

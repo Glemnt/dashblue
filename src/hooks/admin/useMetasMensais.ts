@@ -10,8 +10,8 @@ export interface MetaMensal {
   meta_taxa_conversao: number | null;
   meta_taxa_qualificacao_sdr: number | null;
   meta_taxa_show_sdr: number | null;
-  created_at: string;
-  updated_at: string;
+  created_at: string | null;
+  updated_at: string | null;
 }
 
 export const useMetasMensais = () => {
@@ -20,76 +20,43 @@ export const useMetasMensais = () => {
   const { data: metas = [], isLoading, error } = useQuery({
     queryKey: ['metas_mensais'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('metas_mensais' as any)
+      const { data, error } = await (supabase as any)
+        .from('metas_mensais')
         .select('*')
         .order('mes', { ascending: false });
-      
       if (error) throw error;
-      return data as MetaMensal[];
+      return (data || []) as MetaMensal[];
     }
   });
 
-  const getMetaPorMes = (mes: string) => {
-    return metas.find(m => m.mes === mes);
-  };
+  const getMetaPorMes = (mes: string) => metas.find(m => m.mes === mes);
 
   const addMeta = useMutation({
     mutationFn: async (meta: Omit<MetaMensal, 'id' | 'created_at' | 'updated_at'>) => {
-      const { data, error } = await supabase
-        .from('metas_mensais' as any)
-        .insert(meta as any)
-        .select()
-        .single();
-      
+      const { data, error } = await (supabase as any).from('metas_mensais').insert(meta).select().single();
       if (error) throw error;
       return data;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['metas_mensais'] });
-    }
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['metas_mensais'] })
   });
 
   const updateMeta = useMutation({
     mutationFn: async ({ id, ...updates }: Partial<MetaMensal> & { id: string }) => {
-      const { data, error } = await supabase
-        .from('metas_mensais' as any)
-        .update({ ...updates, updated_at: new Date().toISOString() } as any)
-        .eq('id', id)
-        .select()
-        .single();
-      
+      const { data, error } = await (supabase as any).from('metas_mensais').update({ ...updates, updated_at: new Date().toISOString() }).eq('id', id).select().single();
       if (error) throw error;
       return data;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['metas_mensais'] });
-    }
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['metas_mensais'] })
   });
 
   const upsertMeta = useMutation({
     mutationFn: async (meta: Omit<MetaMensal, 'id' | 'created_at' | 'updated_at'>) => {
-      const { data, error } = await supabase
-        .from('metas_mensais' as any)
-        .upsert(meta as any, { onConflict: 'mes' })
-        .select()
-        .single();
-      
+      const { data, error } = await (supabase as any).from('metas_mensais').upsert(meta, { onConflict: 'mes' }).select().single();
       if (error) throw error;
       return data;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['metas_mensais'] });
-    }
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['metas_mensais'] })
   });
 
-  return {
-    metas,
-    isLoading,
-    error,
-    getMetaPorMes,
-    addMeta,
-    updateMeta,
-    upsertMeta
-  };
+  return { metas, isLoading, error, getMetaPorMes, addMeta, updateMeta, upsertMeta };
 };

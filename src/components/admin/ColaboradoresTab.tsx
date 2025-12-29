@@ -32,9 +32,9 @@ const ColaboradoresTab = () => {
   const handleEdit = (colaborador: Colaborador) => {
     setFormData({
       nome: colaborador.nome,
-      tipo: colaborador.tipo,
+      tipo: colaborador.tipo as 'sdr' | 'closer',
       squad: colaborador.squad || '',
-      ativo: colaborador.ativo
+      ativo: colaborador.ativo ?? true
     });
     setEditingId(colaborador.id);
     setIsOpen(true);
@@ -191,7 +191,7 @@ const ColaboradoresTab = () => {
                 <TableCell className="text-white">{colaborador.squad || '-'}</TableCell>
                 <TableCell>
                   <Switch
-                    checked={colaborador.ativo}
+                    checked={colaborador.ativo ?? false}
                     onCheckedChange={() => handleToggleAtivo(colaborador)}
                   />
                 </TableCell>
