@@ -193,11 +193,3 @@ export const importVendasFromAllMonths = async (
   return { total, byMonth: results };
 };
 
-export const clearAllVendas = async (): Promise<void> => {
-  const { error } = await (supabase as any)
-    .from('vendas')
-    .delete()
-    .neq('id', '00000000-0000-0000-0000-000000000000');
-  
-  if (error) throw new Error(`Erro ao limpar vendas: ${error.message}`);
-};
