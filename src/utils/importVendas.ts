@@ -41,7 +41,7 @@ const mapCloserToColaborador = (closerName: string, colaboradores: Colaborador[]
     'Cauã': ['CAUA', 'CAUÃ'],
     'Fernandes': ['G. FERNANDES', 'GABRIEL FERNANDES', 'FERNANDES'],
     'Franklin': ['G. FRANKLIN', 'GABRIEL FRANKLIN', 'FRANKLIN'],
-    'Marcos': ['MARCOS']
+    'Marcos': ['MARCOS', 'OUTRO']
   };
 
   for (const [dbName, aliases] of Object.entries(closerMappings)) {
