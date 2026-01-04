@@ -28,6 +28,7 @@ export type Database = {
           sdr_id: string | null
           sdr_nome: string
           status: string | null
+          workspace_id: string | null
         }
         Insert: {
           closer_id?: string | null
@@ -42,6 +43,7 @@ export type Database = {
           sdr_id?: string | null
           sdr_nome: string
           status?: string | null
+          workspace_id?: string | null
         }
         Update: {
           closer_id?: string | null
@@ -56,6 +58,7 @@ export type Database = {
           sdr_id?: string | null
           sdr_nome?: string
           status?: string | null
+          workspace_id?: string | null
         }
         Relationships: [
           {
@@ -72,6 +75,13 @@ export type Database = {
             referencedRelation: "colaboradores"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "agendamentos_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
         ]
       }
       colaboradores: {
@@ -82,6 +92,7 @@ export type Database = {
           nome: string
           squad: string | null
           tipo: string
+          workspace_id: string | null
         }
         Insert: {
           ativo?: boolean | null
@@ -90,6 +101,7 @@ export type Database = {
           nome: string
           squad?: string | null
           tipo: string
+          workspace_id?: string | null
         }
         Update: {
           ativo?: boolean | null
@@ -98,8 +110,17 @@ export type Database = {
           nome?: string
           squad?: string | null
           tipo?: string
+          workspace_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "colaboradores_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       leads_crm: {
         Row: {
@@ -129,6 +150,7 @@ export type Database = {
           telefone: string | null
           updated_at: string | null
           valor_contrato: number | null
+          workspace_id: string | null
         }
         Insert: {
           closer_nome?: string | null
@@ -157,6 +179,7 @@ export type Database = {
           telefone?: string | null
           updated_at?: string | null
           valor_contrato?: number | null
+          workspace_id?: string | null
         }
         Update: {
           closer_nome?: string | null
@@ -185,8 +208,17 @@ export type Database = {
           telefone?: string | null
           updated_at?: string | null
           valor_contrato?: number | null
+          workspace_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "leads_crm_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       leads_crm_historico: {
         Row: {
@@ -199,6 +231,7 @@ export type Database = {
           status_novo: string | null
           valor_anterior: string | null
           valor_novo: string | null
+          workspace_id: string | null
         }
         Insert: {
           campo_alterado?: string | null
@@ -210,6 +243,7 @@ export type Database = {
           status_novo?: string | null
           valor_anterior?: string | null
           valor_novo?: string | null
+          workspace_id?: string | null
         }
         Update: {
           campo_alterado?: string | null
@@ -221,6 +255,7 @@ export type Database = {
           status_novo?: string | null
           valor_anterior?: string | null
           valor_novo?: string | null
+          workspace_id?: string | null
         }
         Relationships: [
           {
@@ -228,6 +263,13 @@ export type Database = {
             columns: ["lead_id"]
             isOneToOne: false
             referencedRelation: "leads_crm"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "leads_crm_historico_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
             referencedColumns: ["id"]
           },
         ]
@@ -244,6 +286,7 @@ export type Database = {
           meta_taxa_show_sdr: number | null
           meta_ticket_medio: number | null
           updated_at: string | null
+          workspace_id: string | null
         }
         Insert: {
           created_at?: string | null
@@ -256,6 +299,7 @@ export type Database = {
           meta_taxa_show_sdr?: number | null
           meta_ticket_medio?: number | null
           updated_at?: string | null
+          workspace_id?: string | null
         }
         Update: {
           created_at?: string | null
@@ -268,8 +312,17 @@ export type Database = {
           meta_taxa_show_sdr?: number | null
           meta_ticket_medio?: number | null
           updated_at?: string | null
+          workspace_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "metas_mensais_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
@@ -306,6 +359,7 @@ export type Database = {
           observacao: string | null
           origem: string
           valor: number
+          workspace_id: string | null
         }
         Insert: {
           colaborador_id?: string | null
@@ -317,6 +371,7 @@ export type Database = {
           observacao?: string | null
           origem: string
           valor: number
+          workspace_id?: string | null
         }
         Update: {
           colaborador_id?: string | null
@@ -328,6 +383,7 @@ export type Database = {
           observacao?: string | null
           origem?: string
           valor?: number
+          workspace_id?: string | null
         }
         Relationships: [
           {
@@ -335,6 +391,13 @@ export type Database = {
             columns: ["colaborador_id"]
             isOneToOne: false
             referencedRelation: "colaboradores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vendas_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
             referencedColumns: ["id"]
           },
         ]
