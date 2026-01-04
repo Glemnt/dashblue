@@ -1,10 +1,14 @@
 import { NavLink } from 'react-router-dom';
+import { useWorkspace } from '@/contexts/WorkspaceContext';
+import UserMenu from './UserMenu';
 
 interface NavigationProps {
   isTVMode?: boolean;
 }
 
 const Navigation = ({ isTVMode = false }: NavigationProps) => {
+  const { hasPermission } = useWorkspace();
+  
   const menuItems = [
     { path: '/', label: 'Visão Geral', enabled: true },
     { path: '/closer', label: 'Closer', enabled: true },
@@ -12,7 +16,7 @@ const Navigation = ({ isTVMode = false }: NavigationProps) => {
     { path: '/squads', label: 'Squads', enabled: true },
     { path: '/financeiro', label: 'Financeiro', enabled: true },
     { path: '/trafego', label: 'Tráfego', enabled: true },
-    { path: '/admin', label: 'Admin', enabled: true },
+    { path: '/admin', label: 'Admin', enabled: hasPermission('admin'), requiresAdmin: true },
     { path: '/ia', label: 'IA 🤖', enabled: false }
   ];
 
@@ -21,45 +25,51 @@ const Navigation = ({ isTVMode = false }: NavigationProps) => {
       isTVMode ? 'py-8' : 'py-0'
     }`}>
       <div className="max-w-[1920px] mx-auto px-4 sm:px-6 md:px-12">
-        <div className={`hidden md:flex ${isTVMode ? 'gap-12 justify-center' : 'gap-8'} ${
-          isTVMode ? 'py-0' : 'py-4'
+        <div className={`hidden md:flex items-center justify-between ${
+          isTVMode ? 'py-0' : 'py-2'
         }`}>
-          {menuItems.map((item) => (
-            item.enabled ? (
-              <NavLink
-                key={item.path}
-                to={item.path}
-                className={({ isActive }) =>
-                  `font-outfit font-semibold transition-all duration-200 border-b-4 ${
+          {/* Navigation Links */}
+          <div className={`flex ${isTVMode ? 'gap-12 justify-center flex-1' : 'gap-8'}`}>
+            {menuItems.map((item) => (
+              item.enabled ? (
+                <NavLink
+                  key={item.path}
+                  to={item.path}
+                  className={({ isActive }) =>
+                    `font-outfit font-semibold transition-all duration-200 border-b-4 ${
+                      isTVMode 
+                        ? 'text-2xl px-8 py-6 rounded-lg' 
+                        : 'text-base py-4'
+                    } ${
+                      isActive
+                        ? isTVMode
+                          ? 'text-white bg-[#0066FF] border-[#0066FF] scale-110'
+                          : 'text-[#0066FF] border-[#0066FF]'
+                        : isTVMode
+                          ? 'text-[#94A3B8] border-transparent hover:text-white hover:bg-[#0066FF]/20'
+                          : 'text-[#94A3B8] border-transparent hover:text-white'
+                    }`
+                  }
+                >
+                  {item.label}
+                </NavLink>
+              ) : (
+                <span
+                  key={item.path}
+                  className={`font-outfit font-medium cursor-not-allowed ${
                     isTVMode 
-                      ? 'text-2xl px-8 py-6 rounded-lg' 
-                      : 'text-base pb-4'
-                  } ${
-                    isActive
-                      ? isTVMode
-                        ? 'text-white bg-[#0066FF] border-[#0066FF] scale-110'
-                        : 'text-[#0066FF] border-[#0066FF]'
-                      : isTVMode
-                        ? 'text-[#94A3B8] border-transparent hover:text-white hover:bg-[#0066FF]/20'
-                        : 'text-[#94A3B8] border-transparent hover:text-white'
-                  }`
-                }
-              >
-                {item.label}
-              </NavLink>
-            ) : (
-              <span
-                key={item.path}
-                className={`font-outfit font-medium cursor-not-allowed ${
-                  isTVMode 
-                    ? 'text-2xl text-[#64748B]/50 px-8 py-6' 
-                    : 'text-base text-[#64748B] pb-4'
-                }`}
-              >
-                {item.label}
-              </span>
-            )
-          ))}
+                      ? 'text-2xl text-[#64748B]/50 px-8 py-6' 
+                      : 'text-base text-[#64748B] py-4'
+                  }`}
+                >
+                  {item.label}
+                </span>
+              )
+            ))}
+          </div>
+
+          {/* User Menu */}
+          {!isTVMode && <UserMenu />}
         </div>
       </div>
     </nav>
