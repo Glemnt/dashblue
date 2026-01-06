@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { RefreshCw } from "lucide-react";
+import { RefreshCw, Calendar } from "lucide-react";
+import { MonthSelector } from "@/components/sdr/MonthSelector";
 import logoWhite from "@/assets/logo-white.png";
 import MobileMenu from '@/components/MobileMenu';
 import { useGoogleSheets } from "@/hooks/useGoogleSheets";
@@ -187,7 +188,31 @@ const Index = () => {
   }
 
   if (!metricas) {
-    return null;
+    return (
+      <div className="min-h-screen bg-[#0B1120] font-outfit flex items-center justify-center">
+        <div className="text-center max-w-md px-4">
+          <Calendar className="w-16 h-16 text-[#0066FF] mx-auto mb-4" />
+          <h2 className="text-white text-3xl font-bold mb-4">Sem Dados Disponíveis</h2>
+          <p className="text-[#94A3B8] text-lg mb-6">
+            Não há dados disponíveis para o mês selecionado. 
+            Selecione outro período ou aguarde a atualização da planilha.
+          </p>
+          <div className="flex flex-col gap-4 items-center">
+            <MonthSelector 
+              selectedMonthKey={selectedMonthKey} 
+              onMonthChange={setSelectedMonthKey} 
+            />
+            <Button 
+              onClick={refetch}
+              className="bg-[#0066FF] hover:bg-[#0066FF]/90 text-white px-8 py-3 text-lg"
+            >
+              <RefreshCw className="w-5 h-5 mr-2" />
+              Tentar Novamente
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
