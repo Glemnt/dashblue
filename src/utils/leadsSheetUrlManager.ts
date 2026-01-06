@@ -16,7 +16,6 @@ const LEAD_SOURCES_BY_MONTH: Record<string, LeadSource[]> = {
     { key: 'lp-v2', name: 'LP V2', gid: '1093821118' }
   ],
   'dezembro-2025': [
-    // Mesmas planilhas - leads de dezembro serão filtrados pela data
     { key: 'form-qualificacao', name: 'Form Qualificação 11/11', gid: '1680388014' },
     { key: 'form-promax', name: 'Form ProMax 2.0', gid: '1023080672' },
     { key: 'landing-page', name: 'Landing Page', gid: '1432234443' },
@@ -24,7 +23,13 @@ const LEAD_SOURCES_BY_MONTH: Record<string, LeadSource[]> = {
     { key: 'lp-v2', name: 'LP V2', gid: '1093821118' }
   ],
   'outubro-2025': [
-    // Mesmas planilhas - leads de outubro serão filtrados pela data
+    { key: 'form-qualificacao', name: 'Form Qualificação 11/11', gid: '1680388014' },
+    { key: 'form-promax', name: 'Form ProMax 2.0', gid: '1023080672' },
+    { key: 'landing-page', name: 'Landing Page', gid: '1432234443' },
+    { key: 'vsl', name: 'VSL', gid: '1423689787' },
+    { key: 'lp-v2', name: 'LP V2', gid: '1093821118' }
+  ],
+  'janeiro-2026': [
     { key: 'form-qualificacao', name: 'Form Qualificação 11/11', gid: '1680388014' },
     { key: 'form-promax', name: 'Form ProMax 2.0', gid: '1023080672' },
     { key: 'landing-page', name: 'Landing Page', gid: '1432234443' },
@@ -39,7 +44,8 @@ const BASE_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTiBWb4KkxNxK-
 const MONTH_KEY_TO_NUMBER: Record<string, number> = {
   'outubro-2025': 9,
   'novembro-2025': 10,
-  'dezembro-2025': 11
+  'dezembro-2025': 11,
+  'janeiro-2026': 0
 };
 
 export const getLeadSourcesForMonth = (monthKey?: string): LeadSource[] => {

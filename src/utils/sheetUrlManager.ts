@@ -31,6 +31,13 @@ export const AVAILABLE_MONTHS: AvailableMonth[] = [
     gid: '581766650',
     month: 11,
     year: 2025
+  },
+  {
+    key: 'janeiro-2026',
+    label: 'Janeiro 2026',
+    gid: '749539490',
+    month: 0,
+    year: 2026
   }
 ];
 
@@ -38,7 +45,8 @@ export const AVAILABLE_MONTHS: AvailableMonth[] = [
 const SHEET_GIDS: Record<string, string> = {
   'outubro-2025': '1439614322',
   'novembro-2025': '930588352',
-  'dezembro-2025': '581766650'
+  'dezembro-2025': '581766650',
+  'janeiro-2026': '749539490'
 };
 
 const BASE_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTiBWb4KkxNxK-WwtnetmSBqedeaGkJ1zyjJf1xd07v_v9LevCbDMX2rSttHCbcWz2dU3ce3JO7lDWv/pub";
@@ -55,17 +63,22 @@ export const getSheetUrlForPeriod = (dateRange: DateRange): string => {
     periodKey = 'novembro-2025';
   } else if (startMonth === 11 && startYear === 2025) { // dezembro
     periodKey = 'dezembro-2025';
+  } else if (startMonth === 0 && startYear === 2026) { // janeiro
+    periodKey = 'janeiro-2026';
   } else {
-    // Padrão: mês atual
+    // Padrão: mês atual ou último disponível
     const now = new Date();
-    if (now.getMonth() === 11 && now.getFullYear() === 2025) {
-      periodKey = 'dezembro-2025';
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+    
+    if (currentMonth === 0 && currentYear === 2026) {
+      periodKey = 'janeiro-2026';
     } else {
-      periodKey = 'dezembro-2025'; // Fallback para dezembro
+      periodKey = 'janeiro-2026'; // Fallback para janeiro
     }
   }
   
-  const gid = SHEET_GIDS[periodKey] || SHEET_GIDS['novembro-2025'];
+  const gid = SHEET_GIDS[periodKey] || SHEET_GIDS['janeiro-2026'];
   return `${BASE_URL}?gid=${gid}&single=true&output=csv`;
 };
 

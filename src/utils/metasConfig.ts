@@ -121,12 +121,27 @@ export const METAS_TRAFEGO_POR_MES: Record<string, MetasTrafego> = {
     cplMeta: 214.42,
     cacMeta: 2682.93,
     roasMinimo: 1.48
+  },
+  'janeiro-2026': {
+    investimentoMensal: 220000,
+    metaReceita: 350000,
+    ticketMedio: 4000,
+    fechamentos: 88,
+    callsRealizadas: 440,
+    callsAgendadas: 550,
+    leads: 1100,
+    taxaLeadParaQualificado: 0.50,
+    taxaCallAgendadaParaRealizada: 0.80,
+    taxaCallParaFechamento: 0.20,
+    cplMeta: 200,
+    cacMeta: 2500,
+    roasMinimo: 1.59
   }
 };
 
 export const getMetasTrafegoAtual = (monthKey?: string): MetasTrafego => {
   const key = monthKey || getCurrentMonthKey();
-  return METAS_TRAFEGO_POR_MES[key] || METAS_TRAFEGO_POR_MES['dezembro-2025'];
+  return METAS_TRAFEGO_POR_MES[key] || METAS_TRAFEGO_POR_MES['janeiro-2026'];
 };
 
 const getCurrentMonthKey = (): string => {
@@ -183,14 +198,28 @@ export const METAS_POR_MES: Record<string, MetasMensais> = {
       metaPorSquad: 162500,
       totalSquads: 2
     },
-    // Metas Closer
     metaTicketMedioCloser: 4200,
     metaTaxaConversao: 28,
     metaTaxaAssinatura: 100,
     metaTaxaPagamento: 100,
-    // Metas Financeiras
     metaTaxaRecebimentoMinimo: 90,
-    // Metas SDR
+    metaTaxaQualificacaoSDR: 50,
+    metaTaxaShowSDR: 75,
+    numSDRs: 3
+  },
+  'janeiro-2026': {
+    metaMensal: 350000,
+    metaIndividualCloser: 70000,
+    modelo: 'MRR',
+    squads: {
+      metaPorSquad: 175000,
+      totalSquads: 2
+    },
+    metaTicketMedioCloser: 4200,
+    metaTaxaConversao: 28,
+    metaTaxaAssinatura: 100,
+    metaTaxaPagamento: 100,
+    metaTaxaRecebimentoMinimo: 90,
     metaTaxaQualificacaoSDR: 50,
     metaTaxaShowSDR: 75,
     numSDRs: 3
@@ -198,7 +227,7 @@ export const METAS_POR_MES: Record<string, MetasMensais> = {
 };
 
 export const getMetasPorMes = (monthKey: string): MetasMensais => {
-  return METAS_POR_MES[monthKey] || METAS_POR_MES['dezembro-2025']; // Default dezembro
+  return METAS_POR_MES[monthKey] || METAS_POR_MES['janeiro-2026'];
 };
 
 export const calcularMetaSemanal = (metaMensal: number): number => {
