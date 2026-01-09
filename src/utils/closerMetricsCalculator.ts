@@ -130,10 +130,21 @@ export const calcularMetricasCloser = (data: any[], dateRange?: DateRange): Clos
   // Determinar equipe baseada no período
   const isOutubro = dateRange && dateRange.start.getMonth() === 9 && dateRange.start.getFullYear() === 2025;
   const isDezembro = dateRange && dateRange.start.getMonth() === 11 && dateRange.start.getFullYear() === 2025;
+  const isJaneiro = dateRange && dateRange.start.getMonth() === 0 && dateRange.start.getFullYear() === 2026;
 
   let closersNomes: Array<{ original: string; display: string; squad: string; color: string; emoji: string }>;
 
-  if (isOutubro) {
+  if (isJaneiro) {
+    // JANEIRO 2026: 6 closers - Davi (função dupla SDR/Closer) no Hot Dogs
+    closersNomes = [
+      { original: 'BRUNO', display: 'Bruno', squad: 'Hot Dogs', color: '#FF4757', emoji: '🔴' },
+      { original: 'GABRIEL FRANKLIN', display: 'Gabriel Franklin', squad: 'Hot Dogs', color: '#FF4757', emoji: '🔴' },
+      { original: 'DAVI', display: 'Davi', squad: 'Hot Dogs', color: '#FF4757', emoji: '🔴' },
+      { original: 'MARCOS', display: 'Marcos', squad: 'Corvo Azul', color: '#0066FF', emoji: '🔵' },
+      { original: 'CAUÃ', display: 'Cauã', squad: 'Corvo Azul', color: '#0066FF', emoji: '🔵' },
+      { original: 'GABRIEL FERNANDES', display: 'Gabriel Fernandes', squad: 'Sem Squad', color: '#64748B', emoji: '⚪' }
+    ];
+  } else if (isOutubro) {
     // OUTUBRO: Gabriel Fernandes como Closer, sem Marcos
     closersNomes = [
       { original: 'BRUNO', display: 'Bruno', squad: 'Hot Dogs', color: '#FF4757', emoji: '🔴' },
