@@ -208,11 +208,11 @@ export const METAS_POR_MES: Record<string, MetasMensais> = {
     numSDRs: 3
   },
   'janeiro-2026': {
-    metaMensal: 350000,
-    metaIndividualCloser: 70000,
+    metaMensal: 300000,
+    metaIndividualCloser: 50000,
     modelo: 'MRR',
     squads: {
-      metaPorSquad: 175000,
+      metaPorSquad: 150000,
       totalSquads: 2
     },
     metaTicketMedioCloser: 4200,

@@ -198,11 +198,29 @@ export const calcularMetricasSquads = (data: any[], dateRange?: DateRange, month
   // Determinar período
   const isOutubro = dateRange && dateRange.start.getMonth() === 9 && dateRange.start.getFullYear() === 2025;
   const isDezembro = dateRange && dateRange.start.getMonth() === 11 && dateRange.start.getFullYear() === 2025;
+  const isJaneiro = monthKey === 'janeiro-2026' || 
+    (dateRange && dateRange.start.getMonth() === 0 && dateRange.start.getFullYear() === 2026);
   
   // Configuração dinâmica dos squads por período
   let SQUADS_CONFIG;
   
-  if (isOutubro) {
+  if (isJaneiro) {
+    // JANEIRO 2026: Davi atua como SDR e Closer no Hot Dogs
+    // Closers: Franklin, Bruno e Davi (Hot Dogs), Marcos e Cauã (Corvo Azul)
+    // Sem squad: Andrey (SDR), Gabriel Fernandes (Closer)
+    SQUADS_CONFIG = {
+      hotDogs: {
+        sdr: ['DAVI'],
+        closers: ['BRUNO', 'GABRIEL FRANKLIN', 'FRANKLIN', 'DAVI'],
+        membrosNomes: ['Davi', 'Bruno', 'Gabriel Franklin']
+      },
+      corvoAzul: {
+        sdr: ['VINICIUS MEIRELES', 'VINÍCIUS', 'VINICIUS'],
+        closers: ['MARCOS', 'CAUÃ', 'CAUA'],
+        membrosNomes: ['Vinícius', 'Marcos', 'Cauã']
+      }
+    };
+  } else if (isOutubro) {
     // OUTUBRO: Marcos como SDR no Hot Dogs
     SQUADS_CONFIG = {
       hotDogs: {

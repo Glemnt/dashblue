@@ -120,11 +120,20 @@ export const calcularMetricasSDR = (data: any[], dateRange?: DateRange): SDRData
   // Determinar equipe baseada no período
   const isOutubro = dateRange && dateRange.start.getMonth() === 9 && dateRange.start.getFullYear() === 2025;
   const isDezembro = dateRange && dateRange.start.getMonth() === 11 && dateRange.start.getFullYear() === 2025;
+  const isJaneiro = dateRange && dateRange.start.getMonth() === 0 && dateRange.start.getFullYear() === 2026;
 
   let sdrsNomes: string[];
   let squadMap: Record<string, { squad: string; color: string; emoji: string; displayName: string }>;
 
-  if (isOutubro) {
+  if (isJaneiro) {
+    // JANEIRO 2026: Davi (função dupla SDR/Closer) no Hot Dogs, Vinícius no Corvo Azul, Andrey sem squad
+    sdrsNomes = ['VINICIUS MEIRELES', 'DAVI', 'ANDREY'];
+    squadMap = {
+      'VINICIUS MEIRELES': { squad: 'Corvo Azul', color: '#0066FF', emoji: '🔵', displayName: 'Vinícius' },
+      'DAVI': { squad: 'Hot Dogs', color: '#FF4757', emoji: '🔴', displayName: 'Davi' },
+      'ANDREY': { squad: 'Sem Squad', color: '#64748B', emoji: '⚪', displayName: 'Andrey' }
+    };
+  } else if (isOutubro) {
     // OUTUBRO: Marcos como SDR
     sdrsNomes = ['VINICIUS MEIRELES', 'MARCOS', 'TIAGO', 'JOAO LOPES'];
     squadMap = {
