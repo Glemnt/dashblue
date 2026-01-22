@@ -348,35 +348,19 @@ export const calcularMetricas = (
     return closerStr === 'NO-SHOW' || closerStr === 'NOSHOW';
   }).length;
   
-  // Calls Realizadas = linhas com closer preenchido (nome válido, não vazio, não NO-SHOW)
-  const callsRealizadas = dadosValidos.filter(row => {
-    const closer = getColumnValue(row, ['CLOSER', 'CLOSER FECHOU']);
-    if (!closer) return false;
-    
-    const closerStr = String(closer).trim().toUpperCase();
-    
-    // Ignora se for NO-SHOW ou vazio
-    if (closerStr === '' || closerStr === 'NO-SHOW' || closerStr === 'NOSHOW') return false;
-    
-    // Ignora linhas de cálculo (TOP SDR, TOP CLOSER, etc)
-    if (closerStr.includes('TOP') || closerStr.includes('TOTAL')) return false;
-    
-    return true;
-  }).length;
-  
   const callsAgendadas = totalCalls;
   
-  // Taxa de Show baseada apenas em calls que tiveram desfecho (realizadas + no-show)
-  const callsComDesfecho = callsRealizadas + noShow;
+  // Calls Realizadas = Total Agendadas - No-Shows (376 - 59 = 317)
+  const callsRealizadas = callsAgendadas - noShow;
   
   console.log('📞 CALLS - DEBUG:');
-  console.log('Calls Realizadas:', callsRealizadas);
+  console.log('Calls Agendadas:', callsAgendadas);
   console.log('No-Shows (explícitos):', noShow);
-  console.log('Calls com Desfecho:', callsComDesfecho);
+  console.log('Calls Realizadas (agendadas - no-shows):', callsRealizadas);
   
   // Taxas
   const taxaQualificacao = totalCalls > 0 ? (callsQualificadas / totalCalls) * 100 : 0;
-  const taxaShow = callsComDesfecho > 0 ? (callsRealizadas / callsComDesfecho) * 100 : 0;
+  const taxaShow = callsAgendadas > 0 ? (callsRealizadas / callsAgendadas) * 100 : 0;
   const taxaConversao = callsQualificadas > 0 ? (totalContratos / callsQualificadas) * 100 : 0;
   
   // Ticket médio
