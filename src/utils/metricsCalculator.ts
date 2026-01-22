@@ -340,11 +340,17 @@ export const calcularMetricas = (
   const totalCalls = dadosValidos.length;
   const callsQualificadas = callsQualificadasList.length;
   
-  // FASE 1: Corrigir identificação de calls realizadas
+  // FASE 1: Contar NO-SHOWS explícitos (apenas onde CLOSER = "NO-SHOW")
+  const noShow = dadosValidos.filter(row => {
+    const closer = getColumnValue(row, ['CLOSER', 'CLOSER FECHOU']);
+    if (!closer) return false;
+    const closerStr = String(closer).trim().toUpperCase();
+    return closerStr === 'NO-SHOW' || closerStr === 'NOSHOW';
+  }).length;
+  
+  // Calls Realizadas = linhas com closer preenchido (nome válido, não vazio, não NO-SHOW)
   const callsRealizadas = dadosValidos.filter(row => {
     const closer = getColumnValue(row, ['CLOSER', 'CLOSER FECHOU']);
-    
-    // Call foi realizada se tem um closer E não é "NO-SHOW"
     if (!closer) return false;
     
     const closerStr = String(closer).trim().toUpperCase();
@@ -359,15 +365,18 @@ export const calcularMetricas = (
   }).length;
   
   const callsAgendadas = totalCalls;
-  const noShow = callsAgendadas - callsRealizadas;
   
-  console.log('📞 CALLS REALIZADAS - DEBUG:');
-  console.log('Total de calls realizadas (closer preenchido):', callsRealizadas);
-  console.log('No-shows calculados:', noShow);
+  // Taxa de Show baseada apenas em calls que tiveram desfecho (realizadas + no-show)
+  const callsComDesfecho = callsRealizadas + noShow;
+  
+  console.log('📞 CALLS - DEBUG:');
+  console.log('Calls Realizadas:', callsRealizadas);
+  console.log('No-Shows (explícitos):', noShow);
+  console.log('Calls com Desfecho:', callsComDesfecho);
   
   // Taxas
   const taxaQualificacao = totalCalls > 0 ? (callsQualificadas / totalCalls) * 100 : 0;
-  const taxaShow = callsAgendadas > 0 ? (callsRealizadas / callsAgendadas) * 100 : 0;
+  const taxaShow = callsComDesfecho > 0 ? (callsRealizadas / callsComDesfecho) * 100 : 0;
   const taxaConversao = callsQualificadas > 0 ? (totalContratos / callsQualificadas) * 100 : 0;
   
   // Ticket médio
