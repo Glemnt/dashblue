@@ -1,4 +1,4 @@
-# 📊 Blue Ocean Dashboard - Documentação Técnica
+# 📊 Dashblue - Documentação Técnica Completa
 
 > Sistema de gestão comercial B2B para equipe de vendas da Blue Ocean
 
@@ -18,8 +18,10 @@
 10. [Padrões de Código](#10-padrões-de-código)
 11. [Configuração de Metas](#11-configuração-de-metas)
 12. [Segurança](#12-segurança)
-13. [Guias de Manutenção](#13-guias-de-manutenção)
-14. [Decisões Arquiteturais](#14-decisões-arquiteturais)
+13. [Integrações Externas](#13-integrações-externas)
+14. [Configuração e Deploy](#14-configuração-e-deploy)
+15. [Guias de Manutenção](#15-guias-de-manutenção)
+16. [Decisões Arquiteturais](#16-decisões-arquiteturais)
 
 ---
 
@@ -27,23 +29,25 @@
 
 ### 1.1 Descrição do Projeto
 
-O **Blue Ocean Dashboard** é um sistema completo de gestão comercial desenvolvido para acompanhar métricas de vendas, performance de equipe e campanhas de marketing. O sistema integra dados de múltiplas fontes (Google Sheets, Meta Ads, Kommo CRM) em uma interface unificada com visualizações em tempo real.
+O **Dashblue** é um sistema completo de gestão comercial desenvolvido para acompanhar métricas de vendas, performance de equipe e campanhas de marketing. O sistema integra dados de múltiplas fontes (Google Sheets, Meta Ads, Kommo CRM) em uma interface unificada com visualizações em tempo real.
 
 ### 1.2 Stack Tecnológica
 
 | Tecnologia | Versão | Justificativa |
 |------------|--------|---------------|
 | **React** | 18.3.1 | Componentes reutilizáveis, hooks, ecossistema maduro |
-| **TypeScript** | - | Tipagem estática, prevenção de erros em tempo de compilação |
-| **Vite** | - | Build extremamente rápido, HMR instantâneo |
-| **Tailwind CSS** | - | Utility-first, design system consistente, dark mode nativo |
+| **TypeScript** | 5.8.3 | Tipagem estática, prevenção de erros em tempo de compilação |
+| **Vite** | 5.4.19 | Build extremamente rápido, HMR instantâneo |
+| **Tailwind CSS** | 3.4.17 | Utility-first, design system consistente, dark mode nativo |
 | **shadcn/ui** | - | Componentes acessíveis, altamente customizáveis |
 | **React Router DOM** | 6.30.1 | Roteamento SPA com suporte a lazy loading |
 | **TanStack Query** | 5.83.0 | Cache inteligente, revalidação automática, estados de loading |
-| **Lovable Cloud (Supabase)** | - | Backend serverless, PostgreSQL, Edge Functions |
+| **Supabase** | 2.79.0 | Backend serverless, PostgreSQL, Edge Functions |
 | **Recharts** | 2.15.4 | Gráficos responsivos e customizáveis |
 | **PapaParse** | 5.4.1 | Parse robusto de CSV |
 | **date-fns** | 3.6.0 | Manipulação de datas com imutabilidade |
+| **Zod** | 3.25.76 | Validação de schemas |
+| **React Hook Form** | 7.61.1 | Gerenciamento de formulários |
 
 ### 1.3 Funcionalidades Principais
 
@@ -55,6 +59,12 @@ O **Blue Ocean Dashboard** é um sistema completo de gestão comercial desenvolv
 - 📣 **Tráfego Pago**: Análise de campanhas Meta Ads
 - 🤖 **Assistente IA**: Chat contextual com análises inteligentes
 - ⚙️ **Admin**: Gestão de colaboradores, metas e vendas
+
+### 1.4 Requisitos do Sistema
+
+- **Node.js**: 18+ (recomendado via nvm)
+- **Bun** ou **npm**: Para gerenciamento de pacotes
+- **Navegador**: Chrome, Firefox, Safari, Edge (versões recentes)
 
 ---
 
@@ -82,17 +92,17 @@ O **Blue Ocean Dashboard** é um sistema completo de gestão comercial desenvolv
          │                           │                           │
          ▼                           ▼                           ▼
 ┌─────────────────┐      ┌─────────────────┐      ┌─────────────────┐
-│  Google Sheets  │      │   Lovable Cloud │      │   APIs Externas │
-│   (Planilhas)   │      │   (Supabase)    │      │                 │
+│  Google Sheets  │      │   Supabase      │      │   APIs Externas │
+│   (Planilhas)   │      │   (PostgreSQL)  │      │                 │
 │                 │      │                 │      │  ┌───────────┐  │
 │  • Vendas       │      │  ┌───────────┐  │      │  │ Meta Ads  │  │
 │  • Calls        │      │  │PostgreSQL │  │      │  │   API     │  │
 │  • Leads        │      │  └─────┬─────┘  │      │  └───────────┘  │
 │                 │      │        │        │      │                 │
 └─────────────────┘      │  ┌─────┴─────┐  │      │  ┌───────────┐  │
-                         │  │   Edge    │  │      │  │  Kommo    │  │
+                         │  │   Edge   │  │      │  │  Kommo    │  │
                          │  │ Functions │  │      │  │   CRM     │  │
-                         │  └───────────┘  │      │  └───────────┘  │
+                         │  └──────────┘  │      │  └───────────┘  │
                          └─────────────────┘      └─────────────────┘
 ```
 
@@ -119,17 +129,27 @@ O **Blue Ocean Dashboard** é um sistema completo de gestão comercial desenvolv
                └─────────────────────────────┘
 ```
 
+### 2.3 Padrão de Arquitetura
+
+O projeto segue uma arquitetura **baseada em domínios**:
+
+- **Pages**: Componentes de rota que orquestram a lógica
+- **Components**: Organizados por domínio (admin, closer, sdr, etc.)
+- **Hooks**: Lógica de negócio reutilizável
+- **Utils**: Funções puras de cálculo e transformação
+- **Contexts**: Estado global compartilhado
+
 ---
 
 ## 3. Estrutura de Diretórios
 
 ```
-blue-ocean-dashboard/
+dashblue/
 ├── 📁 src/
 │   ├── 📁 pages/                    # Páginas/Rotas da aplicação
 │   │   ├── Index.tsx                # Dashboard principal (/)
 │   │   ├── PerformanceSDR.tsx       # Métricas SDR (/sdr)
-│   │   ├── PerformanceCloser.tsx    # Métricas Closer (/closer)
+│   │   ├── PerformanceCloser.tsx   # Métricas Closer (/closer)
 │   │   ├── Financeiro.tsx           # Painel financeiro (/financeiro)
 │   │   ├── GuerraSquads.tsx         # Competição squads (/squads)
 │   │   ├── TrafegoPago.tsx          # Campanhas Meta (/trafego)
@@ -186,13 +206,13 @@ blue-ocean-dashboard/
 │   │   │
 │   │   ├── 📁 financial/            # Componentes Financeiro
 │   │   │   ├── FinancialFunnel.tsx  # Funil financeiro
-│   │   │   └── ContractsTable.tsx   # Tabela de contratos
+│   │   │   └── ContractsTable.tsx  # Tabela de contratos
 │   │   │
 │   │   ├── 📁 ia/                   # Componentes IA
 │   │   │   └── simulator/
 │   │   │       └── SimulatorSlider.tsx
 │   │   │
-│   │   ├── 📁 ui/                   # Componentes shadcn/ui
+│   │   ├── 📁 ui/                   # Componentes shadcn/ui (40+ componentes)
 │   │   │   ├── button.tsx
 │   │   │   ├── card.tsx
 │   │   │   ├── table.tsx
@@ -202,7 +222,7 @@ blue-ocean-dashboard/
 │   │   │   ├── input.tsx
 │   │   │   ├── toast.tsx
 │   │   │   ├── chart.tsx
-│   │   │   └── ... (40+ componentes)
+│   │   │   └── ... (outros componentes)
 │   │   │
 │   │   ├── Navigation.tsx           # Navegação principal
 │   │   ├── MobileMenu.tsx           # Menu mobile
@@ -223,9 +243,9 @@ blue-ocean-dashboard/
 │   │   ├── useCloserKPIs.ts         # KPIs de closers
 │   │   ├── useSDRKPIs.ts            # KPIs de SDRs
 │   │   ├── useMetaCampaigns.ts      # Campanhas Meta Ads
-│   │   ├── useRealFinancials.ts     # Dados financeiros
+│   │   ├── useRealFinancials.ts    # Dados financeiros
 │   │   ├── useComparativoMensal.ts  # Comparativo entre meses
-│   │   ├── useTrafegoAIAnalysis.ts  # Análise IA tráfego
+│   │   ├── useTrafegoAIAnalysis.ts # Análise IA tráfego
 │   │   ├── useTVMode.ts             # Modo televisão
 │   │   ├── use-mobile.tsx           # Detecção mobile
 │   │   └── use-toast.ts             # Sistema de toasts
@@ -242,7 +262,7 @@ blue-ocean-dashboard/
 │   │   ├── dateFilters.ts           # Filtros de data
 │   │   ├── progressColorUtils.ts    # Cores de progresso
 │   │   ├── sdrActivityUtils.ts      # Utilidades SDR
-│   │   ├── colaboradorPhotos.ts     # Mapeamento de fotos
+│   │   ├── colaboradorPhotos.ts    # Mapeamento de fotos
 │   │   ├── sheetUrlManager.ts       # Gestão URLs planilhas
 │   │   └── leadsSheetUrlManager.ts
 │   │
@@ -251,9 +271,9 @@ blue-ocean-dashboard/
 │   │
 │   ├── 📁 integrations/             # Integrações externas
 │   │   └── 📁 supabase/
-│   │       ├── client.ts            # Cliente Supabase (auto-gerado)
-│   │       ├── types.ts             # Tipos do banco (auto-gerado)
-│   │       └── types.generated.ts
+│   │       ├── client.ts            # Cliente Supabase
+│   │       ├── types.ts             # Tipos do banco
+│   │       └── types.generated.ts   # Tipos auto-gerados
 │   │
 │   ├── 📁 assets/                   # Assets estáticos
 │   │   ├── logo-white.png
@@ -287,16 +307,25 @@ blue-ocean-dashboard/
 │   │   ├── 📁 fetch-meta-campaigns/
 │   │   │   └── index.ts             # Integração Meta Ads
 │   │   └── 📁 kommo-webhook/
-│   │       └── index.ts             # Webhook Kommo CRM
+│   │       └── index.ts              # Webhook Kommo CRM
 │   │
-│   ├── 📁 migrations/               # Migrações SQL (auto-gerado)
+│   ├── 📁 migrations/              # Migrações SQL
+│   │   ├── 20251223205707_*.sql     # Migração leads_crm
+│   │   └── 20251229200120_*.sql     # Migração colaboradores/vendas
+│   │
 │   └── config.toml                  # Configuração Supabase
 │
-├── 📄 package.json                  # Dependências (read-only)
+├── 📄 package.json                  # Dependências
 ├── 📄 tailwind.config.ts            # Configuração Tailwind
-├── 📄 vite.config.ts                # Configuração Vite
+├── 📄 vite.config.ts               # Configuração Vite
 ├── 📄 tsconfig.json                 # Configuração TypeScript
-├── 📄 .env                          # Variáveis de ambiente (auto-gerado)
+├── 📄 tsconfig.app.json             # TS config para app
+├── 📄 tsconfig.node.json            # TS config para node
+├── 📄 eslint.config.js              # Configuração ESLint
+├── 📄 postcss.config.js             # Configuração PostCSS
+├── 📄 components.json               # Config shadcn/ui
+├── 📄 .env                          # Variáveis de ambiente
+├── 📄 .gitignore                    # Arquivos ignorados
 └── 📄 DOCUMENTATION.md              # Esta documentação
 ```
 
@@ -345,23 +374,23 @@ blue-ocean-dashboard/
 │  │   leads_crm     │────────▶│ leads_crm_historico │                   │
 │  ├─────────────────┤         ├─────────────────────┤                   │
 │  │ id (PK)         │         │ id (PK)             │                   │
-│  │ kommo_id        │         │ lead_id (FK)        │                   │
-│  │ nome            │         │ kommo_id            │                   │
-│  │ email           │         │ campo_alterado      │                   │
-│  │ telefone        │         │ valor_anterior      │                   │
-│  │ empresa         │         │ valor_novo          │                   │
-│  │ status          │         │ status_anterior     │                   │
-│  │ sdr_nome        │         │ status_novo         │                   │
-│  │ closer_nome     │         │ created_at          │                   │
-│  │ valor_contrato  │         └─────────────────────┘                   │
-│  │ data_entrada    │                                                    │
-│  │ data_mql        │                                                    │
-│  │ data_reuniao    │                                                    │
-│  │ data_ganho      │                                                    │
-│  │ data_perdido    │                                                    │
-│  │ motivo_perda    │                                                    │
-│  │ tags[]          │                                                    │
-│  │ kommo_payload   │                                                    │
+│  │ kommo_id      │         │ lead_id (FK)        │                   │
+│  │ nome          │         │ kommo_id            │                   │
+│  │ email         │         │ campo_alterado     │                   │
+│  │ telefone      │         │ valor_anterior      │                   │
+│  │ empresa       │         │ valor_novo          │                   │
+│  │ status        │         │ status_anterior     │                   │
+│  │ sdr_nome      │         │ status_novo         │                   │
+│  │ closer_nome   │         │ created_at          │                   │
+│  │ valor_contrato│         └─────────────────────┘                   │
+│  │ data_entrada  │                                                    │
+│  │ data_mql      │                                                    │
+│  │ data_reuniao  │                                                    │
+│  │ data_ganho    │                                                    │
+│  │ data_perdido  │                                                    │
+│  │ motivo_perda  │                                                    │
+│  │ tags[]        │                                                    │
+│  │ kommo_payload │                                                    │
 │  └─────────────────┘                                                    │
 │                                                                         │
 └─────────────────────────────────────────────────────────────────────────┘
@@ -376,10 +405,12 @@ Armazena informações dos membros da equipe comercial.
 |-------|------|-----------|
 | `id` | UUID | Identificador único |
 | `nome` | TEXT | Nome do colaborador |
-| `tipo` | TEXT | "SDR" ou "Closer" |
-| `squad` | TEXT | "Hot Dogs" ou "Corvo Azul" |
-| `ativo` | BOOLEAN | Se está ativo na equipe |
-| `created_at` | TIMESTAMP | Data de criação |
+| `tipo` | TEXT | "sdr" ou "closer" (CHECK constraint) |
+| `squad` | TEXT | Squad do colaborador (opcional) |
+| `ativo` | BOOLEAN | Se está ativo na equipe (default: true) |
+| `created_at` | TIMESTAMPTZ | Data de criação |
+
+**Índices**: Nenhum (tabela pequena)
 
 #### `vendas`
 Registra todas as vendas/contratos fechados.
@@ -390,10 +421,13 @@ Registra todas as vendas/contratos fechados.
 | `colaborador_id` | UUID | FK para colaboradores (opcional) |
 | `colaborador_nome` | TEXT | Nome do closer que fechou |
 | `valor` | NUMERIC | Valor do contrato |
-| `origem` | TEXT | "inbound", "outbound", "indicacao" |
-| `data_fechamento` | DATE | Data do fechamento |
+| `origem` | TEXT | "inbound", "outbound", "indicacao" (CHECK) |
+| `data_fechamento` | DATE | Data do fechamento (default: CURRENT_DATE) |
 | `lead_nome` | TEXT | Nome do lead/empresa |
 | `observacao` | TEXT | Observações adicionais |
+| `created_at` | TIMESTAMPTZ | Data de criação |
+
+**Índices**: Nenhum
 
 #### `agendamentos`
 Controla os agendamentos de calls entre SDR e Closer.
@@ -407,9 +441,13 @@ Controla os agendamentos de calls entre SDR e Closer.
 | `closer_nome` | TEXT | Nome do Closer |
 | `lead_nome` | TEXT | Nome do lead |
 | `data_agendamento` | DATE | Data da call |
-| `status` | TEXT | "agendado", "realizado", "no_show", "cancelado" |
-| `qualificado` | BOOLEAN | Se o lead é qualificado (MQL) |
-| `origem` | TEXT | Canal de origem |
+| `status` | TEXT | "agendado", "realizado", "no_show", "cancelado" (CHECK) |
+| `qualificado` | BOOLEAN | Se o lead é qualificado (MQL) (default: false) |
+| `origem` | TEXT | Canal de origem (CHECK: inbound/outbound/indicacao) |
+| `observacao` | TEXT | Observações |
+| `created_at` | TIMESTAMPTZ | Data de criação |
+
+**Índices**: Nenhum
 
 #### `metas_mensais`
 Define as metas comerciais por mês.
@@ -417,13 +455,17 @@ Define as metas comerciais por mês.
 | Campo | Tipo | Descrição |
 |-------|------|-----------|
 | `id` | UUID | Identificador único |
-| `mes` | TEXT | Mês no formato "janeiro-2025" |
+| `mes` | TEXT | Mês no formato "janeiro-2025" (UNIQUE) |
 | `meta_mensal` | NUMERIC | Meta total do mês |
 | `meta_individual_closer` | NUMERIC | Meta por closer |
 | `meta_ticket_medio` | NUMERIC | Meta de ticket médio |
 | `meta_taxa_conversao` | NUMERIC | Meta de conversão (%) |
 | `meta_taxa_qualificacao_sdr` | NUMERIC | Meta qualificação SDR (%) |
 | `meta_taxa_show_sdr` | NUMERIC | Meta de show rate (%) |
+| `created_at` | TIMESTAMPTZ | Data de criação |
+| `updated_at` | TIMESTAMPTZ | Data de atualização |
+
+**Índices**: Nenhum
 
 #### `leads_crm`
 Leads sincronizados do Kommo CRM.
@@ -431,23 +473,42 @@ Leads sincronizados do Kommo CRM.
 | Campo | Tipo | Descrição |
 |-------|------|-----------|
 | `id` | UUID | Identificador interno |
-| `kommo_id` | BIGINT | ID no Kommo CRM |
+| `kommo_id` | BIGINT | ID no Kommo CRM (UNIQUE) |
 | `nome` | TEXT | Nome do lead |
 | `email` | TEXT | Email de contato |
 | `telefone` | TEXT | Telefone |
 | `empresa` | TEXT | Nome da empresa |
-| `status` | TEXT | Stage atual no funil |
+| `status` | TEXT | Stage atual no funil (default: 'NOVO') |
+| `pipeline_nome` | TEXT | Nome da pipeline no Kommo |
+| `stage_nome` | TEXT | Nome do estágio |
 | `sdr_nome` | TEXT | SDR responsável |
 | `closer_nome` | TEXT | Closer atribuído |
-| `valor_contrato` | NUMERIC | Valor do contrato |
-| `data_entrada` | TIMESTAMP | Data de entrada no funil |
-| `data_mql` | TIMESTAMP | Data de qualificação MQL |
-| `data_reuniao` | TIMESTAMP | Data da reunião |
-| `data_ganho` | TIMESTAMP | Data do fechamento |
-| `data_perdido` | TIMESTAMP | Data da perda |
-| `motivo_perda` | TEXT | Motivo da perda |
+| `responsavel_id` | BIGINT | ID do responsável no Kommo |
+| `responsavel_nome` | TEXT | Nome do responsável |
+| `is_mql` | BOOLEAN | Se é MQL (default: false) |
 | `tags` | TEXT[] | Tags do lead |
-| `is_mql` | BOOLEAN | Se é MQL |
+| `valor_contrato` | DECIMAL(12,2) | Valor do contrato |
+| `motivo_perda` | TEXT | Motivo da perda |
+| `data_entrada` | TIMESTAMPTZ | Data de entrada no funil (default: NOW()) |
+| `data_mql` | TIMESTAMPTZ | Data de qualificação MQL |
+| `data_reuniao` | TIMESTAMPTZ | Data da reunião |
+| `data_closer` | TIMESTAMPTZ | Data de atribuição ao closer |
+| `data_ganho` | TIMESTAMPTZ | Data do fechamento |
+| `data_perdido` | TIMESTAMPTZ | Data da perda |
+| `updated_at` | TIMESTAMPTZ | Data de atualização (auto-update via trigger) |
+| `created_at` | TIMESTAMPTZ | Data de criação |
+| `kommo_payload` | JSONB | Payload completo do Kommo para auditoria |
+
+**Índices**:
+- `idx_leads_crm_kommo_id` (kommo_id)
+- `idx_leads_crm_status` (status)
+- `idx_leads_crm_sdr_nome` (sdr_nome)
+- `idx_leads_crm_closer_nome` (closer_nome)
+- `idx_leads_crm_is_mql` (is_mql)
+- `idx_leads_crm_data_entrada` (data_entrada)
+
+**Triggers**:
+- `trigger_update_leads_crm_updated_at`: Atualiza `updated_at` automaticamente
 
 #### `leads_crm_historico`
 Histórico de alterações nos leads para auditoria.
@@ -455,14 +516,25 @@ Histórico de alterações nos leads para auditoria.
 | Campo | Tipo | Descrição |
 |-------|------|-----------|
 | `id` | UUID | Identificador único |
-| `lead_id` | UUID | FK para leads_crm |
+| `lead_id` | UUID | FK para leads_crm (ON DELETE CASCADE) |
 | `kommo_id` | BIGINT | ID do lead no Kommo |
+| `status_anterior` | TEXT | Status anterior |
+| `status_novo` | TEXT | Novo status |
 | `campo_alterado` | TEXT | Campo que foi modificado |
 | `valor_anterior` | TEXT | Valor antes da alteração |
 | `valor_novo` | TEXT | Novo valor |
-| `status_anterior` | TEXT | Status anterior |
-| `status_novo` | TEXT | Novo status |
-| `created_at` | TIMESTAMP | Data da alteração |
+| `created_at` | TIMESTAMPTZ | Data da alteração |
+
+**Índices**:
+- `idx_leads_crm_historico_lead_id` (lead_id)
+- `idx_leads_crm_historico_kommo_id` (kommo_id)
+
+### 4.3 Relacionamentos
+
+- `vendas.colaborador_id` → `colaboradores.id` (FK opcional)
+- `agendamentos.sdr_id` → `colaboradores.id` (FK opcional)
+- `agendamentos.closer_id` → `colaboradores.id` (FK opcional)
+- `leads_crm_historico.lead_id` → `leads_crm.id` (FK com CASCADE)
 
 ---
 
@@ -481,6 +553,7 @@ Histórico de alterações nos leads para auditoria.
 | `/trafego/ia` | `TrafegoIA.tsx` | Análise IA de tráfego |
 | `/ia` | `AssistenteIA.tsx` | Chat com IA contextual |
 | `/admin` | `Admin.tsx` | Painel administrativo |
+| `*` | `NotFound.tsx` | Página 404 |
 
 ### 5.2 Index (Dashboard Principal)
 
@@ -606,6 +679,31 @@ Histórico de alterações nos leads para auditoria.
 - **Simulation:** Simulações "what-if"
 - **Report:** Geração de relatórios
 
+**Características:**
+- Contexto temporal (conhece data atual, dias úteis restantes)
+- Histórico de conversa
+- Análise de sazonalidade
+- Consideração de feriados
+
+### 5.9 Admin
+
+**Arquivo:** `src/pages/Admin.tsx`
+
+**Responsabilidade:** Painel administrativo para gestão do sistema.
+
+**Funcionalidades:**
+- **Colaboradores:** CRUD completo
+- **Metas Mensais:** Configuração de metas por mês
+- **Vendas:** Importação e gestão de vendas
+- **Agendamentos:** Gestão de calls
+
+**Componentes:**
+- `AdminResumoPanel` - Resumo geral
+- `ColaboradoresTab` - CRUD colaboradores
+- `MetasTab` - Configuração de metas
+- `VendasTab` - Gestão de vendas
+- `AgendamentosTab` - Gestão de agendamentos
+
 ---
 
 ## 6. Utilitários (Utils)
@@ -626,28 +724,12 @@ Histórico de alterações nos leads para auditoria.
  *   "1.000" -> 1000
  *   "500,00" -> 500
  */
-export const parseValor = (valor: any): number => {
-  if (valor === null || valor === undefined || valor === '') return 0;
-  if (typeof valor === 'number') return valor;
-  
-  const str = String(valor)
-    .replace(/[R$\s]/g, '')    // Remove R$ e espaços
-    .replace(/\./g, '')         // Remove pontos (separador de milhar)
-    .replace(',', '.');         // Converte vírgula para ponto decimal
-  
-  const num = parseFloat(str);
-  return isNaN(num) ? 0 : num;
-};
+export const parseValor = (valor: any): number
 
 /**
  * Formata números para exibição em Real brasileiro
  */
-export const formatarReal = (valor: number): string => {
-  return new Intl.NumberFormat('pt-BR', {
-    style: 'currency',
-    currency: 'BRL'
-  }).format(valor);
-};
+export const formatarReal = (valor: number): string
 
 /**
  * Calcula todas as métricas do funil comercial
@@ -659,9 +741,7 @@ export const calcularMetricas = (
   data: any[],
   dadosMarketing?: { totalLeads: number, totalMQLs: number },
   monthKey?: string
-): Metricas => {
-  // ... implementação
-};
+): Metricas
 ```
 
 #### Interface de retorno:
@@ -758,13 +838,6 @@ interface CloserMetrics {
   contratos: CloserContract[];
   calls: CallData[];
 }
-
-export const calcularMetricasCloser = (
-  data: any[],
-  dateRange?: DateRange
-): CloserData => {
-  // ... implementação
-};
 ```
 
 ### 6.3 sdrMetricsCalculator.ts
@@ -793,18 +866,13 @@ interface SDRMetrics {
   // Dados brutos
   contratos: SDRContract[];
 }
-
-export const calcularMetricasSDR = (
-  data: any[],
-  dateRange?: DateRange
-): SDRData => {
-  // ... implementação
-};
 ```
 
 ### 6.4 metasConfig.ts
 
 **Responsabilidade:** Configuração centralizada de metas por mês.
+
+**Estrutura:**
 
 ```typescript
 // Thresholds para cores de progresso
@@ -885,13 +953,7 @@ const closerMappings: Record<string, string[]> = {
 export const importVendasFromMonth = async (
   monthKey: string,
   onProgress?: (message: string) => void
-): Promise<{ total: number }> => {
-  // 1. Buscar colaboradores do banco
-  // 2. Buscar dados da planilha
-  // 3. Filtrar linhas com FECHAMENTO = "SIM" e VALOR > 0
-  // 4. Mapear dados para formato do banco
-  // 5. Inserir no banco
-};
+): Promise<{ total: number }>
 ```
 
 ---
@@ -905,33 +967,27 @@ export const importVendasFromMonth = async (
 **Responsabilidade:** Fetch e parse de dados de Google Sheets públicas.
 
 ```typescript
-interface UseGoogleSheetsOptions {
-  url: string;
-  enabled?: boolean;
-  refetchInterval?: number;
-}
-
 interface UseGoogleSheetsReturn {
   data: any[];
-  isLoading: boolean;
-  error: Error | null;
-  refetch: () => Promise<void>;
+  loading: boolean;
+  error: string | null;
+  lastUpdate: Date | null;
+  refetch: () => void;
+  isRefetching: boolean;
 }
 
-export const useGoogleSheets = (options: UseGoogleSheetsOptions): UseGoogleSheetsReturn => {
-  // Implementação com TanStack Query
-  // - Auto-refresh a cada 5 minutos
-  // - Retry automático em falhas
-  // - Parse CSV com PapaParse
-};
+export const useGoogleSheets = (
+  dateRange?: DateRange, 
+  monthKey?: string
+): UseGoogleSheetsReturn
 ```
 
 **Características:**
-- Cache automático via TanStack Query
-- Refresh a cada 5 minutos
-- Retry em caso de erro de rede
-- Parse robusto de CSV
+- Auto-refresh a cada 10 segundos
+- Retry automático (até 3 tentativas com delay exponencial)
+- Parse robusto de CSV com PapaParse
 - Suporte a múltiplos formatos de data
+- Cache via estado local
 
 ### 7.2 usePeriodFilter
 
@@ -950,9 +1006,7 @@ interface PeriodFilterContextType {
   setPeriodType: (type: string) => void;
 }
 
-export const usePeriodFilter = (): PeriodFilterContextType => {
-  return useContext(PeriodFilterContext);
-};
+export const usePeriodFilter = (): PeriodFilterContextType
 ```
 
 **Características:**
@@ -997,13 +1051,14 @@ interface UseTVModeReturn {
   exitTVMode: () => void;
 }
 
-export const useTVMode = (): UseTVModeReturn => {
-  // Fullscreen API
-  // Esconder navegação
-  // Auto-rotação de abas (opcional)
-  // Esconder cursor após inatividade
-};
+export const useTVMode = (): UseTVModeReturn
 ```
+
+**Características:**
+- Fullscreen API
+- Esconder navegação
+- Auto-rotação de abas (opcional)
+- Esconder cursor após inatividade
 
 ---
 
@@ -1030,22 +1085,28 @@ export const useTVMode = (): UseTVModeReturn => {
 
 ```typescript
 interface RequestBody {
-  mode: 'chat' | 'analysis' | 'simulation' | 'report';
-  message: string;
-  context?: {
-    metricas?: Metricas;
-    periodo?: string;
-    monthKey?: string;
-  };
+  type: 'chat' | 'analysis' | 'simulation' | 'report';
+  metrics?: Metricas;
   history?: Message[];
+  question?: string;
+  changes?: {
+    taxaShow: number;
+    taxaConversao: number;
+    ticketMedio: number;
+  };
 }
 ```
 
 **Características:**
 - Usa Lovable AI Gateway (sem API key do usuário)
-- Contexto temporal (conhece metas do mês)
-- Histórico de conversa
+- Contexto temporal completo (data atual, dias úteis, sazonalidade)
+- Histórico de conversa (até 50 mensagens)
 - Formatação Markdown nas respostas
+- Análise de feriados brasileiros
+- Consideração de sazonalidade B2B
+
+**Secrets necessários:**
+- `LOVABLE_API_KEY`
 
 ### 8.2 fetch-meta-campaigns
 
@@ -1059,8 +1120,8 @@ interface RequestBody {
 
 ```typescript
 interface RequestBody {
-  startDate: string;  // YYYY-MM-DD
-  endDate: string;    // YYYY-MM-DD
+  startDate?: string;  // YYYY-MM-DD (opcional, usa mês atual se não fornecido)
+  endDate?: string;    // YYYY-MM-DD (opcional)
 }
 ```
 
@@ -1068,23 +1129,24 @@ interface RequestBody {
 
 ```typescript
 interface Response {
-  campanhas: Campanha[];
-  totais: {
-    investimento: number;
-    leads: number;
-    impressoes: number;
-    cliques: number;
-    cpl: number;
-  };
-  canais: {
-    [canal: string]: {
-      investimento: number;
-      leads: number;
-      cpl: number;
-    };
+  success: boolean;
+  campanhas: CampanhaData[];
+  meta: {
+    totalCampaigns: number;
+    campaignsWithData: number;
+    totalLeads: number;
+    totalInvestimento: number;
+    timeRange: { since: string; until: string };
+    fetchedAt: string;
   };
 }
 ```
+
+**Características:**
+- Paginação automática (até 10 páginas, 500 itens por página)
+- Identificação automática de tipo de campanha (WhatsApp, Formulário, LP, VSL)
+- Mapeamento correto de action_types por tipo de campanha
+- Fallback para mês atual se datas não fornecidas
 
 **Secrets necessários:**
 - `META_ACCESS_TOKEN`
@@ -1104,23 +1166,42 @@ interface Response {
 - `leads[status]` - Mudança de status
 - `leads[delete]` - Lead removido
 
-**Mapeamento de status:**
+**Mapeamento de pipelines:**
 
 ```typescript
-const statusMapping: Record<number, string> = {
-  // Pipeline Principal
-  12345: 'NOVO',
-  12346: 'MQL',
-  12347: 'REUNIAO_AGENDADA',
-  12348: 'COM_CLOSER',
-  12349: 'PROPOSTA',
-  12350: 'GANHO',
-  12351: 'PERDIDO'
+const PIPELINE_MAPPING = {
+  'DISTRIBUIÇÃO DE LEADS': { tipo: 'distribuicao' },
+  'SDR - Davi': { tipo: 'sdr', sdr_nome: 'Davi' },
+  'SDR - ANDREY': { tipo: 'sdr', sdr_nome: 'Andrey' },
+  'SDR - Vinicius': { tipo: 'sdr', sdr_nome: 'Vinicius' },
+  'Closer - Bruno': { tipo: 'closer', closer_nome: 'Bruno' },
+  // ... outros
 };
 ```
 
+**Mapeamento de estágios:**
+
+```typescript
+const STAGE_MAPPING: Record<string, string> = {
+  'Leads Novos': 'NOVO',
+  'Em qualificação': 'QUALIFICACAO',
+  'Reunião Agendada': 'REUNIAO_AGENDADA',
+  'Venda Ganha': 'GANHO',
+  'Venda Perdida': 'PERDIDO',
+  // ... outros
+};
+```
+
+**Características:**
+- Parse de payload form-urlencoded ou JSON
+- Busca informações adicionais via API Kommo quando necessário
+- Registro automático de histórico de mudanças
+- Detecção automática de MQL (via tags)
+- Atualização de timestamps baseado em status
+
 **Secrets necessários:**
 - `KOMMO_ACCESS_TOKEN`
+- `SUPABASE_URL`
 - `SUPABASE_SERVICE_ROLE_KEY`
 
 ### 8.4 ai-trafego-analyst
@@ -1137,7 +1218,10 @@ const statusMapping: Record<number, string> = {
 interface RequestBody {
   campanhas: CampanhaData[];
   totais: TrafegoTotais;
-  canais: Record<string, CanalMetrics>;
+  canais: CanalMetrics[];
+  diasNoMes: number;
+  diasDecorridos: number;
+  dataAtual: string;
   taxasConversao: TaxasConversao;
 }
 ```
@@ -1148,22 +1232,36 @@ interface RequestBody {
 interface Response {
   success: boolean;
   analysis: {
-    resumo: string;
+    executiveSummary: string;
     projecoes: {
-      leads: number;
-      investimento: number;
-      cpl: number;
+      investimentoProjetado: number;
+      leadsProjetados: number;
+      fechamentosProjetados: number;
+      roasProjetado: number;
+      cacProjetado: number;
+      receitaProjetada: number;
+      conclusao: string;
     };
-    alertas: string[];
-    recomendacoes: string[];
-    campanhasDestaque: {
-      melhores: string[];
-      atencao: string[];
+    alertas: {
+      urgentes: Array<{ campanha: string; problema: string; acao: string; impacto: string }>;
+      atencao: Array<{ campanha: string; problema: string; acao: string; potencial: string }>;
+      oportunidades: Array<{ campanha: string; oportunidade: string; acao: string; ganhoEstimado: string }>;
     };
+    recomendacoes: Array<{ prioridade: number; titulo: string; descricao: string; ganhoEstimado: string }>;
   };
   timestamp: string;
 }
 ```
+
+**Características:**
+- Validação de projeções (nunca menor que valores atuais)
+- Cálculos baseados em fórmulas matemáticas
+- Análise de campanhas com ROAS < 1.0 (urgentes)
+- Identificação de oportunidades de escalar (ROAS > 3.0)
+- Recomendações priorizadas
+
+**Secrets necessários:**
+- `LOVABLE_API_KEY`
 
 ---
 
@@ -1198,28 +1296,6 @@ interface MetricCardProps {
   tendencia?: 'up' | 'down' | 'stable';
   icon?: React.ReactNode;
 }
-
-const MetricCard: React.FC<MetricCardProps> = ({
-  titulo,
-  valor,
-  meta,
-  progresso,
-  tendencia,
-  icon
-}) => {
-  return (
-    <Card className="p-4">
-      <div className="flex items-center justify-between">
-        <span className="text-muted-foreground">{titulo}</span>
-        {icon}
-      </div>
-      <div className="text-2xl font-bold">{valor}</div>
-      {meta && (
-        <Progress value={progresso} className="mt-2" />
-      )}
-    </Card>
-  );
-};
 ```
 
 #### Tabela Comparativa
@@ -1231,42 +1307,24 @@ interface ComparisonTableProps<T> {
   sortable?: boolean;
   onRowClick?: (item: T) => void;
 }
-
-const ComparisonTable = <T extends object>({
-  data,
-  columns,
-  sortable,
-  onRowClick
-}: ComparisonTableProps<T>) => {
-  // Implementação com shadcn Table
-};
 ```
 
 ### 9.3 Componentes Reutilizáveis
 
 #### Navigation
-
-```tsx
-// src/components/Navigation.tsx
-// Navegação principal com links para todas as páginas
-// Responsivo com collapse em mobile
-```
+- Navegação principal com links para todas as páginas
+- Responsivo com collapse em mobile
+- Indicador de página ativa
 
 #### PeriodFilter
-
-```tsx
-// src/components/sdr/PeriodFilter.tsx
-// Filtro de período (dia, semana, mês, custom)
-// Integrado com PeriodFilterContext
-```
+- Filtro de período (dia, semana, mês, custom)
+- Integrado com PeriodFilterContext
+- Persistência no localStorage
 
 #### ColaboradorAvatar
-
-```tsx
-// src/components/ColaboradorAvatar.tsx
-// Avatar com foto do colaborador
-// Fallback para iniciais se não houver foto
-```
+- Avatar com foto do colaborador
+- Fallback para iniciais se não houver foto
+- Suporte a diferentes tamanhos
 
 ---
 
@@ -1519,6 +1577,7 @@ USING (true);
 | `META_ACCESS_TOKEN` | Token da API Meta Ads | fetch-meta-campaigns |
 | `META_AD_ACCOUNT_ID` | ID da conta de anúncios | fetch-meta-campaigns |
 | `KOMMO_ACCESS_TOKEN` | Token da API Kommo | kommo-webhook |
+| `SUPABASE_URL` | URL do projeto Supabase | kommo-webhook |
 | `SUPABASE_SERVICE_ROLE_KEY` | Chave admin Supabase | kommo-webhook |
 
 ### 12.3 Variáveis de Ambiente
@@ -1533,11 +1592,175 @@ VITE_SUPABASE_PROJECT_ID=xxx
 
 > **Importante:** Nunca editar `.env` manualmente. É regenerado automaticamente.
 
+### 12.4 CORS
+
+Todas as Edge Functions têm CORS habilitado:
+
+```typescript
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+};
+```
+
+> **Nota:** Para produção, considerar restringir `Access-Control-Allow-Origin` a domínios específicos.
+
 ---
 
-## 13. Guias de Manutenção
+## 13. Integrações Externas
 
-### 13.1 Adicionar Novo Colaborador
+### 13.1 Google Sheets
+
+**Uso:** Fonte principal de dados de vendas e calls.
+
+**Formato:** CSV exportado de planilhas públicas.
+
+**Características:**
+- URLs dinâmicas por mês/período
+- Auto-refresh a cada 10 segundos
+- Parse robusto com PapaParse
+- Suporte a múltiplos formatos de coluna
+
+**Gerenciamento de URLs:**
+- `sheetUrlManager.ts` - URLs de planilhas de vendas
+- `leadsSheetUrlManager.ts` - URLs de planilhas de leads
+
+### 13.2 Meta Ads API
+
+**Uso:** Dados de campanhas de tráfego pago.
+
+**Endpoint:** `https://graph.facebook.com/v21.0/`
+
+**Características:**
+- Paginação automática
+- Identificação de tipo de campanha
+- Mapeamento correto de action_types
+- Cache via Edge Function
+
+**Limitações:**
+- Rate limits da API Meta
+- Necessário token válido
+- Limite de 500 itens por página
+
+### 13.3 Kommo CRM
+
+**Uso:** Sincronização de leads via webhook.
+
+**Endpoint:** `https://api-g.kommo.com/api/v4/`
+
+**Características:**
+- Webhook recebe eventos em tempo real
+- Mapeamento de pipelines e estágios
+- Histórico de mudanças
+- Detecção automática de MQL
+
+**Eventos suportados:**
+- `leads[add]` - Novo lead
+- `leads[update]` - Lead atualizado
+- `leads[status]` - Mudança de status
+- `leads[delete]` - Lead removido
+
+### 13.4 Lovable AI Gateway
+
+**Uso:** Assistente IA e análises inteligentes.
+
+**Endpoint:** `https://ai.gateway.lovable.dev/v1/chat/completions`
+
+**Modelo:** `google/gemini-2.5-flash`
+
+**Características:**
+- Sem necessidade de API key do usuário
+- Contexto temporal completo
+- Análise de sazonalidade
+- Consideração de feriados
+
+---
+
+## 14. Configuração e Deploy
+
+### 14.1 Instalação Local
+
+```bash
+# 1. Clone o repositório
+git clone <YOUR_GIT_URL>
+cd dashblue
+
+# 2. Instale as dependências
+npm install
+# ou
+bun install
+
+# 3. Configure variáveis de ambiente
+# O arquivo .env é gerado automaticamente pelo Lovable Cloud
+# Para desenvolvimento local, crie um .env.local com:
+VITE_SUPABASE_URL=https://xxx.supabase.co
+VITE_SUPABASE_PUBLISHABLE_KEY=eyJ...
+
+# 4. Inicie o servidor de desenvolvimento
+npm run dev
+# ou
+bun dev
+```
+
+### 14.2 Build de Produção
+
+```bash
+# Build para produção
+npm run build
+# ou
+bun run build
+
+# Preview do build
+npm run preview
+```
+
+### 14.3 Deploy
+
+O projeto está configurado para deploy automático via **Lovable Cloud**.
+
+**Para deploy manual:**
+1. Acesse [Lovable](https://lovable.dev/projects/61dd678e-d716-49c9-866c-b7e08011ed75)
+2. Clique em Share → Publish
+
+**Para deploy customizado:**
+- O build gera arquivos estáticos em `dist/`
+- Pode ser deployado em qualquer servidor estático (Vercel, Netlify, etc.)
+
+### 14.4 Configuração de Edge Functions
+
+As Edge Functions são deployadas automaticamente pelo Supabase quando há push para o repositório.
+
+**Para deploy manual:**
+```bash
+# Instalar Supabase CLI
+npm install -g supabase
+
+# Login
+supabase login
+
+# Link ao projeto
+supabase link --project-ref <PROJECT_REF>
+
+# Deploy de uma função
+supabase functions deploy ai-assistant
+```
+
+### 14.5 Configuração de Secrets
+
+**No Supabase Dashboard:**
+1. Vá em Project Settings → Edge Functions
+2. Adicione os secrets necessários:
+   - `LOVABLE_API_KEY`
+   - `META_ACCESS_TOKEN`
+   - `META_AD_ACCOUNT_ID`
+   - `KOMMO_ACCESS_TOKEN`
+   - `SUPABASE_SERVICE_ROLE_KEY`
+
+---
+
+## 15. Guias de Manutenção
+
+### 15.1 Adicionar Novo Colaborador
 
 **Via Admin (recomendado):**
 1. Acesse `/admin`
@@ -1551,7 +1774,7 @@ VITE_SUPABASE_PROJECT_ID=xxx
 2. Atualize `src/utils/colaboradorPhotos.ts`
 3. Atualize mapeamentos em `src/utils/importVendas.ts` se houver variações de nome
 
-### 13.2 Importar Vendas de Planilha
+### 15.2 Importar Vendas de Planilha
 
 1. Obtenha o GID da aba da planilha
 2. Edite `src/utils/importVendas.ts`:
@@ -1571,7 +1794,7 @@ import { importVendasFromMonth } from '@/utils/importVendas';
 await importVendasFromMonth('janeiro-2026', console.log);
 ```
 
-### 13.3 Modificar Metas
+### 15.3 Modificar Metas
 
 **Via Admin:**
 1. Acesse `/admin`
@@ -1584,7 +1807,7 @@ await importVendasFromMonth('janeiro-2026', console.log);
 1. Edite `src/utils/metasConfig.ts`
 2. Modifique os valores em `METAS_POR_MES[mes]`
 
-### 13.4 Adicionar Nova Página
+### 15.4 Adicionar Nova Página
 
 1. Crie o componente em `src/pages/NovaPagina.tsx`
 2. Adicione a rota em `src/App.tsx`:
@@ -1598,7 +1821,7 @@ import NovaPagina from './pages/NovaPagina';
 
 3. Adicione link na navegação em `src/components/Navigation.tsx`
 
-### 13.5 Criar Nova Edge Function
+### 15.5 Criar Nova Edge Function
 
 1. Crie diretório em `supabase/functions/nome-funcao/`
 2. Crie `index.ts`:
@@ -1637,11 +1860,18 @@ serve(async (req) => {
 
 3. A função será deployada automaticamente
 
+### 15.6 Atualizar Tipos do Supabase
+
+```bash
+# Gerar tipos atualizados
+npx supabase gen types typescript --project-id <PROJECT_ID> > src/integrations/supabase/types.generated.ts
+```
+
 ---
 
-## 14. Decisões Arquiteturais
+## 16. Decisões Arquiteturais
 
-### 14.1 Por que Google Sheets como fonte de dados?
+### 16.1 Por que Google Sheets como fonte de dados?
 
 | Prós | Contras |
 |------|---------|
@@ -1654,8 +1884,9 @@ serve(async (req) => {
 - Cache com TanStack Query
 - Parse robusto com PapaParse
 - Fallback de colunas
+- Auto-refresh silencioso
 
-### 14.2 Por que Edge Functions para APIs externas?
+### 16.2 Por que Edge Functions para APIs externas?
 
 | Razão | Benefício |
 |-------|-----------|
@@ -1664,7 +1895,7 @@ serve(async (req) => {
 | Rate limiting | Controle de requisições |
 | Logs centralizados | Debug facilitado |
 
-### 14.3 Por que TanStack Query?
+### 16.3 Por que TanStack Query?
 
 | Feature | Uso |
 |---------|-----|
@@ -1673,7 +1904,7 @@ serve(async (req) => {
 | Retry automático | Resiliência |
 | DevTools | Debug facilitado |
 
-### 14.4 Por que Context API para filtros?
+### 16.4 Por que Context API para filtros?
 
 | Razão | Alternativa considerada |
 |-------|------------------------|
@@ -1681,7 +1912,7 @@ serve(async (req) => {
 | Poucos consumidores | Zustand (desnecessário) |
 | Sincronização entre páginas | Props drilling (confuso) |
 
-### 14.5 Por que calculadores em utils/?
+### 16.5 Por que calculadores em utils/?
 
 | Razão | Benefício |
 |-------|-----------|
@@ -1690,13 +1921,22 @@ serve(async (req) => {
 | Reutilização | Mesmo cálculo em vários lugares |
 | Manutenção | Lógica centralizada |
 
+### 16.6 Por que shadcn/ui?
+
+| Razão | Benefício |
+|-------|-----------|
+| Componentes acessíveis | WCAG compliance |
+| Altamente customizáveis | Design system próprio |
+| Baseado em Radix UI | Componentes primitivos robustos |
+| Código no projeto | Controle total |
+
 ---
 
 ## 📝 Changelog
 
 | Data | Versão | Descrição |
 |------|--------|-----------|
-| 2025-01 | 1.0.0 | Documentação inicial |
+| 2025-01 | 1.0.0 | Documentação técnica completa inicial |
 
 ---
 
@@ -1708,6 +1948,15 @@ Para contribuir com o projeto:
 2. Siga os padrões de código estabelecidos
 3. Teste localmente antes de commitar
 4. Documente novas funcionalidades
+
+---
+
+## 📞 Suporte
+
+Para dúvidas ou problemas:
+- Consulte esta documentação
+- Verifique os logs do console do navegador
+- Verifique os logs das Edge Functions no Supabase Dashboard
 
 ---
 
