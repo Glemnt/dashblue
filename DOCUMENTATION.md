@@ -29,7 +29,7 @@
 
 ### 1.1 Descrição do Projeto
 
-O **Dashblue** é um sistema completo de gestão comercial desenvolvido para acompanhar métricas de vendas, performance de equipe e campanhas de marketing. O sistema integra dados de múltiplas fontes (Google Sheets, Meta Ads, Kommo CRM) em uma interface unificada com visualizações em tempo real.
+O **Dashblue** é um sistema completo de gestão comercial desenvolvido para acompanhar métricas de vendas, performance de equipe e campanhas de marketing. O sistema utiliza **Supabase como única fonte de verdade (Single Source of Truth)**, com dados alimentados automaticamente via webhooks do Kommo CRM e integração com Meta Ads API.
 
 ### 1.2 Stack Tecnológica
 
@@ -77,7 +77,7 @@ O **Dashblue** é um sistema completo de gestão comercial desenvolvido para aco
 │                           FRONTEND (React SPA)                          │
 │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐    │
 │  │   Pages     │  │ Components  │  │   Hooks     │  │   Utils     │    │
-│  │  (9 rotas)  │  │ (domínios)  │  │  (custom)   │  │(calculadores)│   │
+│  │  (9 rotas)  │  │ (domínios)  │  │  (Supabase) │  │(calculadores)│   │
 │  └──────┬──────┘  └──────┬──────┘  └──────┬──────┘  └──────┬──────┘    │
 │         │                │                │                │            │
 │         └────────────────┴────────────────┴────────────────┘            │
@@ -88,45 +88,82 @@ O **Dashblue** é um sistema completo de gestão comercial desenvolvido para aco
 │                          └─────────┬─────────┘                          │
 └────────────────────────────────────┼────────────────────────────────────┘
                                      │
-         ┌───────────────────────────┼───────────────────────────┐
-         │                           │                           │
-         ▼                           ▼                           ▼
-┌─────────────────┐      ┌─────────────────┐      ┌─────────────────┐
-│  Google Sheets  │      │   Supabase      │      │   APIs Externas │
-│   (Planilhas)   │      │   (PostgreSQL)  │      │                 │
-│                 │      │                 │      │  ┌───────────┐  │
-│  • Vendas       │      │  ┌───────────┐  │      │  │ Meta Ads  │  │
-│  • Calls        │      │  │PostgreSQL │  │      │  │   API     │  │
-│  • Leads        │      │  └─────┬─────┘  │      │  └───────────┘  │
-│                 │      │        │        │      │                 │
-└─────────────────┘      │  ┌─────┴─────┐  │      │  ┌───────────┐  │
-                         │  │   Edge   │  │      │  │  Kommo    │  │
-                         │  │ Functions │  │      │  │   CRM     │  │
-                         │  └──────────┘  │      │  └───────────┘  │
-                         └─────────────────┘      └─────────────────┘
+                                     ▼
+              ┌──────────────────────────────────────────┐
+              │        SUPABASE (Single Source of Truth) │
+              │                                          │
+              │  ┌────────────────────────────────────┐  │
+              │  │         PostgreSQL Database        │  │
+              │  │  • vendas        • agendamentos    │  │
+              │  │  • colaboradores • metas_mensais   │  │
+              │  │  • leads_crm     • marketing_metrics│ │
+              │  └────────────────────────────────────┘  │
+              │                    │                     │
+              │  ┌─────────────────┴─────────────────┐   │
+              │  │          Edge Functions           │   │
+              │  │  • kommo-webhook (auto-create)    │   │
+              │  │  • fetch-meta-campaigns (persist) │   │
+              │  │  • ai-assistant                   │   │
+              │  │  • ai-trafego-analyst             │   │
+              │  └───────────────────────────────────┘   │
+              └──────────────────────────────────────────┘
+                          ▲                    ▲
+                          │                    │
+              ┌───────────┴────┐    ┌──────────┴───────┐
+              │   Kommo CRM    │    │   Meta Ads API   │
+              │   (Webhooks)   │    │   (Graph API)    │
+              └────────────────┘    └──────────────────┘
 ```
 
 ### 2.2 Fluxo de Dados
 
 ```
-┌──────────┐     ┌──────────┐     ┌──────────┐     ┌──────────┐
-│  Usuário │────▶│   Page   │────▶│   Hook   │────▶│  Fonte   │
-│  (input) │     │(componente)    │ (fetch)  │     │  (data)  │
-└──────────┘     └────┬─────┘     └────┬─────┘     └────┬─────┘
-                      │                │                │
-                      │                │     ┌──────────┴──────────┐
-                      │                │     │                     │
-                      │                ▼     ▼                     ▼
-                      │         ┌──────────────┐          ┌──────────────┐
-                      │         │    Utils     │          │  TanStack    │
-                      │         │ (calculate)  │          │   Query      │
-                      │         └──────┬───────┘          │  (cache)     │
-                      │                │                  └──────────────┘
-                      │                │
-                      ▼                ▼
-               ┌─────────────────────────────┐
-               │     Render (UI Update)      │
-               └─────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────┐
+│                    INGESTÃO AUTOMÁTICA DE DADOS                     │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│  ┌─────────────┐     ┌──────────────────┐     ┌─────────────────┐  │
+│  │ Kommo CRM   │────▶│ kommo-webhook    │────▶│    Supabase     │  │
+│  │ (webhook)   │     │ (Edge Function)  │     │  vendas +       │  │
+│  └─────────────┘     │ auto-create:     │     │  agendamentos   │  │
+│                      │ • vendas (GANHO) │     │  leads_crm      │  │
+│                      │ • agendamentos   │     └─────────────────┘  │
+│                      └──────────────────┘                          │
+│                                                                     │
+│  ┌─────────────┐     ┌──────────────────┐     ┌─────────────────┐  │
+│  │ Meta Ads    │────▶│ fetch-meta-      │────▶│    Supabase     │  │
+│  │ (API call)  │     │ campaigns        │     │ marketing_      │  │
+│  └─────────────┘     │ (Edge Function)  │     │ metrics         │  │
+│                      │ persist daily    │     └─────────────────┘  │
+│                      └──────────────────┘                          │
+└─────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────┐
+│                      CONSUMO NO FRONTEND                            │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│  ┌──────────┐     ┌──────────────┐     ┌───────────────────────┐   │
+│  │  Pages   │────▶│useDashboardData───▶│  Supabase Client      │   │
+│  │          │     │useLeadsCRM   │     │  (TanStack Query)     │   │
+│  │          │     │useMarketingMetrics│ └───────────────────────┘   │
+│  └──────────┘     └──────┬───────┘                                  │
+│                          │                                          │
+│                          ▼                                          │
+│                   ┌──────────────┐                                  │
+│                   │ dataAdapters │ (converte para formato legado)   │
+│                   └──────┬───────┘                                  │
+│                          │                                          │
+│                          ▼                                          │
+│                   ┌──────────────┐                                  │
+│                   │   Utils      │ (calculadores de métricas)       │
+│                   │ (calculate)  │                                  │
+│                   └──────┬───────┘                                  │
+│                          │                                          │
+│                          ▼                                          │
+│                   ┌──────────────┐                                  │
+│                   │   Render     │                                  │
+│                   └──────────────┘                                  │
+└─────────────────────────────────────────────────────────────────────┘
 ```
 
 ### 2.3 Padrão de Arquitetura
@@ -164,7 +201,8 @@ dashblue/
 │   │   │   ├── ColaboradoresTab.tsx # CRUD colaboradores
 │   │   │   ├── MetasTab.tsx         # Configuração de metas
 │   │   │   ├── VendasTab.tsx        # Gestão de vendas
-│   │   │   └── AgendamentosTab.tsx  # Gestão de agendamentos
+│   │   │   ├── AgendamentosTab.tsx  # Gestão de agendamentos
+│   │   │   └── MigracaoTab.tsx      # Migração de dados legados
 │   │   │
 │   │   ├── 📁 closer/               # Componentes de Closers
 │   │   │   ├── CloserPodium.tsx     # Pódio de ranking
@@ -231,21 +269,23 @@ dashblue/
 │   │   └── ColaboradorAvatar.tsx    # Avatar com foto
 │   │
 │   ├── 📁 hooks/                    # Custom Hooks
-│   │   ├── 📁 admin/                # Hooks do admin
+│   │   ├── 📁 admin/                # Hooks do admin (CRUD)
 │   │   │   ├── useAgendamentos.ts
 │   │   │   ├── useColaboradores.ts
 │   │   │   ├── useMetasMensais.ts
 │   │   │   └── useVendas.ts
 │   │   │
-│   │   ├── useGoogleSheets.ts       # Fetch de planilhas
-│   │   ├── useGoogleSheetsCampanhas.ts
-│   │   ├── useGoogleSheetsLeads.ts
+│   │   ├── useDashboardData.ts      # Hook principal (substitui useGoogleSheets)
+│   │   ├── useVendas.ts             # Query vendas do Supabase
+│   │   ├── useAgendamentosDB.ts     # Query agendamentos do Supabase
+│   │   ├── useLeadsCRM.ts           # Query leads do CRM
+│   │   ├── useMarketingMetrics.ts   # Query métricas de marketing
 │   │   ├── useCloserKPIs.ts         # KPIs de closers
 │   │   ├── useSDRKPIs.ts            # KPIs de SDRs
-│   │   ├── useMetaCampaigns.ts      # Campanhas Meta Ads
-│   │   ├── useRealFinancials.ts    # Dados financeiros
+│   │   ├── useMetaCampaigns.ts      # Campanhas Meta Ads (Edge Function)
+│   │   ├── useRealFinancials.ts     # Dados financeiros
 │   │   ├── useComparativoMensal.ts  # Comparativo entre meses
-│   │   ├── useTrafegoAIAnalysis.ts # Análise IA tráfego
+│   │   ├── useTrafegoAIAnalysis.ts  # Análise IA tráfego
 │   │   ├── useTVMode.ts             # Modo televisão
 │   │   ├── use-mobile.tsx           # Detecção mobile
 │   │   └── use-toast.ts             # Sistema de toasts
@@ -258,13 +298,14 @@ dashblue/
 │   │   ├── squadsMetricsCalculator.ts
 │   │   ├── trafegoMetricsCalculator.ts
 │   │   ├── metasConfig.ts           # Configuração de metas
-│   │   ├── importVendas.ts          # Importação de vendas
+│   │   ├── monthConfig.ts           # Configuração de meses disponíveis
+│   │   ├── dataAdapters.ts          # Adaptadores Supabase -> Calculadores
+│   │   ├── migrateLegacyData.ts     # Script de migração de dados legados
+│   │   ├── importVendas.ts          # Importação de vendas (legado)
 │   │   ├── dateFilters.ts           # Filtros de data
 │   │   ├── progressColorUtils.ts    # Cores de progresso
 │   │   ├── sdrActivityUtils.ts      # Utilidades SDR
-│   │   ├── colaboradorPhotos.ts    # Mapeamento de fotos
-│   │   ├── sheetUrlManager.ts       # Gestão URLs planilhas
-│   │   └── leadsSheetUrlManager.ts
+│   │   └── colaboradorPhotos.ts     # Mapeamento de fotos
 │   │
 │   ├── 📁 contexts/                 # Context API
 │   │   └── PeriodFilterContext.tsx  # Contexto de filtro de período
@@ -310,8 +351,9 @@ dashblue/
 │   │       └── index.ts              # Webhook Kommo CRM
 │   │
 │   ├── 📁 migrations/              # Migrações SQL
-│   │   ├── 20251223205707_*.sql     # Migração leads_crm
-│   │   └── 20251229200120_*.sql     # Migração colaboradores/vendas
+│   │   ├── 20251223205707_*.sql     # Migração leads_crm + historico
+│   │   ├── 20251229200120_*.sql     # Migração colaboradores/vendas/agendamentos
+│   │   └── 20260123_marketing_metrics.sql # Tabela marketing_metrics
 │   │
 │   └── config.toml                  # Configuração Supabase
 │
@@ -529,6 +571,33 @@ Histórico de alterações nos leads para auditoria.
 - `idx_leads_crm_historico_lead_id` (lead_id)
 - `idx_leads_crm_historico_kommo_id` (kommo_id)
 
+#### `marketing_metrics`
+Métricas de campanhas de marketing (Meta Ads).
+
+| Campo | Tipo | Descrição |
+|-------|------|-----------|
+| `id` | UUID | Identificador único |
+| `data` | DATE | Data da métrica |
+| `campanha_id` | TEXT | ID da campanha no Meta Ads |
+| `campanha_nome` | TEXT | Nome da campanha |
+| `objetivo` | TEXT | Tipo: WhatsApp, Formulário, Landing Page, VSL, Outros |
+| `investimento` | NUMERIC | Valor investido (R$) |
+| `impressoes` | INTEGER | Número de impressões |
+| `cliques` | INTEGER | Número de cliques |
+| `leads` | INTEGER | Leads gerados |
+| `cpl` | NUMERIC | Custo por Lead |
+| `ctr` | NUMERIC | Click-through Rate (%) |
+| `cpc` | NUMERIC | Custo por Clique |
+| `created_at` | TIMESTAMPTZ | Data de criação |
+| `updated_at` | TIMESTAMPTZ | Data de atualização |
+
+**Índices**:
+- `idx_marketing_metrics_data` (data)
+- `idx_marketing_metrics_campanha_id` (campanha_id)
+- `idx_marketing_metrics_objetivo` (objetivo)
+
+**Constraint**: UNIQUE(data, campanha_id)
+
 ### 4.3 Relacionamentos
 
 - `vendas.colaborador_id` → `colaboradores.id` (FK opcional)
@@ -570,9 +639,9 @@ Histórico de alterações nos leads para auditoria.
 - Top performers
 
 **Hooks utilizados:**
-- `useGoogleSheets` - Dados das planilhas
+- `useDashboardData` - Dados do Supabase (vendas + agendamentos)
+- `useLeadsCRM` - Leads do CRM
 - `usePeriodFilter` - Filtro de período
-- `useRealFinancials` - Dados financeiros reais
 
 ### 5.3 PerformanceSDR
 
@@ -960,15 +1029,17 @@ export const importVendasFromMonth = async (
 
 ## 7. Custom Hooks
 
-### 7.1 useGoogleSheets
+### 7.1 useDashboardData
 
-**Arquivo:** `src/hooks/useGoogleSheets.ts`
+**Arquivo:** `src/hooks/useDashboardData.ts`
 
-**Responsabilidade:** Fetch e parse de dados de Google Sheets públicas.
+**Responsabilidade:** Hook principal que busca dados do Supabase e adapta para os calculadores.
 
 ```typescript
-interface UseGoogleSheetsReturn {
-  data: any[];
+interface UseDashboardDataReturn {
+  data: SheetRow[];           // Dados adaptados para calculadores
+  vendas: Tables<'vendas'>[];
+  agendamentos: Tables<'agendamentos'>[];
   loading: boolean;
   error: string | null;
   lastUpdate: Date | null;
@@ -976,18 +1047,72 @@ interface UseGoogleSheetsReturn {
   isRefetching: boolean;
 }
 
-export const useGoogleSheets = (
+export const useDashboardData = (
   dateRange?: DateRange, 
   monthKey?: string
-): UseGoogleSheetsReturn
+): UseDashboardDataReturn
 ```
 
 **Características:**
-- Auto-refresh a cada 10 segundos
-- Retry automático (até 3 tentativas com delay exponencial)
-- Parse robusto de CSV com PapaParse
-- Suporte a múltiplos formatos de data
-- Cache via estado local
+- Busca vendas e agendamentos do Supabase
+- Usa TanStack Query para cache e revalidação
+- Adapta dados para formato esperado pelos calculadores (via `dataAdapters.ts`)
+- Filtro por período (dateRange) ou mês (monthKey)
+- Stale time de 30 segundos
+
+### 7.2 useLeadsCRM
+
+**Arquivo:** `src/hooks/useLeadsCRM.ts`
+
+**Responsabilidade:** Query de leads do CRM com filtros e totais.
+
+```typescript
+interface UseLeadsCRMReturn {
+  leads: Tables<'leads_crm'>[];
+  totais: {
+    total: number;
+    mqls: number;
+    novos: number;
+    qualificacao: number;
+    agendados: number;
+    realizados: number;
+    ganhos: number;
+    perdidos: number;
+  };
+  loading: boolean;
+  error: string | null;
+}
+
+export const useLeadsCRM = (options?: {
+  monthKey?: string;
+  status?: string;
+  sdrNome?: string;
+  closerNome?: string;
+}): UseLeadsCRMReturn
+```
+
+### 7.3 useMarketingMetrics
+
+**Arquivo:** `src/hooks/useMarketingMetrics.ts`
+
+**Responsabilidade:** Query de métricas de marketing do Meta Ads.
+
+```typescript
+interface UseMarketingMetricsReturn {
+  metrics: Tables<'marketing_metrics'>[];
+  totais: {
+    investimento: number;
+    leads: number;
+    cliques: number;
+    impressoes: number;
+    cpl: number;
+    ctr: number;
+  };
+  porObjetivo: Record<string, MetricasPorObjetivo>;
+  loading: boolean;
+  error: string | null;
+}
+```
 
 ### 7.2 usePeriodFilter
 
@@ -1015,29 +1140,26 @@ export const usePeriodFilter = (): PeriodFilterContextType
 - Suporte a diferentes tipos de período
 - Geração automática de monthKey
 
-### 7.3 useCloserKPIs
+### 7.4 useCloserKPIs
 
 **Arquivo:** `src/hooks/useCloserKPIs.ts`
 
-**Responsabilidade:** Combinar dados de múltiplas fontes para KPIs de Closers.
+**Responsabilidade:** Combinar dados do Supabase para KPIs de Closers.
 
 ```typescript
 export const useCloserKPIs = () => {
-  const { dateRange, monthKey } = usePeriodFilter();
-  const { data: sheetsData } = useGoogleSheets({ ... });
-  const { data: dashboardData } = useGoogleSheets({ ... });
+  const { data } = useDashboardData();
   
-  // Calcular métricas
+  // Calcular métricas a partir dos dados do Supabase
   const metricas = useMemo(() => {
-    const calculadas = calcularMetricasCloser(sheetsData, dateRange);
-    return mesclarMetricasComDashboard(calculadas, dashboardData);
-  }, [sheetsData, dashboardData, dateRange]);
+    return calcularMetricasCloser(data, dateRange);
+  }, [data, dateRange]);
   
   return metricas;
 };
 ```
 
-### 7.4 useTVMode
+### 7.5 useTVMode
 
 **Arquivo:** `src/hooks/useTVMode.ts`
 
@@ -1112,7 +1234,7 @@ interface RequestBody {
 
 **Arquivo:** `supabase/functions/fetch-meta-campaigns/index.ts`
 
-**Responsabilidade:** Integração com Meta Ads API.
+**Responsabilidade:** Integração com Meta Ads API e **persistência automática** na tabela `marketing_metrics`.
 
 **Endpoint:** `POST /fetch-meta-campaigns`
 
@@ -1138,25 +1260,36 @@ interface Response {
     totalInvestimento: number;
     timeRange: { since: string; until: string };
     fetchedAt: string;
+    persistedToDb: boolean;  // Indica se salvou no banco
   };
 }
 ```
+
+**Persistência Automática:**
+
+Após buscar dados da Meta API, a função automaticamente:
+1. Prepara registros para cada campanha ativa
+2. Faz upsert na tabela `marketing_metrics` (ON CONFLICT data, campanha_id)
+3. Loga quantidade de registros salvos
 
 **Características:**
 - Paginação automática (até 10 páginas, 500 itens por página)
 - Identificação automática de tipo de campanha (WhatsApp, Formulário, LP, VSL)
 - Mapeamento correto de action_types por tipo de campanha
 - Fallback para mês atual se datas não fornecidas
+- **Persistência automática no Supabase**
 
 **Secrets necessários:**
 - `META_ACCESS_TOKEN`
 - `META_AD_ACCOUNT_ID`
+- `SUPABASE_URL`
+- `SUPABASE_SERVICE_ROLE_KEY`
 
 ### 8.3 kommo-webhook
 
 **Arquivo:** `supabase/functions/kommo-webhook/index.ts`
 
-**Responsabilidade:** Receber webhooks do Kommo CRM.
+**Responsabilidade:** Receber webhooks do Kommo CRM e **alimentar automaticamente** as tabelas `vendas` e `agendamentos`.
 
 **Endpoint:** `POST /kommo-webhook`
 
@@ -1165,6 +1298,15 @@ interface Response {
 - `leads[update]` - Lead atualizado
 - `leads[status]` - Mudança de status
 - `leads[delete]` - Lead removido
+
+**Automação de Dados (Single Source of Truth):**
+
+| Evento | Ação Automática |
+|--------|-----------------|
+| Status = `GANHO` + valor > 0 | Cria registro em `vendas` |
+| Status = `REUNIAO_AGENDADA` | Cria registro em `agendamentos` |
+| Status = `NO_SHOW` | Atualiza agendamento para `no_show` |
+| Lead passa para Closer | Atualiza agendamento para `realizado` |
 
 **Mapeamento de pipelines:**
 
@@ -1197,6 +1339,7 @@ const STAGE_MAPPING: Record<string, string> = {
 - Busca informações adicionais via API Kommo quando necessário
 - Registro automático de histórico de mudanças
 - Detecção automática de MQL (via tags)
+- **Criação automática de vendas e agendamentos**
 - Atualização de timestamps baseado em status
 
 **Secrets necessários:**
@@ -1609,21 +1752,23 @@ const corsHeaders = {
 
 ## 13. Integrações Externas
 
-### 13.1 Google Sheets
+### 13.1 Supabase (Single Source of Truth)
 
-**Uso:** Fonte principal de dados de vendas e calls.
+**Uso:** Única fonte de dados do sistema.
 
-**Formato:** CSV exportado de planilhas públicas.
+**Tabelas principais:**
+- `vendas` - Vendas fechadas
+- `agendamentos` - Calls agendadas/realizadas
+- `colaboradores` - Membros da equipe
+- `metas_mensais` - Metas por mês
+- `leads_crm` - Leads do Kommo CRM
+- `marketing_metrics` - Métricas do Meta Ads
 
 **Características:**
-- URLs dinâmicas por mês/período
-- Auto-refresh a cada 10 segundos
-- Parse robusto com PapaParse
-- Suporte a múltiplos formatos de coluna
-
-**Gerenciamento de URLs:**
-- `sheetUrlManager.ts` - URLs de planilhas de vendas
-- `leadsSheetUrlManager.ts` - URLs de planilhas de leads
+- Alimentado automaticamente via webhooks (Kommo) e Edge Functions (Meta)
+- TanStack Query para cache e revalidação
+- Row Level Security habilitado
+- Histórico de mudanças em leads_crm_historico
 
 ### 13.2 Meta Ads API
 
@@ -1871,20 +2016,21 @@ npx supabase gen types typescript --project-id <PROJECT_ID> > src/integrations/s
 
 ## 16. Decisões Arquiteturais
 
-### 16.1 Por que Google Sheets como fonte de dados?
+### 16.1 Por que Supabase como Single Source of Truth?
 
-| Prós | Contras |
-|------|---------|
-| Planilhas já existiam | Dependência de formato |
-| Equipe já usa | Latência de rede |
-| Sem migração inicial | Limite de requisições |
-| Fácil edição | Parse de CSV |
+| Razão | Benefício |
+|-------|-----------|
+| Escalabilidade SaaS | Multi-tenant nativo |
+| Automação via webhooks | Dados sempre atualizados |
+| Tipagem estática | TypeScript integrado |
+| Edge Functions | APIs serverless |
+| Row Level Security | Segurança por design |
 
-**Mitigação dos contras:**
-- Cache com TanStack Query
-- Parse robusto com PapaParse
-- Fallback de colunas
-- Auto-refresh silencioso
+**Migração do Google Sheets:**
+- Dados históricos (Out/2025 - Jan/2026) migrados via `migrateLegacyData.ts`
+- Frontend refatorado para usar `useDashboardData` (Supabase)
+- Hooks legados (`useGoogleSheets`) removidos
+- Calculadores adaptados via `dataAdapters.ts`
 
 ### 16.2 Por que Edge Functions para APIs externas?
 
@@ -1937,6 +2083,13 @@ npx supabase gen types typescript --project-id <PROJECT_ID> > src/integrations/s
 | Data | Versão | Descrição |
 |------|--------|-----------|
 | 2025-01 | 1.0.0 | Documentação técnica completa inicial |
+| 2026-01 | 2.0.0 | **Migração Supabase Single Source of Truth** |
+|        |       | - Removido Google Sheets como fonte de dados |
+|        |       | - Supabase como única fonte de verdade |
+|        |       | - Edge Functions com automação (kommo-webhook, fetch-meta-campaigns) |
+|        |       | - Nova tabela `marketing_metrics` |
+|        |       | - Novos hooks: `useDashboardData`, `useLeadsCRM`, `useMarketingMetrics` |
+|        |       | - Dados históricos migrados (Out/2025 - Jan/2026) |
 
 ---
 
