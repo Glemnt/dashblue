@@ -1,7 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
-import { useGoogleSheets } from '@/hooks/useGoogleSheets';
-import { useGoogleSheetsCampanhas } from '@/hooks/useGoogleSheetsCampanhas';
-import { useGoogleSheetsLeads } from '@/hooks/useGoogleSheetsLeads';
+import { useDashboardData } from '@/hooks/useDashboardData';
+import { useLeadsCRM } from '@/hooks/useLeadsCRM';
 import { calcularMetricas } from '@/utils/metricsCalculator';
 import { usePeriodFilter } from '@/contexts/PeriodFilterContext';
 import { useTVMode } from '@/hooks/useTVMode';
@@ -44,12 +43,13 @@ const AssistenteIA = () => {
   const [report, setReport] = useState<any>(null);
   const [reportLoading, setReportLoading] = useState(false);
 
-  const { data: rawData, loading: loadingData, refetch } = useGoogleSheets(undefined, selectedMonthKey);
-  const { totalLeads, totalMQLs } = useGoogleSheetsCampanhas();
-  const { totalMQLs: mqlsLeads } = useGoogleSheetsLeads();
+  const { data: rawData, loading: loadingData, refetch } = useDashboardData(undefined, selectedMonthKey);
+  const leads = useLeadsCRM({ monthKey: selectedMonthKey });
+  const totalLeads = leads.totais.total;
+  const totalMQLs = leads.totais.mqls;
 
   const metricas = rawData.length > 0
-    ? calcularMetricas(rawData, { totalLeads, totalMQLs: totalMQLs + mqlsLeads }, selectedMonthKey)
+    ? calcularMetricas(rawData, { totalLeads, totalMQLs }, selectedMonthKey)
     : null;
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);

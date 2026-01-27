@@ -14,7 +14,7 @@ import CloserCharts from '@/components/closer/CloserCharts';
 import TVModeToggle from '@/components/TVModeToggle';
 import ColaboradorAvatar from '@/components/ColaboradorAvatar';
 import { useTVMode } from '@/hooks/useTVMode';
-import { useGoogleSheets } from '@/hooks/useGoogleSheets';
+import { useDashboardData } from '@/hooks/useDashboardData';
 import { calcularMetricasCloser } from '@/utils/closerMetricsCalculator';
 import { formatarReal } from '@/utils/metricsCalculator';
 import { usePeriodFilter } from '@/contexts/PeriodFilterContext';
@@ -27,7 +27,7 @@ const PerformanceCloser = () => {
   // Estado global do filtro de período
   const { periodType: currentPeriod, dateRange: currentDateRange, selectedMonthKey, updateFilter, setSelectedMonthKey } = usePeriodFilter();
   
-  const { data, loading, error, lastUpdate, refetch, isRefetching } = useGoogleSheets(currentDateRange, selectedMonthKey);
+  const { data, loading, error, lastUpdate, refetch, isRefetching } = useDashboardData(currentDateRange, selectedMonthKey);
   
   // Estado do modo TV
   const { isTVMode, setIsTVMode } = useTVMode();

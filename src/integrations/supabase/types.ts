@@ -220,6 +220,57 @@ export type Database = {
           },
         ]
       }
+      marketing_metrics: {
+        Row: {
+          id: string
+          data: string
+          campanha_id: string
+          campanha_nome: string | null
+          objetivo: string | null
+          investimento: number
+          impressoes: number
+          cliques: number
+          leads: number
+          cpl: number
+          ctr: number
+          cpc: number
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          data: string
+          campanha_id: string
+          campanha_nome?: string | null
+          objetivo?: string | null
+          investimento?: number
+          impressoes?: number
+          cliques?: number
+          leads?: number
+          cpl?: number
+          ctr?: number
+          cpc?: number
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          data?: string
+          campanha_id?: string
+          campanha_nome?: string | null
+          objetivo?: string | null
+          investimento?: number
+          impressoes?: number
+          cliques?: number
+          leads?: number
+          cpl?: number
+          ctr?: number
+          cpc?: number
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       leads_crm_historico: {
         Row: {
           campo_alterado: string | null

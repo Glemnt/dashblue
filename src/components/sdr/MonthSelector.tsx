@@ -1,5 +1,5 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { AVAILABLE_MONTHS } from '@/utils/sheetUrlManager';
+import { AVAILABLE_MONTHS } from '@/utils/monthConfig';
 
 interface MonthSelectorProps {
   selectedMonthKey: string;

@@ -3,9 +3,8 @@ import { RefreshCw, Calendar } from "lucide-react";
 import { MonthSelector } from "@/components/sdr/MonthSelector";
 import logoWhite from "@/assets/logo-white.png";
 import MobileMenu from '@/components/MobileMenu';
-import { useGoogleSheets } from "@/hooks/useGoogleSheets";
-import { useGoogleSheetsCampanhas } from "@/hooks/useGoogleSheetsCampanhas";
-import { useGoogleSheetsLeads } from "@/hooks/useGoogleSheetsLeads";
+import { useDashboardData } from "@/hooks/useDashboardData";
+import { useLeadsCRM } from "@/hooks/useLeadsCRM";
 import { calcularMetricas, formatarValor, formatarReal } from "@/utils/metricsCalculator";
 import { calcularMetricasSquads } from "@/utils/squadsMetricsCalculator";
 import { Button } from "@/components/ui/button";
@@ -76,9 +75,9 @@ const Index = () => {
   // Estado global do filtro de período
   const { periodType, dateRange, selectedMonthKey, updateFilter, setSelectedMonthKey } = usePeriodFilter();
   
-  const { data, loading, error, lastUpdate, refetch, isRefetching } = useGoogleSheets(dateRange, selectedMonthKey);
-  const { totalLeads: leadsCampanhas, totalMQLs: mqlsCampanhas, loading: loadingCampanhas } = useGoogleSheetsCampanhas();
-  const leads = useGoogleSheetsLeads(selectedMonthKey);
+  // Usar dados do Supabase em vez do Google Sheets
+  const { data, loading, error, lastUpdate, refetch, isRefetching } = useDashboardData(dateRange, selectedMonthKey);
+  const leads = useLeadsCRM({ monthKey: selectedMonthKey });
   
   // Estado do modo TV
   const { isTVMode, setIsTVMode } = useTVMode();
@@ -130,8 +129,8 @@ const Index = () => {
   
   // Calcular métricas com dados filtrados
   const metricas = filteredData.length > 0 ? calcularMetricas(filteredData, {
-    totalLeads: leads.totalLeads,      // Contagem de linhas da planilha "LEADS - META ADS NOV."
-    totalMQLs: 0                       // MQLs zerados até ter forma de metrificar corretamente
+    totalLeads: leads.totais.total,    // Total de leads do CRM
+    totalMQLs: leads.totais.mqls       // MQLs do CRM
   }, selectedMonthKey) : null;
   
   // Calcular métricas dos squads separadamente
@@ -156,13 +155,13 @@ const Index = () => {
   };
 
   // Loading State
-  if ((loading || loadingCampanhas || leads.loading) && !metricas) {
+  if ((loading || leads.loading) && !metricas) {
     return (
       <div className="min-h-screen bg-[#0B1120] font-outfit flex items-center justify-center">
         <div className="text-center">
           <RefreshCw className="w-16 h-16 text-[#0066FF] mx-auto mb-4 animate-spin" />
           <h2 className="text-white text-3xl font-bold mb-2">Carregando Dashboard...</h2>
-          <p className="text-[#94A3B8] text-lg">Buscando dados do Google Sheets</p>
+          <p className="text-[#94A3B8] text-lg">Buscando dados do Supabase</p>
         </div>
       </div>
     );

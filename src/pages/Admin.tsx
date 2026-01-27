@@ -9,7 +9,8 @@ import ColaboradoresTab from '@/components/admin/ColaboradoresTab';
 import MetasTab from '@/components/admin/MetasTab';
 import VendasTab from '@/components/admin/VendasTab';
 import AgendamentosTab from '@/components/admin/AgendamentosTab';
-import { Settings, Users, Target, DollarSign, Calendar, BarChart3 } from 'lucide-react';
+import MigracaoTab from '@/components/admin/MigracaoTab';
+import { Settings, Users, Target, DollarSign, Calendar, BarChart3, Database } from 'lucide-react';
 
 const MESES = [
   'janeiro', 'fevereiro', 'marco', 'abril', 'maio', 'junho',
@@ -109,6 +110,13 @@ const Admin = () => {
               <Calendar className="h-4 w-4" />
               Agendamentos
             </TabsTrigger>
+            <TabsTrigger 
+              value="migracao" 
+              className="data-[state=active]:bg-[#0066FF] data-[state=active]:text-white flex items-center gap-2"
+            >
+              <Database className="h-4 w-4" />
+              Migração
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="resumo">
@@ -129,6 +137,10 @@ const Admin = () => {
 
           <TabsContent value="agendamentos">
             <AgendamentosTab mesKey={selectedMes} />
+          </TabsContent>
+
+          <TabsContent value="migracao">
+            <MigracaoTab />
           </TabsContent>
         </Tabs>
       </main>

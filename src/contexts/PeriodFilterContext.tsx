@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { PeriodType, DateRange, getCurrentMonthRange } from '@/utils/dateFilters';
-import { getCurrentAvailableMonth } from '@/utils/sheetUrlManager';
+import { getCurrentAvailableMonth } from '@/utils/monthConfig';
 
 interface PeriodFilterContextType {
   periodType: PeriodType;
