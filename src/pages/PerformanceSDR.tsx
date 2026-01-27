@@ -2,9 +2,8 @@ import { useEffect, useState } from 'react';
 import { RefreshCw, TrendingUp, Target, Trophy, Phone } from 'lucide-react';
 import logoWhite from '@/assets/logo-white.png';
 import MobileMenu from '@/components/MobileMenu';
-import { useGoogleSheets } from '@/hooks/useGoogleSheets';
-import { useSDRKPIs } from '@/hooks/useSDRKPIs';
-import { calcularMetricasSDR, mesclarMetricasSDRComDashboard } from '@/utils/sdrMetricsCalculator';
+import { useDashboardData } from '@/hooks/useDashboardData';
+import { calcularMetricasSDR } from '@/utils/sdrMetricsCalculator';
 import { formatarReal } from '@/utils/metricsCalculator';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -28,14 +27,7 @@ const PerformanceSDR = () => {
   // Estado global do filtro de período
   const { periodType: currentPeriod, dateRange: currentDateRange, selectedMonthKey, updateFilter, setSelectedMonthKey } = usePeriodFilter();
   
-  const { data, loading, error, lastUpdate, refetch, isRefetching } = useGoogleSheets(currentDateRange, selectedMonthKey);
-  const { 
-    kpis: sdrKPIs, 
-    total: totalKPI,
-    loading: loadingKPIs,
-    error: errorKPIs,
-    refetch: refetchKPIs
-  } = useSDRKPIs(currentDateRange, selectedMonthKey);
+  const { data, loading, error, lastUpdate, refetch, isRefetching } = useDashboardData(currentDateRange, selectedMonthKey);
   
   // Estado do modo TV
   const { isTVMode, setIsTVMode } = useTVMode();
@@ -77,10 +69,7 @@ const PerformanceSDR = () => {
   }, [isTVMode]);
 
   // Calcular métricas SDR COM filtro de data
-  const metricasCalculadas = data.length > 0 ? calcularMetricasSDR(data, currentDateRange) : null;
-  const metricas = metricasCalculadas && sdrKPIs.length > 0
-    ? mesclarMetricasSDRComDashboard(metricasCalculadas, sdrKPIs)
-    : metricasCalculadas;
+  const metricas = data.length > 0 ? calcularMetricasSDR(data, currentDateRange) : null;
 
   // Handler para mudança de filtro (delega para o context)
   const handleFilterChange = updateFilter;
@@ -102,27 +91,27 @@ const PerformanceSDR = () => {
   };
 
   // Loading State
-  if ((loading || loadingKPIs) && !metricas) {
+  if (loading && !metricas) {
     return (
       <div className="min-h-screen bg-[#0B1120] font-outfit flex items-center justify-center">
         <div className="text-center">
           <RefreshCw className="w-16 h-16 text-[#0066FF] mx-auto mb-4 animate-spin" />
           <h2 className="text-white text-3xl font-bold mb-2">Carregando Performance SDR...</h2>
-          <p className="text-[#94A3B8] text-lg">Buscando dados do Google Sheets</p>
+          <p className="text-[#94A3B8] text-lg">Buscando dados do Supabase</p>
         </div>
       </div>
     );
   }
 
   // Error State
-  if (error || errorKPIs) {
+  if (error) {
     return (
       <div className="min-h-screen bg-[#0B1120] font-outfit flex items-center justify-center">
         <div className="text-center max-w-md">
           <h2 className="text-[#FF4757] text-4xl font-bold mb-4">Erro ao Carregar Dados</h2>
-          <p className="text-white text-lg mb-6">{error || errorKPIs}</p>
+          <p className="text-white text-lg mb-6">{error}</p>
           <Button
-            onClick={() => { refetch(); refetchKPIs(); }}
+            onClick={refetch}
             className="bg-[#0066FF] hover:bg-[#0066FF]/90 text-white px-8 py-3 text-lg"
           >
             <RefreshCw className="w-5 h-5 mr-2" />
@@ -180,7 +169,7 @@ const PerformanceSDR = () => {
             <div className={`flex ${isTVMode ? 'gap-6' : 'gap-2 md:gap-3'}`}>
               <TVModeToggle isTVMode={isTVMode} onToggle={() => setIsTVMode(!isTVMode)} />
               <Button
-                onClick={() => { refetch(); refetchKPIs(); }}
+                onClick={refetch}
                 variant="outline"
                 className={`bg-[#0066FF]/10 border-2 border-[#0066FF] text-[#0066FF] hover:bg-[#0066FF] hover:text-white transition-all ${
                   isTVMode ? 'px-8 py-6 text-2xl' : 'px-3 py-2 md:px-6 md:py-3 text-sm md:text-lg'

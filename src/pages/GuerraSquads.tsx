@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useGoogleSheets } from '@/hooks/useGoogleSheets';
+import { useDashboardData } from '@/hooks/useDashboardData';
 import { useTVMode } from '@/hooks/useTVMode';
 import { usePeriodFilter } from '@/contexts/PeriodFilterContext';
 import { calcularMetricasSquads } from '@/utils/squadsMetricsCalculator';
@@ -25,7 +25,7 @@ const GuerraSquads = () => {
   // Estado global do filtro de período
   const { periodType, dateRange, selectedMonthKey, updateFilter, setSelectedMonthKey } = usePeriodFilter();
   
-  const { data, loading, error, refetch, lastUpdate, isRefetching } = useGoogleSheets(dateRange, selectedMonthKey);
+  const { data, loading, error, refetch, lastUpdate, isRefetching } = useDashboardData(dateRange, selectedMonthKey);
   const { isTVMode, setIsTVMode } = useTVMode();
   const [currentTime, setCurrentTime] = useState(new Date());
   const [isRefreshing, setIsRefreshing] = useState(false);

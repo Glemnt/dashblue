@@ -6,7 +6,8 @@ const BASE_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTiBWb4KkxNxK-
 const MONTH_GIDS: Record<string, { gid: string; month: number; year: number }> = {
   'outubro-2025': { gid: '1439614322', month: 9, year: 2025 },
   'novembro-2025': { gid: '930588352', month: 10, year: 2025 },
-  'dezembro-2025': { gid: '581766650', month: 11, year: 2025 }
+  'dezembro-2025': { gid: '581766650', month: 11, year: 2025 },
+  'janeiro-2026': { gid: '749539490', month: 0, year: 2026 }
 };
 
 interface Colaborador {

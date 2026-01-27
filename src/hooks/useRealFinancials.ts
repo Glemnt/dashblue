@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { useGoogleSheets } from './useGoogleSheets';
+import { useDashboardData } from './useDashboardData';
 import { calcularMetricasFinanceiras } from '@/utils/financialMetricsCalculator';
 import { calcularMetricas } from '@/utils/metricsCalculator';
 import { filterDataByDateRange, DateRange } from '@/utils/dateFilters';
@@ -17,7 +17,7 @@ export interface RealFinancialsData {
 }
 
 export const useRealFinancials = (monthKey?: string, dateRange?: DateRange): RealFinancialsData => {
-  const { data, loading, error } = useGoogleSheets(dateRange, monthKey);
+  const { data, loading, error } = useDashboardData(dateRange, monthKey);
 
   const financials = useMemo(() => {
     if (loading || !data || data.length === 0) {

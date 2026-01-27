@@ -431,6 +431,135 @@ Deno.serve(async (req) => {
           }
         }
         
+        // ============================================================
+        // AUTOMAÇÃO: Criar registros em vendas e agendamentos
+        // ============================================================
+        
+        // Buscar colaborador closer no banco
+        const getColaboradorId = async (nome: string | null, tipo: 'sdr' | 'closer'): Promise<string | null> => {
+          if (!nome) return null;
+          
+          // Normalizar nome para match
+          const normalizedNome = nome.trim();
+          
+          const { data } = await supabase
+            .from('colaboradores')
+            .select('id')
+            .eq('tipo', tipo)
+            .ilike('nome', `%${normalizedNome}%`)
+            .limit(1)
+            .maybeSingle();
+          
+          return data?.id || null;
+        };
+        
+        // CRIAR VENDA quando status = GANHO e tem valor
+        if (statusInterno === 'GANHO' && leadData.valor && leadData.valor > 0) {
+          // Verificar se já existe venda para este lead
+          const { data: existingVenda } = await supabase
+            .from('vendas')
+            .select('id')
+            .eq('lead_nome', leadData.nome)
+            .eq('valor', leadData.valor)
+            .maybeSingle();
+          
+          if (!existingVenda) {
+            const closerId = await getColaboradorId(closerNome, 'closer');
+            
+            const vendaRecord = {
+              colaborador_id: closerId,
+              colaborador_nome: closerNome || 'Não identificado',
+              valor: leadData.valor,
+              origem: 'inbound' as const, // Leads do CRM são inbound por padrão
+              lead_nome: leadData.nome,
+              data_fechamento: new Date().toISOString().split('T')[0],
+              observacao: `Importado automaticamente do Kommo CRM - Lead ID: ${leadData.kommo_id}`,
+            };
+            
+            const { error: vendaError } = await supabase
+              .from('vendas')
+              .insert(vendaRecord);
+            
+            if (vendaError) {
+              console.error(`Erro ao criar venda para lead ${leadData.kommo_id}:`, vendaError);
+            } else {
+              console.log(`✅ Venda criada automaticamente para lead ${leadData.kommo_id}: R$ ${leadData.valor}`);
+            }
+          } else {
+            console.log(`Venda já existe para lead ${leadData.kommo_id}`);
+          }
+        }
+        
+        // CRIAR AGENDAMENTO quando status = REUNIAO_AGENDADA
+        if (statusInterno === 'REUNIAO_AGENDADA' && existingLead?.status !== 'REUNIAO_AGENDADA') {
+          // Verificar se já existe agendamento para este lead
+          const { data: existingAgendamento } = await supabase
+            .from('agendamentos')
+            .select('id')
+            .eq('lead_nome', leadData.nome)
+            .gte('data_agendamento', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]) // Últimos 7 dias
+            .maybeSingle();
+          
+          if (!existingAgendamento) {
+            const sdrId = await getColaboradorId(sdrNome, 'sdr');
+            const closerId = await getColaboradorId(closerNome, 'closer');
+            
+            const agendamentoRecord = {
+              sdr_id: sdrId,
+              sdr_nome: sdrNome || 'Não identificado',
+              closer_id: closerId,
+              closer_nome: closerNome,
+              lead_nome: leadData.nome,
+              data_agendamento: new Date().toISOString().split('T')[0],
+              status: 'agendado' as const,
+              qualificado: isMql,
+              origem: 'inbound' as const,
+              observacao: `Importado automaticamente do Kommo CRM - Lead ID: ${leadData.kommo_id}`,
+            };
+            
+            const { error: agendamentoError } = await supabase
+              .from('agendamentos')
+              .insert(agendamentoRecord);
+            
+            if (agendamentoError) {
+              console.error(`Erro ao criar agendamento para lead ${leadData.kommo_id}:`, agendamentoError);
+            } else {
+              console.log(`✅ Agendamento criado automaticamente para lead ${leadData.kommo_id}`);
+            }
+          } else {
+            console.log(`Agendamento já existe para lead ${leadData.kommo_id}`);
+          }
+        }
+        
+        // ATUALIZAR AGENDAMENTO para NO_SHOW quando status muda para NO_SHOW
+        if (statusInterno === 'NO_SHOW' && existingLead?.status !== 'NO_SHOW') {
+          const { error: updateError } = await supabase
+            .from('agendamentos')
+            .update({ status: 'no_show' })
+            .eq('lead_nome', leadData.nome)
+            .eq('status', 'agendado');
+          
+          if (!updateError) {
+            console.log(`✅ Agendamento atualizado para NO_SHOW: lead ${leadData.kommo_id}`);
+          }
+        }
+        
+        // ATUALIZAR AGENDAMENTO para REALIZADO quando passa para closer
+        if (closerNome && existingLead?.status === 'REUNIAO_AGENDADA' && statusInterno !== 'NO_SHOW') {
+          const { error: updateError } = await supabase
+            .from('agendamentos')
+            .update({ 
+              status: 'realizado',
+              closer_nome: closerNome,
+            })
+            .eq('lead_nome', leadData.nome)
+            .eq('status', 'agendado');
+          
+          if (!updateError) {
+            console.log(`✅ Agendamento atualizado para REALIZADO: lead ${leadData.kommo_id}`);
+          }
+        }
+        
       } catch (leadError) {
         console.error(`Erro ao processar lead:`, leadError);
       }

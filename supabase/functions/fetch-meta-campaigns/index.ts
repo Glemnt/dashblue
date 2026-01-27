@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -420,6 +421,58 @@ serve(async (req) => {
     console.log(`Total investimento: R$ ${totalInvestimento.toFixed(2)}`);
     console.log(`Total leads: ${totalLeads}`);
 
+    // ============================================================
+    // PERSISTIR DADOS NA TABELA marketing_metrics
+    // ============================================================
+    const supabaseUrl = Deno.env.get('SUPABASE_URL');
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+    
+    if (supabaseUrl && supabaseServiceKey) {
+      const supabase = createClient(supabaseUrl, supabaseServiceKey);
+      
+      console.log('Persistindo dados na tabela marketing_metrics...');
+      
+      // Preparar registros para upsert (um por campanha por dia)
+      const today = new Date().toISOString().split('T')[0];
+      
+      const metricsRecords = activeCampaigns.map(campanha => ({
+        data: today,
+        campanha_id: String(campanha.id),
+        campanha_nome: campanha.nome,
+        objetivo: campanha.objetivo,
+        investimento: campanha.investimento,
+        impressoes: campanha.impressoes,
+        cliques: campanha.cliques,
+        leads: campanha.leadsGerados,
+        cpl: campanha.cpl,
+        ctr: campanha.ctr,
+        cpc: campanha.cpc,
+      }));
+      
+      // Upsert em lotes de 50
+      let savedCount = 0;
+      for (let i = 0; i < metricsRecords.length; i += 50) {
+        const batch = metricsRecords.slice(i, i + 50);
+        
+        const { error } = await supabase
+          .from('marketing_metrics')
+          .upsert(batch, { 
+            onConflict: 'data,campanha_id',
+            ignoreDuplicates: false 
+          });
+        
+        if (error) {
+          console.error(`Erro ao salvar métricas (lote ${i}):`, error);
+        } else {
+          savedCount += batch.length;
+        }
+      }
+      
+      console.log(`✅ ${savedCount} registros salvos na tabela marketing_metrics`);
+    } else {
+      console.log('Supabase não configurado, pulando persistência');
+    }
+
     return new Response(
       JSON.stringify({
         success: true,
@@ -430,7 +483,8 @@ serve(async (req) => {
           totalLeads,
           totalInvestimento,
           timeRange: timeRange,
-          fetchedAt: new Date().toISOString()
+          fetchedAt: new Date().toISOString(),
+          persistedToDb: !!(supabaseUrl && supabaseServiceKey)
         }
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

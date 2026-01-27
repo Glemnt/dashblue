@@ -8,7 +8,7 @@ import { ptBR } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { PeriodType, DateRange, getCurrentWeekRange, getCurrentMonthRange, formatDateRange, getMonthRange } from '@/utils/dateFilters';
 import { MonthSelector } from './MonthSelector';
-import { AVAILABLE_MONTHS, getCurrentAvailableMonth } from '@/utils/sheetUrlManager';
+import { AVAILABLE_MONTHS, getCurrentAvailableMonth } from '@/utils/monthConfig';
 
 interface PeriodFilterProps {
   onFilterChange: (type: PeriodType, dateRange: DateRange) => void;

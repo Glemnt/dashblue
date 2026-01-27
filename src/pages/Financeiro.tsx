@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { RefreshCw, DollarSign, FileCheck, CheckCircle, Clock, CreditCard, AlertTriangle } from "lucide-react";
 import logoWhite from "@/assets/logo-white.png";
 import MobileMenu from '@/components/MobileMenu';
-import { useGoogleSheets } from "@/hooks/useGoogleSheets";
+import { useDashboardData } from "@/hooks/useDashboardData";
 import { calcularMetricasFinanceiras, formatarReal } from "@/utils/financialMetricsCalculator";
 import { getMetasPorMes } from "@/utils/metasConfig";
 import { getProgressColorByValue, isGapFinanceiroAlerta } from "@/utils/progressColorUtils";
@@ -26,7 +26,7 @@ const Financeiro = () => {
   // Estado global do filtro de período
   const { periodType, dateRange, selectedMonthKey, updateFilter, setSelectedMonthKey } = usePeriodFilter();
   
-  const { data, loading, error, lastUpdate, refetch, isRefetching } = useGoogleSheets(dateRange, selectedMonthKey);
+  const { data, loading, error, lastUpdate, refetch, isRefetching } = useDashboardData(dateRange, selectedMonthKey);
   const { isTVMode, setIsTVMode } = useTVMode();
 
   // Filtrar dados por período e calcular métricas

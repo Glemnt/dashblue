@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useGoogleSheets } from './useGoogleSheets';
+import { useDashboardData } from './useDashboardData';
 
 export interface CloserKPI {
   nome: string;
@@ -40,7 +40,7 @@ const normalizarNome = (nome: string): string => {
 };
 
 export const useCloserKPIs = (): UseCloserKPIsReturn => {
-  const { data, loading, error, lastUpdate, refetch } = useGoogleSheets();
+  const { data, loading, error, lastUpdate, refetch } = useDashboardData();
   const [kpis, setKpis] = useState<CloserKPI[]>([]);
   const [total, setTotal] = useState<CloserKPI | null>(null);
 
