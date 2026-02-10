@@ -756,106 +756,67 @@ const Index = () => {
           Guerra de Squads
         </h2>
         
-        <div className="grid grid-cols-2 gap-8 max-w-[1600px] mx-auto mb-8">
+        <div className={`grid ${(metricasSquads?.squads?.length || 0) >= 3 ? 'grid-cols-3' : 'grid-cols-2'} gap-8 max-w-[1600px] mx-auto mb-8`}>
           
-          {/* Squad Hot Dogs */}
-          <div className="bg-white rounded-2xl p-12 border-l-8 border-red-alert relative hover:shadow-xl transition-all duration-300">
-            {metricasSquads?.placar.lider === 'Hot Dogs' && (
-              <div className="absolute top-6 right-6">
-                <div className="bg-yellow-warning px-6 py-2 rounded-lg">
-                  <span className="text-navy-ultra-dark font-outfit text-sm font-bold uppercase tracking-wider">LÍDER</span>
+          {metricasSquads?.squads?.map(squad => (
+            <div key={squad.nome} className="bg-white rounded-2xl p-12 border-l-8 relative hover:shadow-xl transition-all duration-300"
+              style={{ borderLeftColor: squad.cor }}
+            >
+              {metricasSquads?.placar.lider === squad.nome && (
+                <div className="absolute top-6 right-6">
+                  <div className="bg-yellow-warning px-6 py-2 rounded-lg">
+                    <span className="text-navy-ultra-dark font-outfit text-sm font-bold uppercase tracking-wider">LÍDER</span>
+                  </div>
                 </div>
-              </div>
-            )}
-            
-            <div className="flex items-center gap-4 mb-8">
-              <div className="w-16 h-16 bg-red-alert rounded-lg flex items-center justify-center">
-                <span className="text-white font-outfit text-2xl font-black">HD</span>
-              </div>
-              <h3 className="text-navy-ultra-dark font-outfit text-4xl font-bold">
-                SQUAD HOT DOGS
-              </h3>
-            </div>
-            
-            <p className="text-navy-ultra-dark font-outfit text-8xl font-black mb-2">
-              {formatarValor(metricasSquads?.hotDogs.receitaTotal || 0)}
-            </p>
-            <p className="text-gray-medium font-outfit text-xl mb-6">
-              {metricasSquads?.hotDogs.contratos || 0} contratos fechados
-            </p>
-            
-            <div className="h-2 bg-gray-light rounded-full mb-8">
-              <div 
-                className="h-full bg-red-alert rounded-full" 
-                style={{ 
-                  width: `${metricasSquads?.placar.squads?.find(s => s.nome === 'Hot Dogs')?.percentual || 0}%` 
-                }}
-              ></div>
-            </div>
-            
-            <div className="bg-gray-light rounded-xl p-6">
-              <p className="text-gray-medium font-outfit text-xs font-semibold uppercase tracking-widest mb-3">MEMBROS</p>
-              <ul className="space-y-2 text-navy-ultra-dark font-outfit text-base">
-                {metricasSquads?.hotDogs.membros.map(membro => (
-                  <li key={membro.nome}>• {membro.nome} ({membro.funcao})</li>
-                ))}
-              </ul>
-            </div>
-          </div>
-
-          {/* Squad Corvo Azul */}
-          <div className="bg-white rounded-2xl p-12 border-l-8 border-blue-vibrant relative hover:shadow-xl transition-all duration-300">
-            {metricasSquads?.placar.lider === 'Corvo Azul' && (
-              <div className="absolute top-6 right-6">
-                <div className="bg-yellow-warning px-6 py-2 rounded-lg">
-                  <span className="text-navy-ultra-dark font-outfit text-sm font-bold uppercase tracking-wider">LÍDER</span>
+              )}
+              
+              <div className="flex items-center gap-4 mb-8">
+                <div className="w-16 h-16 rounded-lg flex items-center justify-center" style={{ backgroundColor: squad.cor }}>
+                  <span className="text-white font-outfit text-2xl font-black">
+                    {squad.nome === 'Hot Dogs' ? 'HD' : squad.nome === 'Corvo Azul' ? 'CA' : 'KK'}
+                  </span>
                 </div>
+                <h3 className="text-navy-ultra-dark font-outfit text-4xl font-bold">
+                  SQUAD {squad.nome.toUpperCase()}
+                </h3>
               </div>
-            )}
-            
-            <div className="flex items-center gap-4 mb-8">
-              <div className="w-16 h-16 bg-blue-vibrant rounded-lg flex items-center justify-center">
-                <span className="text-white font-outfit text-2xl font-black">CA</span>
+              
+              <p className="text-navy-ultra-dark font-outfit text-8xl font-black mb-2">
+                {formatarValor(squad.receitaTotal)}
+              </p>
+              <p className="text-gray-medium font-outfit text-xl mb-6">
+                {squad.contratos} contratos fechados
+              </p>
+              
+              <div className="h-2 bg-gray-light rounded-full mb-8">
+                <div 
+                  className="h-full rounded-full" 
+                  style={{ 
+                    backgroundColor: squad.cor,
+                    width: `${metricasSquads?.placar.squads?.find(s => s.nome === squad.nome)?.percentual || 0}%` 
+                  }}
+                ></div>
               </div>
-              <h3 className="text-navy-ultra-dark font-outfit text-4xl font-bold">
-                SQUAD CORVO AZUL
-              </h3>
+              
+              <div className="bg-gray-light rounded-xl p-6">
+                <p className="text-gray-medium font-outfit text-xs font-semibold uppercase tracking-widest mb-3">MEMBROS</p>
+                <ul className="space-y-2 text-navy-ultra-dark font-outfit text-base">
+                  {squad.membros.map(membro => (
+                    <li key={membro.nome}>• {membro.nome} ({membro.funcao})</li>
+                  ))}
+                </ul>
+              </div>
             </div>
-            
-            <p className="text-navy-ultra-dark font-outfit text-8xl font-black mb-2">
-              {formatarValor(metricasSquads?.corvoAzul.receitaTotal || 0)}
-            </p>
-            <p className="text-gray-medium font-outfit text-xl mb-6">
-              {metricasSquads?.corvoAzul.contratos || 0} contratos fechados
-            </p>
-            
-            <div className="h-2 bg-gray-light rounded-full mb-8">
-              <div 
-                className="h-full bg-blue-vibrant rounded-full" 
-                style={{ 
-                  width: `${metricasSquads?.placar.squads?.find(s => s.nome === 'Corvo Azul')?.percentual || 0}%` 
-                }}
-              ></div>
-            </div>
-            
-            <div className="bg-gray-light rounded-xl p-6">
-              <p className="text-gray-medium font-outfit text-xs font-semibold uppercase tracking-widest mb-3">MEMBROS</p>
-              <ul className="space-y-2 text-navy-ultra-dark font-outfit text-base">
-                {metricasSquads?.corvoAzul.membros.map(membro => (
-                  <li key={membro.nome}>• {membro.nome} ({membro.funcao})</li>
-                ))}
-              </ul>
-            </div>
-          </div>
+          ))}
 
         </div>
 
         {/* Banner Dinâmico */}
         <div 
-          className={`rounded-2xl p-10 text-center max-w-[1600px] mx-auto ${
-            metricasSquads?.placar.lider === 'Hot Dogs' ? 'bg-red-alert' : 
-            metricasSquads?.placar.lider === 'Corvo Azul' ? 'bg-blue-vibrant' : 'bg-gray-500'
-          }`}
+          className="rounded-2xl p-10 text-center max-w-[1600px] mx-auto"
+          style={{ 
+            backgroundColor: metricasSquads?.squads?.find(s => s.nome === metricasSquads?.placar.lider)?.cor || '#64748B'
+          }}
         >
           <p className="text-white font-outfit text-4xl font-bold mb-3 tracking-tight">
             {metricasSquads?.placar.lider === 'Empate' 
@@ -866,10 +827,6 @@ const Index = () => {
           <p className="text-white font-outfit text-2xl mb-1 font-semibold">
             Vantagem: {formatarReal(metricasSquads?.placar.vantagem || 0)} 
             ({(metricasSquads?.placar.vantagemPercentual || 0).toFixed(1)}%)
-          </p>
-          <p className="text-white/80 font-outfit text-lg">
-            Para {metricasSquads?.placar.lider === 'Hot Dogs' ? 'Corvo Azul' : 'Hot Dogs'} virar: 
-            +{formatarReal((metricasSquads?.placar.vantagem || 0) + 0.01)} em vendas
           </p>
         </div>
       </section>
