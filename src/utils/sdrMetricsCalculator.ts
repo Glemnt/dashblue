@@ -18,6 +18,7 @@ export interface SDRCallData {
   qualificada: boolean;
   valor: number;
   fechamento: boolean;
+  noShow: boolean;
 }
 
 export interface SDRMetrics {
@@ -234,14 +235,17 @@ export const calcularMetricasSDR = (data: any[], dateRange?: DateRange): SDRData
       const tipoCall = String(row['TIPO DA CALL'] || row['Tipo da Call'] || '').trim().toUpperCase();
       const qualificada = String(row['QUALIFICADA (SQL)'] || '').trim().toUpperCase() === 'SIM';
       const fechamento = String(row['FECHAMENTO'] || '').trim().toUpperCase() === 'SIM';
+      const closer = String(row['CLOSER'] || '').trim();
+      const noShow = closer.toUpperCase() === 'NO-SHOW';
       return {
         nomeCall: row['NOME DA CALL'] || row['LEAD'] || row['CLIENTE'] || 'Cliente não identificado',
         data: row['DATA'] || row['Data'] || 'Sem data',
-        closer: row['CLOSER'] || '',
+        closer,
         tipoCall: tipoCall || '-',
         qualificada,
         valor: parseValor(row['VALOR'] || '0'),
-        fechamento
+        fechamento,
+        noShow
       };
     };
 
