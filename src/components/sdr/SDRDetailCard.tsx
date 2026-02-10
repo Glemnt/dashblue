@@ -16,7 +16,7 @@ interface SDRDetailCardProps {
   metaIndividualVendas?: number;
 }
 
-type DetailView = 'none' | 'agendadas' | 'realizadas' | 'qualificadas' | 'contratos';
+type DetailView = 'none' | 'agendadas' | 'realizadas' | 'qualificadas' | 'contratos' | 'noshows';
 
 const SDRDetailCard = ({ sdr, data, metaIndividualCalls, metaTaxaQualificacao = 50, metaTaxaShow = 75, metaIndividualVendas = 150000 }: SDRDetailCardProps) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -39,7 +39,9 @@ const SDRDetailCard = ({ sdr, data, metaIndividualCalls, metaTaxaQualificacao = 
   };
 
   const renderCallItem = (call: SDRCallData, index: number) => (
-    <div key={index} className="bg-white rounded-lg p-4 border border-gray-200">
+    <div key={index} className={`rounded-lg p-4 border ${
+      call.noShow ? 'bg-red-50 border-red-300' : 'bg-white border-gray-200'
+    }`}>
       <div className="flex items-center justify-between mb-2">
         <p className="text-[#0B1120] font-outfit font-semibold">{call.nomeCall}</p>
         <span className="text-[#64748B] text-sm">{call.data}</span>
@@ -53,6 +55,11 @@ const SDRDetailCard = ({ sdr, data, metaIndividualCalls, metaTaxaQualificacao = 
         {call.tipoCall && call.tipoCall !== '-' && (
           <span className="bg-[#FFB800]/10 text-[#FFB800] px-2 py-1 rounded-full">
             {call.tipoCall}
+          </span>
+        )}
+        {call.noShow && (
+          <span className="bg-red-100 text-red-600 px-2 py-1 rounded-full font-semibold">
+            🚫 No-Show
           </span>
         )}
         {call.qualificada && (
@@ -118,6 +125,11 @@ const SDRDetailCard = ({ sdr, data, metaIndividualCalls, metaTaxaQualificacao = 
       case 'contratos':
         title = `Contratos Fechados (${sdr.contratos?.length || 0})`;
         items = (sdr.contratos || []).map((c, i) => renderContratoItem(c, i));
+        break;
+      case 'noshows':
+        const noShowCalls = (sdr.callsAgendadasData || []).filter(c => c.noShow);
+        title = `No-Shows (${noShowCalls.length})`;
+        items = noShowCalls.map((call, i) => renderCallItem(call, i));
         break;
     }
 
@@ -312,7 +324,12 @@ const SDRDetailCard = ({ sdr, data, metaIndividualCalls, metaTaxaQualificacao = 
                 </p>
               </div>
 
-              <div className="bg-[#FF4757]/5 rounded-xl p-4 md:p-6 border border-[#FF4757]/20">
+              <div 
+                onClick={() => toggleView('noshows')}
+                className={`${getCardClasses('noshows')} bg-[#FF4757]/5 border-[#FF4757]/20 ${
+                  selectedView === 'noshows' ? 'ring-[#FF4757]' : ''
+                }`}
+              >
                 <div className="flex items-center gap-3 mb-3">
                   <span className="text-2xl">🚫</span>
                   <p className="text-[#64748B] text-xs font-semibold uppercase tracking-wider">
@@ -322,6 +339,7 @@ const SDRDetailCard = ({ sdr, data, metaIndividualCalls, metaTaxaQualificacao = 
                 <p className="text-[#0B1120] font-outfit text-4xl font-black">
                   {sdr.noShows}
                 </p>
+                <p className="text-[#FF4757] text-xs mt-2 font-medium">Clique para ver detalhes</p>
               </div>
             </div>
 
