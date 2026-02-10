@@ -10,6 +10,16 @@ export interface SDRContract {
   pago: boolean;
 }
 
+export interface SDRCallData {
+  nomeCall: string;
+  data: string;
+  closer: string;
+  tipoCall: string;
+  qualificada: boolean;
+  valor: number;
+  fechamento: boolean;
+}
+
 export interface SDRMetrics {
   nome: string;
   nomeOriginal: string;
@@ -28,6 +38,9 @@ export interface SDRMetrics {
   vendasOriginadas: number;
   contratosOriginados: number;
   contratos: SDRContract[];
+  callsAgendadasData: SDRCallData[];
+  callsRealizadasData: SDRCallData[];
+  callsQualificadasData: SDRCallData[];
   // Campos do dashboard
   valorVendasDash?: number;
   percentualVendasDash?: number;
@@ -216,6 +229,38 @@ export const calcularMetricasSDR = (data: any[], dateRange?: DateRange): SDRData
     // Taxa de Show
     const taxaShow = callsAgendadas > 0 ? (callsRealizadas / callsAgendadas) * 100 : 0;
 
+    // Mapear dados detalhados das calls
+    const mapCallData = (row: any): SDRCallData => {
+      const tipoCall = String(row['TIPO DA CALL'] || row['Tipo da Call'] || '').trim().toUpperCase();
+      const qualificada = String(row['QUALIFICADA (SQL)'] || '').trim().toUpperCase() === 'SIM';
+      const fechamento = String(row['FECHAMENTO'] || '').trim().toUpperCase() === 'SIM';
+      return {
+        nomeCall: row['NOME DA CALL'] || row['LEAD'] || row['CLIENTE'] || 'Cliente não identificado',
+        data: row['DATA'] || row['Data'] || 'Sem data',
+        closer: row['CLOSER'] || '',
+        tipoCall: tipoCall || '-',
+        qualificada,
+        valor: parseValor(row['VALOR'] || '0'),
+        fechamento
+      };
+    };
+
+    const callsAgendadasData: SDRCallData[] = callsDoSDR.map(mapCallData);
+
+    const callsRealizadasData: SDRCallData[] = callsDoSDR
+      .filter(row => {
+        const closer = String(row['CLOSER'] || '').trim().toUpperCase();
+        return closer.length > 0 && closer !== 'NO-SHOW';
+      })
+      .map(mapCallData);
+
+    const callsQualificadasData: SDRCallData[] = callsDoSDR
+      .filter(row => {
+        const qualificada = String(row['QUALIFICADA (SQL)'] || '').trim().toUpperCase();
+        return qualificada === 'SIM';
+      })
+      .map(mapCallData);
+
     // Vendas Originadas (somar VALOR onde SDR FECHOU = nome do SDR E FECHAMENTO = SIM)
     const vendasOriginadas = filteredData
       .filter(row => {
@@ -291,7 +336,10 @@ export const calcularMetricasSDR = (data: any[], dateRange?: DateRange): SDRData
       taxaShow,
       vendasOriginadas,
       contratosOriginados,
-      contratos
+      contratos,
+      callsAgendadasData,
+      callsRealizadasData,
+      callsQualificadasData
     };
   });
 
