@@ -136,12 +136,27 @@ export const METAS_TRAFEGO_POR_MES: Record<string, MetasTrafego> = {
     cplMeta: 200,
     cacMeta: 2500,
     roasMinimo: 1.59
+  },
+  'fevereiro-2026': {
+    investimentoMensal: 220000,
+    metaReceita: 310000,
+    ticketMedio: 4000,
+    fechamentos: 78,
+    callsRealizadas: 390,
+    callsAgendadas: 488,
+    leads: 975,
+    taxaLeadParaQualificado: 0.50,
+    taxaCallAgendadaParaRealizada: 0.80,
+    taxaCallParaFechamento: 0.20,
+    cplMeta: 225.64,
+    cacMeta: 2820.51,
+    roasMinimo: 1.41
   }
 };
 
 export const getMetasTrafegoAtual = (monthKey?: string): MetasTrafego => {
   const key = monthKey || getCurrentMonthKey();
-  return METAS_TRAFEGO_POR_MES[key] || METAS_TRAFEGO_POR_MES['janeiro-2026'];
+  return METAS_TRAFEGO_POR_MES[key] || METAS_TRAFEGO_POR_MES['fevereiro-2026'];
 };
 
 const getCurrentMonthKey = (): string => {
@@ -223,11 +238,28 @@ export const METAS_POR_MES: Record<string, MetasMensais> = {
     metaTaxaQualificacaoSDR: 50,
     metaTaxaShowSDR: 75,
     numSDRs: 3
+  },
+  'fevereiro-2026': {
+    metaMensal: 310000,
+    metaIndividualCloser: 51666,
+    modelo: 'MRR',
+    squads: {
+      metaPorSquad: 103333,
+      totalSquads: 3
+    },
+    metaTicketMedioCloser: 4200,
+    metaTaxaConversao: 28,
+    metaTaxaAssinatura: 100,
+    metaTaxaPagamento: 100,
+    metaTaxaRecebimentoMinimo: 90,
+    metaTaxaQualificacaoSDR: 50,
+    metaTaxaShowSDR: 75,
+    numSDRs: 3
   }
 };
 
 export const getMetasPorMes = (monthKey: string): MetasMensais => {
-  return METAS_POR_MES[monthKey] || METAS_POR_MES['janeiro-2026'];
+  return METAS_POR_MES[monthKey] || METAS_POR_MES['fevereiro-2026'];
 };
 
 export const calcularMetaSemanal = (metaMensal: number): number => {

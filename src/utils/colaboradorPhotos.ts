@@ -31,6 +31,9 @@ const colaboradorPhotos: Record<string, string> = {
   'Vinícius': fotoVinicius, // variação com acento
   'Andrey': fotoAndrey,
   'ANDREY': fotoAndrey,
+  'Brunno Vaz': fotoBruno, // placeholder - usar foto do Bruno até ter foto própria
+  'BRUNNO VAZ': fotoBruno,
+  'Brunno': fotoBruno,
 };
 
 // Função helper para obter foto

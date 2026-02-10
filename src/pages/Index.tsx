@@ -788,7 +788,7 @@ const Index = () => {
               <div 
                 className="h-full bg-red-alert rounded-full" 
                 style={{ 
-                  width: `${metricasSquads?.placar.percentualHotDogs || 0}%` 
+                  width: `${metricasSquads?.placar.squads?.find(s => s.nome === 'Hot Dogs')?.percentual || 0}%` 
                 }}
               ></div>
             </div>
@@ -833,7 +833,7 @@ const Index = () => {
               <div 
                 className="h-full bg-blue-vibrant rounded-full" 
                 style={{ 
-                  width: `${metricasSquads?.placar.percentualCorvoAzul || 0}%` 
+                  width: `${metricasSquads?.placar.squads?.find(s => s.nome === 'Corvo Azul')?.percentual || 0}%` 
                 }}
               ></div>
             </div>
@@ -869,7 +869,7 @@ const Index = () => {
           </p>
           <p className="text-white/80 font-outfit text-lg">
             Para {metricasSquads?.placar.lider === 'Hot Dogs' ? 'Corvo Azul' : 'Hot Dogs'} virar: 
-            +{formatarReal((metricasSquads?.placar.paraVirar || 0) + 0.01)} em vendas
+            +{formatarReal((metricasSquads?.placar.vantagem || 0) + 0.01)} em vendas
           </p>
         </div>
       </section>

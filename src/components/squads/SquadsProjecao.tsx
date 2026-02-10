@@ -2,119 +2,33 @@ import { Card } from '@/components/ui/card';
 import { formatarReal } from '@/utils/financialMetricsCalculator';
 import { CenarioProjecao } from '@/utils/squadsMetricsCalculator';
 
-// Função auxiliar para interpolar entre duas cores hex
-const interpolateColor = (color1: string, color2: string, ratio: number): string => {
-  const hex = (color: string) => {
-    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(color);
-    return result ? {
-      r: parseInt(result[1], 16),
-      g: parseInt(result[2], 16),
-      b: parseInt(result[3], 16)
-    } : null;
+interface ProjecaoSquad {
+  cenarios: {
+    pessimista: CenarioProjecao;
+    realista: CenarioProjecao;
+    otimista: CenarioProjecao;
   };
-
-  const c1 = hex(color1);
-  const c2 = hex(color2);
-  
-  if (!c1 || !c2) return color1;
-
-  const r = Math.round(c1.r + (c2.r - c1.r) * ratio);
-  const g = Math.round(c1.g + (c2.g - c1.g) * ratio);
-  const b = Math.round(c1.b + (c2.b - c1.b) * ratio);
-
-  return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
-};
-
-// Função para calcular a cor da barra de progresso baseada na porcentagem
-const getProgressColor = (percentage: number): string => {
-  const progress = Math.min(percentage, 120);
-  
-  if (progress < 20) {
-    return '#EF4444'; // Vermelho intenso
-  } else if (progress < 35) {
-    const ratio = (progress - 20) / 15;
-    return interpolateColor('#EF4444', '#F97316', ratio);
-  } else if (progress < 50) {
-    const ratio = (progress - 35) / 15;
-    return interpolateColor('#F97316', '#F59E0B', ratio);
-  } else if (progress < 65) {
-    const ratio = (progress - 50) / 15;
-    return interpolateColor('#F59E0B', '#EAB308', ratio);
-  } else if (progress < 80) {
-    const ratio = (progress - 65) / 15;
-    return interpolateColor('#EAB308', '#84CC16', ratio);
-  } else if (progress < 90) {
-    const ratio = (progress - 80) / 10;
-    return interpolateColor('#84CC16', '#22C55E', ratio);
-  } else if (progress < 100) {
-    const ratio = (progress - 90) / 10;
-    return interpolateColor('#22C55E', '#10B981', ratio);
-  } else {
-    return '#00E5CC'; // Verde água brilhante
-  }
-};
+  range: { min: number; max: number; diferenca: number; };
+  mediaDiaria: number;
+  diasRestantes: number;
+  metaSquad: number;
+  receitaAtual: number;
+}
 
 interface SquadsProjecaoProps {
   projecao: {
-    hotDogs: {
-      cenarios: {
-        pessimista: CenarioProjecao;
-        realista: CenarioProjecao;
-        otimista: CenarioProjecao;
-      };
-      range: {
-        min: number;
-        max: number;
-        diferenca: number;
-      };
-      mediaDiaria: number;
-      diasRestantes: number;
-      metaSquad: number;
-      receitaAtual: number;
-    };
-    corvoAzul: {
-      cenarios: {
-        pessimista: CenarioProjecao;
-        realista: CenarioProjecao;
-        otimista: CenarioProjecao;
-      };
-      range: {
-        min: number;
-        max: number;
-        diferenca: number;
-      };
-      mediaDiaria: number;
-      diasRestantes: number;
-      metaSquad: number;
-      receitaAtual: number;
-    };
+    hotDogs: ProjecaoSquad;
+    corvoAzul: ProjecaoSquad;
+    kiKarnes?: ProjecaoSquad;
   };
   isTVMode: boolean;
 }
 
-// Componente para Card de Cenário
-const CenarioCard = ({ 
-  tipo, 
-  emoji, 
-  cenario, 
-  corPrimaria, 
-  corFundo, 
-  corBorda, 
-  destaque, 
-  isTVMode 
-}: { 
-  tipo: string; 
-  emoji: string; 
-  cenario: CenarioProjecao; 
-  corPrimaria: string; 
-  corFundo: string; 
-  corBorda: string; 
-  destaque: boolean; 
-  isTVMode: boolean;
+const CenarioCard = ({ tipo, emoji, cenario, corPrimaria, corFundo, corBorda, destaque, isTVMode }: { 
+  tipo: string; emoji: string; cenario: CenarioProjecao; 
+  corPrimaria: string; corFundo: string; corBorda: string; destaque: boolean; isTVMode: boolean;
 }) => (
-  <div 
-    className={`${corFundo} ${destaque ? `${corBorda} border-4 shadow-lg` : `${corBorda} border-2`} rounded-xl ${isTVMode ? 'p-6' : 'p-4'}`}
-  >
+  <div className={`${corFundo} ${destaque ? `${corBorda} border-4 shadow-lg` : `${corBorda} border-2`} rounded-xl ${isTVMode ? 'p-6' : 'p-4'}`}>
     <div className="text-center mb-2">
       <span className={isTVMode ? 'text-5xl' : 'text-3xl'}>{emoji}</span>
     </div>
@@ -139,37 +53,21 @@ const CenarioCard = ({
 );
 
 export const SquadsProjecao = ({ projecao, isTVMode }: SquadsProjecaoProps) => {
-  const { hotDogs, corvoAzul } = projecao;
+  const squadProjecoes: Array<{ nome: string; emoji: string; cor: string; data: ProjecaoSquad }> = [
+    { nome: 'Hot Dogs', emoji: '🔴', cor: '#FF4757', data: projecao.hotDogs },
+    { nome: 'Corvo Azul', emoji: '🔵', cor: '#0066FF', data: projecao.corvoAzul },
+    ...(projecao.kiKarnes ? [{ nome: 'Ki Karnes', emoji: '🟠', cor: '#FF6B00', data: projecao.kiKarnes }] : [])
+  ];
   
-  // Calcular valores para análise comparativa
-  const maxValue = Math.max(hotDogs.range.max, corvoAzul.range.max, hotDogs.metaSquad);
+  const maxValue = Math.max(...squadProjecoes.map(s => Math.max(s.data.range.max, s.data.metaSquad)));
   
-  // Insights dinâmicos
-  const diferencaOtimista = Math.abs(hotDogs.cenarios.otimista.projecaoFinal - corvoAzul.cenarios.otimista.projecaoFinal);
-  const vencedorOtimista = hotDogs.cenarios.otimista.projecaoFinal > corvoAzul.cenarios.otimista.projecaoFinal ? 'Hot Dogs' : 'Corvo Azul';
-  
-  const ambosBatemPessimista = hotDogs.cenarios.pessimista.vaiAcertarMeta && corvoAzul.cenarios.pessimista.vaiAcertarMeta;
-  
-  const vencedorRealista = hotDogs.cenarios.realista.projecaoFinal > corvoAzul.cenarios.realista.projecaoFinal ? 'Hot Dogs' : 'Corvo Azul';
-  const diferencaRealista = Math.abs(hotDogs.cenarios.realista.projecaoFinal - corvoAzul.cenarios.realista.projecaoFinal);
-  
-  const ticketMedio = (hotDogs.receitaAtual + corvoAzul.receitaAtual) / 2 / 10; // Estimativa
-  
-  // Renderizar card de squad com cenários
-  const renderSquadCard = (
-    nome: string,
-    emoji: string,
-    cor: string,
-    squadData: typeof hotDogs
-  ) => {
-    const progressoRange = Math.min((squadData.range.max / maxValue) * 100, 100);
+  const renderSquadCard = (nome: string, emoji: string, cor: string, squadData: ProjecaoSquad) => {
     const posicaoMeta = Math.max(0, Math.min(100, (squadData.metaSquad / maxValue) * 100 || 0));
     const posicaoMin = Math.max(0, Math.min(100, (squadData.range.min / maxValue) * 100 || 0));
     const larguraRange = Math.max(0, Math.min(100 - posicaoMin, ((squadData.range.diferenca) / maxValue) * 100 || 0));
     
     return (
       <Card className={`bg-white ${isTVMode ? 'p-8' : 'p-6'}`}>
-        {/* Header com Squad */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
             <span className={isTVMode ? 'text-4xl' : 'text-3xl'}>{emoji}</span>
@@ -183,77 +81,26 @@ export const SquadsProjecao = ({ projecao, isTVMode }: SquadsProjecaoProps) => {
           </div>
         </div>
 
-        {/* Barra de Range Visual */}
         <div className={`relative ${isTVMode ? 'h-16' : 'h-12'} bg-gray-100 rounded-lg mb-6`}>
-          {/* Zona abaixo da meta (vermelho claro) */}
-          <div 
-            className="absolute h-full bg-red-50 rounded-l-lg" 
-            style={{ width: `${Math.min(posicaoMeta, 100)}%` }} 
-          />
-          
-          {/* Zona acima da meta (verde claro) */}
+          <div className="absolute h-full bg-red-50 rounded-l-lg" style={{ width: `${Math.min(posicaoMeta, 100)}%` }} />
           {posicaoMeta < 100 && (
-            <div 
-              className="absolute h-full bg-green-50 rounded-r-lg right-0" 
-              style={{ width: `${100 - posicaoMeta}%` }} 
-            />
+            <div className="absolute h-full bg-green-50 rounded-r-lg right-0" style={{ width: `${100 - posicaoMeta}%` }} />
           )}
-          
-          {/* Marcador da Meta */}
-          <div 
-            className="absolute h-full border-l-4 border-yellow-500 z-10" 
-            style={{ left: `${posicaoMeta}%` }}
-          >
+          <div className="absolute h-full border-l-4 border-yellow-500 z-10" style={{ left: `${posicaoMeta}%` }}>
             <span className={`absolute ${isTVMode ? '-top-8 -left-16 text-base' : '-top-6 -left-12 text-xs'} font-bold text-yellow-600 whitespace-nowrap`}>
               Meta {formatarReal(squadData.metaSquad)}
             </span>
           </div>
-          
-          {/* Range de projeção (barra espessa) */}
           <div 
             className={`absolute top-1/2 -translate-y-1/2 ${isTVMode ? 'h-8' : 'h-6'} rounded-full z-20`}
-            style={{ 
-              left: `${posicaoMin}%`,
-              width: `${larguraRange}%`,
-              background: cor
-            }} 
+            style={{ left: `${posicaoMin}%`, width: `${larguraRange}%`, background: cor }}
           />
         </div>
 
-        {/* Grid de Cenários */}
         <div className={`grid ${isTVMode ? 'grid-cols-1 md:grid-cols-3' : 'grid-cols-3'} gap-4`}>
-          <CenarioCard
-            tipo="Pessimista"
-            emoji="😰"
-            cenario={squadData.cenarios.pessimista}
-            corPrimaria="text-red-600"
-            corFundo="bg-red-50"
-            corBorda="border-red-200"
-            destaque={false}
-            isTVMode={isTVMode}
-          />
-          
-          <CenarioCard
-            tipo="Realista"
-            emoji="😐"
-            cenario={squadData.cenarios.realista}
-            corPrimaria="text-blue-600"
-            corFundo="bg-blue-50"
-            corBorda="border-blue-400"
-            destaque={true}
-            isTVMode={isTVMode}
-          />
-          
-          <CenarioCard
-            tipo="Otimista"
-            emoji="🤩"
-            cenario={squadData.cenarios.otimista}
-            corPrimaria="text-green-600"
-            corFundo="bg-green-50"
-            corBorda="border-green-200"
-            destaque={false}
-            isTVMode={isTVMode}
-          />
+          <CenarioCard tipo="Pessimista" emoji="😰" cenario={squadData.cenarios.pessimista} corPrimaria="text-red-600" corFundo="bg-red-50" corBorda="border-red-200" destaque={false} isTVMode={isTVMode} />
+          <CenarioCard tipo="Realista" emoji="😐" cenario={squadData.cenarios.realista} corPrimaria="text-blue-600" corFundo="bg-blue-50" corBorda="border-blue-400" destaque={true} isTVMode={isTVMode} />
+          <CenarioCard tipo="Otimista" emoji="🤩" cenario={squadData.cenarios.otimista} corPrimaria="text-green-600" corFundo="bg-green-50" corBorda="border-green-200" destaque={false} isTVMode={isTVMode} />
         </div>
       </Card>
     );
@@ -261,110 +108,66 @@ export const SquadsProjecao = ({ projecao, isTVMode }: SquadsProjecaoProps) => {
   
   return (
     <div className="max-w-[1600px] mx-auto">
-      <h2 className={`text-[#0B1120] font-black text-center mb-12 ${
-        isTVMode ? 'text-6xl' : 'text-4xl'
-      }`}>
+      <h2 className={`text-[#0B1120] font-black text-center mb-12 ${isTVMode ? 'text-6xl' : 'text-4xl'}`}>
         📊 Projeções para Fim do Mês
       </h2>
       
-      {/* Cards dos Squads */}
       <div className="space-y-8 mb-8">
-        {renderSquadCard('Hot Dogs', '🔴', '#FF4757', hotDogs)}
-        {renderSquadCard('Corvo Azul', '🔵', '#0066FF', corvoAzul)}
+        {squadProjecoes.map(sq => (
+          <div key={sq.nome}>{renderSquadCard(sq.nome, sq.emoji, sq.cor, sq.data)}</div>
+        ))}
       </div>
       
-      {/* Card de Análise Comparativa */}
+      {/* Comparative Analysis */}
       <Card className={`bg-gradient-to-br from-[#0B1120] to-[#151E35] ${isTVMode ? 'p-10' : 'p-8'} mt-8`}>
         <h3 className={`text-white font-bold text-center mb-8 ${isTVMode ? 'text-4xl' : 'text-2xl'}`}>
           📊 Análise Comparativa dos Cenários
         </h3>
 
-        {/* Range Visual Comparativo */}
         <div className={`space-y-6 ${isTVMode ? 'mb-10' : 'mb-8'}`}>
-          {/* Hot Dogs Projeção Realista */}
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <span className={`text-white font-semibold ${isTVMode ? 'text-2xl' : 'text-base'}`}>🔴 Hot Dogs</span>
-              <span className={`text-gray-400 ${isTVMode ? 'text-xl' : 'text-sm'}`}>
-                Projeção: {formatarReal(hotDogs.cenarios.realista.projecaoFinal)}
-              </span>
+          {squadProjecoes.map(sq => (
+            <div key={sq.nome}>
+              <div className="flex items-center justify-between mb-2">
+                <span className={`text-white font-semibold ${isTVMode ? 'text-2xl' : 'text-base'}`}>
+                  {sq.emoji} {sq.nome}
+                </span>
+                <span className={`text-gray-400 ${isTVMode ? 'text-xl' : 'text-sm'}`}>
+                  Projeção: {formatarReal(sq.data.cenarios.realista.projecaoFinal)}
+                </span>
+              </div>
+              <div className={`relative ${isTVMode ? 'h-10' : 'h-8'} bg-white/10 rounded-full overflow-hidden`}>
+                <div 
+                  className="absolute h-full rounded-full transition-all duration-1000"
+                  style={{ 
+                    width: `${Math.max(0, Math.min(100, (sq.data.cenarios.realista.projecaoFinal / maxValue) * 100 || 0))}%`,
+                    backgroundColor: sq.cor
+                  }} 
+                />
+                <div 
+                  className="absolute h-full border-l-2 border-yellow-400"
+                  style={{ left: `${Math.max(0, Math.min(100, (sq.data.metaSquad / maxValue) * 100 || 0))}%` }} 
+                />
+              </div>
             </div>
-            <div className={`relative ${isTVMode ? 'h-10' : 'h-8'} bg-white/10 rounded-full overflow-hidden`}>
-              <div 
-                className="absolute h-full rounded-full transition-all duration-1000"
-                style={{ 
-                  width: `${Math.max(0, Math.min(100, (hotDogs.cenarios.realista.projecaoFinal / maxValue) * 100 || 0))}%`,
-                  backgroundColor: getProgressColor((hotDogs.cenarios.realista.projecaoFinal / hotDogs.metaSquad) * 100)
-                }} 
-              />
-              <div 
-                className="absolute h-full border-l-2 border-yellow-400"
-                style={{ left: `${Math.max(0, Math.min(100, (hotDogs.metaSquad / maxValue) * 100 || 0))}%` }} 
-              />
-            </div>
-          </div>
+          ))}
 
-          {/* Corvo Azul Projeção Realista */}
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <span className={`text-white font-semibold ${isTVMode ? 'text-2xl' : 'text-base'}`}>🔵 Corvo Azul</span>
-              <span className={`text-gray-400 ${isTVMode ? 'text-xl' : 'text-sm'}`}>
-                Projeção: {formatarReal(corvoAzul.cenarios.realista.projecaoFinal)}
-              </span>
-            </div>
-            <div className={`relative ${isTVMode ? 'h-10' : 'h-8'} bg-white/10 rounded-full overflow-hidden`}>
-              <div 
-                className="absolute h-full rounded-full transition-all duration-1000"
-                style={{ 
-                  width: `${Math.max(0, Math.min(100, (corvoAzul.cenarios.realista.projecaoFinal / maxValue) * 100 || 0))}%`,
-                  backgroundColor: getProgressColor((corvoAzul.cenarios.realista.projecaoFinal / corvoAzul.metaSquad) * 100)
-                }} 
-              />
-              <div 
-                className="absolute h-full border-l-2 border-yellow-400"
-                style={{ left: `${Math.max(0, Math.min(100, (corvoAzul.metaSquad / maxValue) * 100 || 0))}%` }} 
-              />
-            </div>
-          </div>
-
-          {/* Legenda da Meta */}
           <div className="flex items-center justify-center gap-2">
             <div className={`w-3 ${isTVMode ? 'h-10' : 'h-8'} border-l-2 border-yellow-400`}></div>
             <span className={`text-yellow-400 font-semibold ${isTVMode ? 'text-xl' : 'text-sm'}`}>
-              Meta por Squad: {formatarReal(hotDogs.metaSquad)}
+              Meta por Squad: {formatarReal(squadProjecoes[0].data.metaSquad)}
             </span>
           </div>
         </div>
 
-
-        {/* Insights Dinâmicos */}
         <div className={`bg-white/5 rounded-xl ${isTVMode ? 'p-8' : 'p-6'}`}>
           <h4 className={`text-[#00E5CC] font-bold mb-4 ${isTVMode ? 'text-3xl' : 'text-lg'}`}>
             🎯 Insights Estratégicos:
           </h4>
           <div className={`space-y-3 text-white ${isTVMode ? 'text-xl' : 'text-sm'}`}>
             <p className="flex items-start gap-2">
-              <span className="text-green-400">✓</span>
-              <span>
-                No melhor cenário (otimista), <strong>{vencedorOtimista}</strong> lidera com {formatarReal(diferencaOtimista)} de vantagem
-              </span>
-            </p>
-            <p className="flex items-start gap-2">
-              <span className="text-red-400">×</span>
-              <span>
-                No pior cenário (pessimista), {ambosBatemPessimista ? 'ambos batem a meta 🎉' : 'ambos ficam abaixo da meta'}
-              </span>
-            </p>
-            <p className="flex items-start gap-2">
-              <span className="text-blue-400">→</span>
-              <span>
-                Cenário mais provável (realista): <strong>{vencedorRealista}</strong> lidera por {formatarReal(diferencaRealista)}
-              </span>
-            </p>
-            <p className="flex items-start gap-2">
               <span className="text-yellow-400">⚡</span>
               <span>
-                Faltam {hotDogs.diasRestantes} dias. Cada contrato pode mudar até {formatarReal(ticketMedio * hotDogs.diasRestantes / 10)} no resultado final
+                Faltam {squadProjecoes[0].data.diasRestantes} dias para decidir o campeão deste mês!
               </span>
             </p>
           </div>

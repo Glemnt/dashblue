@@ -72,7 +72,8 @@ const compararNomeSDR = (nomeColuna: string, nomeBusca: string): boolean => {
     'ANDREY': ['ANDREY'],
     'TIAGO': ['TIAGO'],
     'MARCOS': ['MARCOS'],
-    'JOAO LOPES': ['JOAO LOPES', 'JOAO', 'JOÃO LOPES', 'JOÃO']
+    'JOAO LOPES': ['JOAO LOPES', 'JOAO', 'JOÃO LOPES', 'JOÃO'],
+    'BRUNNO VAZ': ['BRUNNO VAZ', 'BRUNNO', 'BRUNO VAZ']
   };
   
   // Normalizar a busca para key do mapa
@@ -121,11 +122,20 @@ export const calcularMetricasSDR = (data: any[], dateRange?: DateRange): SDRData
   const isOutubro = dateRange && dateRange.start.getMonth() === 9 && dateRange.start.getFullYear() === 2025;
   const isDezembro = dateRange && dateRange.start.getMonth() === 11 && dateRange.start.getFullYear() === 2025;
   const isJaneiro = dateRange && dateRange.start.getMonth() === 0 && dateRange.start.getFullYear() === 2026;
+  const isFevereiro = dateRange && dateRange.start.getMonth() === 1 && dateRange.start.getFullYear() === 2026;
 
   let sdrsNomes: string[];
   let squadMap: Record<string, { squad: string; color: string; emoji: string; displayName: string }>;
 
-  if (isJaneiro) {
+  if (isFevereiro) {
+    // FEVEREIRO 2026: Vinícius (Hot Dogs), Andrey (Corvo Azul), Brunno Vaz (Ki Karnes)
+    sdrsNomes = ['VINICIUS MEIRELES', 'ANDREY', 'BRUNNO VAZ'];
+    squadMap = {
+      'VINICIUS MEIRELES': { squad: 'Hot Dogs', color: '#FF4757', emoji: '🔴', displayName: 'Vinícius' },
+      'ANDREY': { squad: 'Corvo Azul', color: '#0066FF', emoji: '🔵', displayName: 'Andrey' },
+      'BRUNNO VAZ': { squad: 'Ki Karnes', color: '#FF6B00', emoji: '🟠', displayName: 'Brunno Vaz' }
+    };
+  } else if (isJaneiro) {
     // JANEIRO 2026: Davi (função dupla SDR/Closer) no Hot Dogs, Vinícius no Corvo Azul, Andrey sem squad
     sdrsNomes = ['VINICIUS MEIRELES', 'DAVI', 'ANDREY'];
     squadMap = {
@@ -334,7 +344,10 @@ export const mesclarMetricasSDRComDashboard = (
     'JOAO': 'JOÃO LOPES',
     'JOAO LOPES': 'JOÃO LOPES',
     'DAVI': 'DAVI',
-    'ANDREY': 'ANDREY'
+    'ANDREY': 'ANDREY',
+    'BRUNNO VAZ': 'BRUNNO VAZ',
+    'BRUNNO': 'BRUNNO VAZ',
+    'BRUNO VAZ': 'BRUNNO VAZ'
   };
 
   const normalizarNome = (nome: string): string => {
