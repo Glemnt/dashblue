@@ -277,7 +277,7 @@ const GuerraSquads = () => {
           : 'bg-gradient-to-r from-[#FF4757]/10 via-[#0B1120] to-[#0066FF]/10'
       }`}>
         <div className="max-w-[1600px] mx-auto text-center">
-          {metricas.placar.lider !== 'Empate' && (
+          {metricas.placar.lider !== 'Empate' ? (
             <>
               <h2 className={`font-black text-white mb-4 ${isTVMode ? 'text-6xl' : 'text-4xl md:text-6xl'}`}>
                 🏆 {metricas.placar.lider} na Liderança!
@@ -286,55 +286,13 @@ const GuerraSquads = () => {
                 +{formatarReal(metricas.placar.vantagem)} na frente!
               </p>
             </>
-          )}
-
-          {metricas.placar.lider === 'Empate' && (
+          ) : (
             <>
               <h2 className={`font-black text-white mb-4 ${isTVMode ? 'text-6xl' : 'text-4xl md:text-6xl'}`}>
                 ⚔️ Empate Técnico!
               </h2>
               <p className={`text-white mb-2 ${isTVMode ? 'text-4xl' : 'text-2xl md:text-3xl'}`}>
-                A batalha está acirrada!
-              </p>
-            </>
-          )}
-            <>
-              <h2 className={`font-black text-white mb-4 ${isTVMode ? 'text-6xl' : 'text-4xl md:text-6xl'}`}>
-                🔥 Hot Dogs on Fire!
-              </h2>
-              <p className={`text-white mb-2 ${isTVMode ? 'text-4xl' : 'text-2xl md:text-3xl'}`}>
-                +{formatarReal(metricas.placar.vantagem)} na frente!
-              </p>
-              <p className={`text-[#94A3B8] ${isTVMode ? 'text-2xl' : 'text-lg md:text-xl'}`}>
-                Corvo Azul, é hora de voar mais alto! 🦅
-              </p>
-            </>
-          )}
-
-          {metricas.placar.lider === 'Corvo Azul' && (
-            <>
-              <h2 className={`font-black text-white mb-4 ${isTVMode ? 'text-6xl' : 'text-4xl md:text-6xl'}`}>
-                🦅 Corvo Azul Decolou!
-              </h2>
-              <p className={`text-white mb-2 ${isTVMode ? 'text-4xl' : 'text-2xl md:text-3xl'}`}>
-                +{formatarReal(metricas.placar.vantagem)} de vantagem!
-              </p>
-              <p className={`text-[#94A3B8] ${isTVMode ? 'text-2xl' : 'text-lg md:text-xl'}`}>
-                Hot Dogs, onde está o calor? 🔥
-              </p>
-            </>
-          )}
-
-          {metricas.placar.lider === 'Empate' && (
-            <>
-              <h2 className={`font-black text-white mb-4 ${isTVMode ? 'text-6xl' : 'text-4xl md:text-6xl'}`}>
-                ⚔️ Empate Técnico!
-              </h2>
-              <p className={`text-white mb-2 ${isTVMode ? 'text-4xl' : 'text-2xl md:text-3xl'}`}>
-                A batalha está acirrada!
-              </p>
-              <p className={`text-[#94A3B8] ${isTVMode ? 'text-2xl' : 'text-lg md:text-xl'}`}>
-                Próximo contrato pode definir o líder! 🏆
+                A batalha está acirrada! Próximo contrato pode definir o líder! 🏆
               </p>
             </>
           )}
