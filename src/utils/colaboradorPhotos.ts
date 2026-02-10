@@ -9,12 +9,13 @@ import fotoTiago from '@/assets/colaboradores/tiago.png';
 import fotoVinicius from '@/assets/colaboradores/vinicius.png';
 import fotoJoaoLopes from '@/assets/colaboradores/joao-lopes.png';
 import fotoAndrey from '@/assets/colaboradores/andrey.png';
+import fotoBrunnoVaz from '@/assets/colaboradores/brunno-vaz.png';
 
 // Mapeamento nome → foto
 const colaboradorPhotos: Record<string, string> = {
   'Bruno': fotoBruno,
   'Cauã': fotoCaua,
-  'Caua': fotoCaua, // variação sem acento
+  'Caua': fotoCaua,
   'Davi': fotoDavi,
   'DAVI': fotoDavi,
   'Fernandes': fotoFernandes,
@@ -22,18 +23,18 @@ const colaboradorPhotos: Record<string, string> = {
   'Franklin': fotoFranklin,
   'Gabriel Franklin': fotoFranklin,
   'João Lopes': fotoJoaoLopes,
-  'Joao Lopes': fotoJoaoLopes, // variação sem acento
+  'Joao Lopes': fotoJoaoLopes,
   'João': fotoJoaoLopes,
   'Joao': fotoJoaoLopes,
   'Marcos': fotoMarcos,
   'Tiago': fotoTiago,
   'Vinicius': fotoVinicius,
-  'Vinícius': fotoVinicius, // variação com acento
+  'Vinícius': fotoVinicius,
   'Andrey': fotoAndrey,
   'ANDREY': fotoAndrey,
-  'Brunno Vaz': fotoBruno, // placeholder - usar foto do Bruno até ter foto própria
-  'BRUNNO VAZ': fotoBruno,
-  'Brunno': fotoBruno,
+  'Brunno Vaz': fotoBrunnoVaz,
+  'BRUNNO VAZ': fotoBrunnoVaz,
+  'Brunno': fotoBrunnoVaz,
 };
 
 // Função helper para obter foto
