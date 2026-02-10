@@ -1,69 +1,31 @@
 
 
-## Plano: Meta SDR = Meta Squad + Detalhamento de Calls
+## No-Show: destaque vermelho + card clicavel
 
-### 1. Meta individual SDR = Meta do Squad
+### 1. Destacar calls no-show em vermelho na lista de "Total Calls"
 
-Atualmente a meta individual do SDR e baseada em `metaIndividualCalls` (numero de calls). O pedido e que a meta de **valor** (vendas originadas) do SDR seja igual a meta do squad (`metaPorSquad`). 
-
-**Arquivo**: `src/pages/PerformanceSDR.tsx`
-- Extrair `configMeta.squads.metaPorSquad` e passar como nova prop `metaIndividualVendas` ao `SDRDetailCard`
+No `renderCallItem`, verificar se a call e no-show (CLOSER = "NO-SHOW"). Se sim, aplicar borda e fundo vermelho ao item.
 
 **Arquivo**: `src/components/sdr/SDRDetailCard.tsx`
-- Adicionar prop `metaIndividualVendas` (valor em R$)
-- Adicionar barra de progresso "Vendas Originadas vs Meta do Squad" na secao "Performance vs Meta Individual"
+- No `renderCallItem`, adicionar logica condicional:
+  - Se `call.closer` contiver "NO-SHOW" (uppercase), usar `bg-red-50 border-red-300` no container
+  - Adicionar badge vermelho "No-Show" no item
 
-### 2. Detalhamento de calls no SDR (igual ao Closer)
-
-Atualmente o `SDRDetailCard` mostra apenas numeros agregados. O Closer tem cards clicaveis que exibem a lista de calls com detalhes (nome, data, SDR, tipo, qualificada, valor). Vamos replicar isso para o SDR.
+### 2. Adicionar campo `noShow` ao `SDRCallData`
 
 **Arquivo**: `src/utils/sdrMetricsCalculator.ts`
-- Adicionar interface `SDRCallData` com campos: `nomeCall`, `data`, `closer`, `tipoCall`, `qualificada`, `valor`, `fechamento`, `assinatura`, `pagamento`
-- Adicionar campos `callsAgendadasData: SDRCallData[]`, `callsRealizadasData: SDRCallData[]`, `callsQualificadasData: SDRCallData[]` na interface `SDRMetrics`
-- No calculo de metricas, popular esses arrays a partir de `callsDoSDR`:
-  - `callsAgendadasData` = todas as calls do SDR (com detalhes mapeados)
-  - `callsRealizadasData` = filtradas onde CLOSER preenchido e nao e NO-SHOW
-  - `callsQualificadasData` = filtradas onde QUALIFICADA (SQL) = SIM
+- Adicionar `noShow: boolean` na interface `SDRCallData`
+- No `mapCallData`, popular: `noShow: closer === 'NO-SHOW'`
+
+### 3. Tornar o card "No-Shows" clicavel
 
 **Arquivo**: `src/components/sdr/SDRDetailCard.tsx`
-- Refatorar para usar o mesmo padrao do `CloserDetailCard`:
-  - Adicionar estado `selectedView` com opcoes: `'none' | 'agendadas' | 'realizadas' | 'qualificadas' | 'contratos'`
-  - Tornar os cards de Total Calls, Qualificadas, Realizadas e Contratos **clicaveis**
-  - Ao clicar, exibir painel com lista de calls (nome do cliente, data, closer, tipo, status qualificada, valor)
-  - Manter secao de "Contratos Fechados" como view clicavel tambem
-
-### Secao Tecnica
-
-#### Novo tipo `SDRCallData`
-```text
-SDRCallData {
-  nomeCall: string
-  data: string
-  closer: string
-  tipoCall: string (R1/R2)
-  qualificada: boolean
-  valor: number
-  fechamento: boolean
-}
-```
-
-#### Campos adicionados a `SDRMetrics`
-```text
-callsAgendadasData: SDRCallData[]
-callsRealizadasData: SDRCallData[]
-callsQualificadasData: SDRCallData[]
-```
-
-#### Fluxo no SDRDetailCard
-```text
-Card "Total Calls" (clicavel) --> mostra callsAgendadasData
-Card "Realizadas" (clicavel) --> mostra callsRealizadasData
-Card "Qualificadas" (clicavel) --> mostra callsQualificadasData
-Card "Contratos" (clicavel) --> mostra contratos (ja existente)
-```
+- Expandir `DetailView` para incluir `'noshows'`
+- Transformar o card de No-Shows (atualmente estatico na grid de taxas) em card clicavel, movendo-o para a grid principal de 4 cards ou adicionando como 5o card
+- No `renderDetailPanel`, adicionar case `'noshows'` que filtra `sdr.callsAgendadasData` por `call.noShow === true`
+- Aplicar estilo vermelho ao card (bg-[#FF4757]/5, border-[#FF4757]/20, ring-[#FF4757])
 
 ### Arquivos modificados
-1. `src/utils/sdrMetricsCalculator.ts` - Adicionar `SDRCallData`, popular arrays de calls
-2. `src/components/sdr/SDRDetailCard.tsx` - Refatorar com cards clicaveis e painel de detalhes
-3. `src/pages/PerformanceSDR.tsx` - Passar `metaIndividualVendas={configMeta.squads.metaPorSquad}` ao SDRDetailCard
+1. `src/utils/sdrMetricsCalculator.ts` - Adicionar `noShow: boolean` ao `SDRCallData` e popular no `mapCallData`
+2. `src/components/sdr/SDRDetailCard.tsx` - Destacar no-shows em vermelho nas listas, tornar card No-Shows clicavel com filtro
 
