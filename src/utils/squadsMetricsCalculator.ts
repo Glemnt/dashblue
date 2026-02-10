@@ -1,12 +1,12 @@
-import { format, startOfMonth, endOfMonth } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
+import { endOfMonth } from 'date-fns';
+
 import { DateRange } from './dateFilters';
 import { getMetasPorMes, getMetasTrafegoAtual } from './metasConfig';
 
 export interface SquadMemberMetrics {
   nome: string;
   funcao: 'SDR' | 'Closer';
-  squad: 'Hot Dogs' | 'Corvo Azul';
+  squad: string;
   receitaIndividual: number;
   contratos: number;
   calls: number;
@@ -16,7 +16,7 @@ export interface SquadMemberMetrics {
 }
 
 export interface SquadMetrics {
-  nome: 'Hot Dogs' | 'Corvo Azul';
+  nome: string;
   cor: string;
   emoji: string;
   
@@ -84,20 +84,25 @@ export interface RangeProjecao {
 
 export interface SquadsComparison {
   placar: {
-    lider: 'Hot Dogs' | 'Corvo Azul' | 'Empate';
-    hotDogsReceita: number;
-    corvoAzulReceita: number;
-    hotDogsContratos: number;
-    corvoAzulContratos: number;
+    lider: string;
+    squads: Array<{
+      nome: string;
+      emoji: string;
+      cor: string;
+      receita: number;
+      contratos: number;
+      percentual: number;
+    }>;
     vantagem: number;
     vantagemPercentual: number;
-    paraVirar: number;
-    percentualHotDogs: number;
-    percentualCorvoAzul: number;
   };
   
+  squads: SquadMetrics[];
+  
+  // Legacy fields for backward compatibility
   hotDogs: SquadMetrics;
   corvoAzul: SquadMetrics;
+  kiKarnes?: SquadMetrics;
   
   comparacao: {
     receita: MetricaComparacao;
@@ -143,6 +148,18 @@ export interface SquadsComparison {
       metaSquad: number;
       receitaAtual: number;
     };
+    kiKarnes?: {
+      cenarios: {
+        pessimista: CenarioProjecao;
+        realista: CenarioProjecao;
+        otimista: CenarioProjecao;
+      };
+      range: RangeProjecao;
+      mediaDiaria: number;
+      diasRestantes: number;
+      metaSquad: number;
+      receitaAtual: number;
+    };
   };
 }
 
@@ -165,7 +182,7 @@ const normalizarNome = (nome: string): string => {
   const nomeUpper = nome.toUpperCase().trim();
   
   if (nomeUpper.includes('MARCOS')) return 'Marcos';
-  if (nomeUpper.includes('BRUNO')) return 'Bruno';
+  if (nomeUpper.includes('BRUNO') && !nomeUpper.includes('BRUNNO')) return 'Bruno';
   if (nomeUpper.includes('CAUA') || nomeUpper.includes('CAUÃ')) return 'Cauã';
   if (nomeUpper.includes('VINICIUS') || nomeUpper.includes('VINÍCIUS')) return 'Vinícius';
   if (nomeUpper.includes('FERNANDES')) return 'Gabriel Fernandes';
@@ -173,6 +190,7 @@ const normalizarNome = (nome: string): string => {
   if (nomeUpper.includes('TIAGO')) return 'Tiago';
   if (nomeUpper.includes('DAVI')) return 'Davi';
   if (nomeUpper.includes('ANDREY')) return 'Andrey';
+  if (nomeUpper.includes('BRUNNO')) return 'Brunno Vaz';
   
   return nome;
 };
@@ -200,86 +218,114 @@ export const calcularMetricasSquads = (data: any[], dateRange?: DateRange, month
   const isDezembro = dateRange && dateRange.start.getMonth() === 11 && dateRange.start.getFullYear() === 2025;
   const isJaneiro = monthKey === 'janeiro-2026' || 
     (dateRange && dateRange.start.getMonth() === 0 && dateRange.start.getFullYear() === 2026);
+  const isFevereiro = monthKey === 'fevereiro-2026' ||
+    (dateRange && dateRange.start.getMonth() === 1 && dateRange.start.getFullYear() === 2026);
   
   // Configuração dinâmica dos squads por período
-  let SQUADS_CONFIG;
+  interface SquadConfig {
+    nome: string;
+    cor: string;
+    emoji: string;
+    sdr: string[];
+    closers: string[];
+    membrosNomes: string[];
+  }
   
-  if (isJaneiro) {
-    // JANEIRO 2026: Davi atua como SDR e Closer no Hot Dogs
-    // Closers: Franklin, Bruno e Davi (Hot Dogs), Marcos e Cauã (Corvo Azul)
-    // Sem squad: Andrey (SDR), Gabriel Fernandes (Closer)
-    SQUADS_CONFIG = {
-      hotDogs: {
+  let SQUADS_LIST: SquadConfig[];
+  
+  if (isFevereiro) {
+    SQUADS_LIST = [
+      {
+        nome: 'Hot Dogs', cor: '#FF4757', emoji: '🔴',
+        sdr: ['VINICIUS MEIRELES', 'VINÍCIUS', 'VINICIUS'],
+        closers: ['BRUNO', 'CAUÃ', 'CAUA'],
+        membrosNomes: ['Vinícius', 'Bruno', 'Cauã']
+      },
+      {
+        nome: 'Corvo Azul', cor: '#0066FF', emoji: '🔵',
+        sdr: ['ANDREY'],
+        closers: ['MARCOS', 'GABRIEL FRANKLIN', 'FRANKLIN'],
+        membrosNomes: ['Andrey', 'Marcos', 'Gabriel Franklin']
+      },
+      {
+        nome: 'Ki Karnes', cor: '#FF6B00', emoji: '🟠',
+        sdr: ['BRUNNO VAZ', 'BRUNNO', 'BRUNO VAZ'],
+        closers: ['DAVI', 'GABRIEL FERNANDES', 'FERNANDES'],
+        membrosNomes: ['Brunno Vaz', 'Davi', 'Gabriel Fernandes']
+      }
+    ];
+  } else if (isJaneiro) {
+    SQUADS_LIST = [
+      {
+        nome: 'Hot Dogs', cor: '#FF4757', emoji: '🔴',
         sdr: ['DAVI'],
         closers: ['BRUNO', 'GABRIEL FRANKLIN', 'FRANKLIN', 'DAVI'],
         membrosNomes: ['Davi', 'Bruno', 'Gabriel Franklin']
       },
-      corvoAzul: {
+      {
+        nome: 'Corvo Azul', cor: '#0066FF', emoji: '🔵',
         sdr: ['VINICIUS MEIRELES', 'VINÍCIUS', 'VINICIUS'],
         closers: ['MARCOS', 'CAUÃ', 'CAUA'],
         membrosNomes: ['Vinícius', 'Marcos', 'Cauã']
       }
-    };
+    ];
   } else if (isOutubro) {
-    // OUTUBRO: Marcos como SDR no Hot Dogs
-    SQUADS_CONFIG = {
-      hotDogs: {
+    SQUADS_LIST = [
+      {
+        nome: 'Hot Dogs', cor: '#FF4757', emoji: '🔴',
         sdr: ['MARCOS'],
         closers: ['BRUNO', 'CAUÃ', 'CAUA'],
         membrosNomes: ['Marcos', 'Bruno', 'Cauã']
       },
-      corvoAzul: {
+      {
+        nome: 'Corvo Azul', cor: '#0066FF', emoji: '🔵',
         sdr: ['VINICIUS MEIRELES', 'VINÍCIUS', 'VINICIUS'],
         closers: ['GABRIEL FERNANDES', 'FERNANDES', 'GABRIEL FRANKLIN', 'FRANKLIN'],
         membrosNomes: ['Vinícius', 'Gabriel Fernandes', 'Gabriel Franklin']
       }
-    };
+    ];
   } else if (isDezembro) {
-    // DEZEMBRO: Davi (SDR Hot Dogs), Vinícius (SDR Corvo Azul)
-    // Closers: Franklin e Bruno (Hot Dogs), Marcos e Cauã (Corvo Azul)
-    // Sem squad: Andrey (SDR), Gabriel Fernandes (Closer)
-    SQUADS_CONFIG = {
-      hotDogs: {
+    SQUADS_LIST = [
+      {
+        nome: 'Hot Dogs', cor: '#FF4757', emoji: '🔴',
         sdr: ['DAVI'],
         closers: ['BRUNO', 'GABRIEL FRANKLIN', 'FRANKLIN'],
         membrosNomes: ['Davi', 'Bruno', 'Gabriel Franklin']
       },
-      corvoAzul: {
+      {
+        nome: 'Corvo Azul', cor: '#0066FF', emoji: '🔵',
         sdr: ['VINICIUS MEIRELES', 'VINÍCIUS', 'VINICIUS'],
         closers: ['MARCOS', 'CAUÃ', 'CAUA'],
         membrosNomes: ['Vinícius', 'Marcos', 'Cauã']
       }
-    };
+    ];
   } else {
-    // NOVEMBRO: Tiago (SDR Hot Dogs), Vinícius (SDR Corvo Azul)
-    SQUADS_CONFIG = {
-      hotDogs: {
+    SQUADS_LIST = [
+      {
+        nome: 'Hot Dogs', cor: '#FF4757', emoji: '🔴',
         sdr: ['TIAGO'],
         closers: ['BRUNO', 'GABRIEL FRANKLIN', 'FRANKLIN'],
         membrosNomes: ['Tiago', 'Bruno', 'Gabriel Franklin']
       },
-      corvoAzul: {
+      {
+        nome: 'Corvo Azul', cor: '#0066FF', emoji: '🔵',
         sdr: ['VINICIUS MEIRELES', 'VINÍCIUS', 'VINICIUS'],
         closers: ['MARCOS', 'CAUÃ', 'CAUA'],
         membrosNomes: ['Vinícius', 'Marcos', 'Cauã']
       }
-    };
+    ];
   }
   
   // Função identificarSquad dinâmica
-  const identificarSquad = (nome: string): 'Hot Dogs' | 'Corvo Azul' | null => {
+  const identificarSquad = (nome: string): string | null => {
     if (!nome) return null;
     const nomeUpper = nome.toUpperCase().trim();
     
-    // Hot Dogs
-    const isHotDog = SQUADS_CONFIG.hotDogs.sdr.some(s => nomeUpper.includes(s)) ||
-                     SQUADS_CONFIG.hotDogs.closers.some(c => nomeUpper.includes(c));
-    if (isHotDog) return 'Hot Dogs';
-    
-    // Corvo Azul
-    const isCorvoAzul = SQUADS_CONFIG.corvoAzul.sdr.some(s => nomeUpper.includes(s)) ||
-                        SQUADS_CONFIG.corvoAzul.closers.some(c => nomeUpper.includes(c));
-    if (isCorvoAzul) return 'Corvo Azul';
+    for (const squad of SQUADS_LIST) {
+      const isInSquad = squad.sdr.some(s => nomeUpper.includes(s)) ||
+                        squad.closers.some(c => nomeUpper.includes(c));
+      if (isInSquad) return squad.nome;
+    }
     
     return null;
   };
@@ -288,8 +334,9 @@ export const calcularMetricasSquads = (data: any[], dateRange?: DateRange, month
   const identificarFuncao = (nome: string): 'SDR' | 'Closer' => {
     const nomeUpper = nome.toUpperCase().trim();
     
-    const isSdr = SQUADS_CONFIG.hotDogs.sdr.some(s => nomeUpper.includes(s)) ||
-                  SQUADS_CONFIG.corvoAzul.sdr.some(s => nomeUpper.includes(s));
+    const isSdr = SQUADS_LIST.some(squad => 
+      squad.sdr.some(s => nomeUpper.includes(s))
+    );
     
     return isSdr ? 'SDR' : 'Closer';
   };
@@ -301,16 +348,18 @@ export const calcularMetricasSquads = (data: any[], dateRange?: DateRange, month
   });
   
   // Agrupar por squad
-  const contratosPorSquad: Record<string, any[]> = {
-    'Hot Dogs': [],
-    'Corvo Azul': []
-  };
+  const contratosPorSquad: Record<string, any[]> = {};
+  const callsPorSquad: Record<string, any[]> = {};
+  SQUADS_LIST.forEach(s => {
+    contratosPorSquad[s.nome] = [];
+    callsPorSquad[s.nome] = [];
+  });
   
   contratosGanhos.forEach(row => {
     const closer = String(row['CLOSER FECHOU'] || row['CLOSER'] || '').trim();
     const squad = identificarSquad(closer);
     
-    if (squad) {
+    if (squad && contratosPorSquad[squad]) {
       contratosPorSquad[squad].push({
         ...row,
         valor: parseValor(row['VALOR'] || '0'),
@@ -322,25 +371,19 @@ export const calcularMetricasSquads = (data: any[], dateRange?: DateRange, month
     }
   });
   
-  // Processar dados de calls (se houver)
-  const callsPorSquad: Record<string, any[]> = {
-    'Hot Dogs': [],
-    'Corvo Azul': []
-  };
-  
   data.forEach(row => {
     const sdr = String(row['SDR'] || '').trim();
     const squad = identificarSquad(sdr);
     
-    if (squad) {
+    if (squad && callsPorSquad[squad]) {
       callsPorSquad[squad].push(row);
     }
   });
   
   // Calcular métricas para cada squad
-  const calcularSquadMetrics = (nomeSquad: 'Hot Dogs' | 'Corvo Azul'): SquadMetrics => {
-    const contratos = contratosPorSquad[nomeSquad];
-    const calls = callsPorSquad[nomeSquad];
+  const calcularSquadMetrics = (squadConfig: typeof SQUADS_LIST[0]): SquadMetrics => {
+    const contratos = contratosPorSquad[squadConfig.nome] || [];
+    const calls = callsPorSquad[squadConfig.nome] || [];
     
     const receitaTotal = contratos.reduce((sum, c) => sum + c.valor, 0);
     const receitaPaga = contratos.filter(c => c.pago).reduce((sum, c) => sum + c.valor, 0);
@@ -348,7 +391,6 @@ export const calcularMetricasSquads = (data: any[], dateRange?: DateRange, month
     const numeroContratos = contratos.length;
     const ticketMedio = numeroContratos > 0 ? receitaTotal / numeroContratos : 0;
     
-    // Calls
     const totalCalls = calls.length;
     const callsQualificadas = calls.filter(c => 
       String(c['QUALIFICADA (SQL)'] || '').toUpperCase() === 'SIM'
@@ -361,29 +403,22 @@ export const calcularMetricasSquads = (data: any[], dateRange?: DateRange, month
       return closer.length > 0 && closer !== 'NO-SHOW';
     }).length;
     
-    // Taxas
     const taxaQualificacao = totalCalls > 0 ? (callsQualificadas / totalCalls) * 100 : 0;
     const taxaShow = callsAgendadas > 0 ? (callsRealizadas / callsAgendadas) * 100 : 0;
     const taxaConversao = totalCalls > 0 ? (numeroContratos / totalCalls) * 100 : 0;
     const taxaAssinatura = numeroContratos > 0 ? (contratos.filter(c => c.assinado).length / numeroContratos) * 100 : 0;
     const taxaPagamento = numeroContratos > 0 ? (contratos.filter(c => c.pago).length / numeroContratos) * 100 : 0;
     
-    // Performance - Metas Dinâmicas
-    const configMeta = getMetasPorMes(monthKey || 'dezembro-2025');
+    const configMeta = getMetasPorMes(monthKey || 'fevereiro-2026');
     const metaReceita = configMeta.squads.metaPorSquad;
     const metasTrafegoSquad = getMetasTrafegoAtual(monthKey);
-    const metaContratos = Math.ceil(metasTrafegoSquad.fechamentos / 2); // 82 / 2 = 41 por squad
-    const progressoMeta = (receitaTotal / metaReceita) * 100;
-    const contratosMeta = (numeroContratos / metaContratos) * 100;
-    const progressoMetaIndividual = (receitaTotal / metaReceita) * 100;
+    const metaContratos = Math.ceil(metasTrafegoSquad.fechamentos / SQUADS_LIST.length);
+    const progressoMeta = metaReceita > 0 ? (receitaTotal / metaReceita) * 100 : 0;
+    const contratosMeta = metaContratos > 0 ? (numeroContratos / metaContratos) * 100 : 0;
+    const progressoMetaIndividual = metaReceita > 0 ? (receitaTotal / metaReceita) * 100 : 0;
     const faltaParaMeta = metaReceita - receitaTotal;
     
-    // Membros (usando configuração dinâmica)
-    const membrosNomes = nomeSquad === 'Hot Dogs' 
-      ? SQUADS_CONFIG.hotDogs.membrosNomes
-      : SQUADS_CONFIG.corvoAzul.membrosNomes;
-    
-    const membros: SquadMemberMetrics[] = membrosNomes.map(nome => {
+    const membros: SquadMemberMetrics[] = squadConfig.membrosNomes.map(nome => {
       const contratosDoMembro = contratos.filter(c => 
         c.closer === nome || c.sdr === nome
       );
@@ -402,7 +437,7 @@ export const calcularMetricasSquads = (data: any[], dateRange?: DateRange, month
       return {
         nome,
         funcao: identificarFuncao(nome),
-        squad: nomeSquad,
+        squad: squadConfig.nome,
         receitaIndividual: receitaMembro,
         contratos: contratosMembro,
         calls: callsMembro,
@@ -412,21 +447,18 @@ export const calcularMetricasSquads = (data: any[], dateRange?: DateRange, month
       };
     });
     
-    // Ordenar membros por receita
     membros.sort((a, b) => b.receitaIndividual - a.receitaIndividual);
     
-    // MVP
     const mvp = membros[0] || null;
     if (mvp) mvp.badges.push('mvp');
     
-    // Badges do squad
     const badges: string[] = [];
-    const mediaVendasPorMembro = numeroContratos / membros.length;
+    const mediaVendasPorMembro = membros.length > 0 ? receitaTotal / membros.length : 0;
     
     return {
-      nome: nomeSquad,
-      cor: nomeSquad === 'Hot Dogs' ? '#FF4757' : '#0066FF',
-      emoji: nomeSquad === 'Hot Dogs' ? '🔴' : '🔵',
+      nome: squadConfig.nome,
+      cor: squadConfig.cor,
+      emoji: squadConfig.emoji,
       receitaTotal,
       receitaPaga,
       receitaAssinada,
@@ -452,51 +484,48 @@ export const calcularMetricasSquads = (data: any[], dateRange?: DateRange, month
     };
   };
   
-  const hotDogs = calcularSquadMetrics('Hot Dogs');
-  const corvoAzul = calcularSquadMetrics('Corvo Azul');
+  // Calcular métricas para todos os squads
+  const allSquads = SQUADS_LIST.map(calcularSquadMetrics);
   
-  // Determinar badges
-  if (hotDogs.receitaTotal > corvoAzul.receitaTotal) hotDogs.badges.push('maior-receita');
-  else if (corvoAzul.receitaTotal > hotDogs.receitaTotal) corvoAzul.badges.push('maior-receita');
+  // Determinar badges - maior receita
+  const maxReceita = Math.max(...allSquads.map(s => s.receitaTotal));
+  allSquads.forEach(s => {
+    if (s.receitaTotal === maxReceita && maxReceita > 0) s.badges.push('maior-receita');
+    if (s.progressoMeta >= 100) s.badges.push('meta-batida');
+  });
   
-  if (hotDogs.ticketMedio > corvoAzul.ticketMedio) hotDogs.badges.push('maior-ticket');
-  else if (corvoAzul.ticketMedio > hotDogs.ticketMedio) corvoAzul.badges.push('maior-ticket');
-  
-  if (hotDogs.taxaConversao > corvoAzul.taxaConversao) hotDogs.badges.push('melhor-conversao');
-  else if (corvoAzul.taxaConversao > hotDogs.taxaConversao) corvoAzul.badges.push('melhor-conversao');
-  
-  if (hotDogs.taxaShow > corvoAzul.taxaShow) hotDogs.badges.push('melhor-show');
-  else if (corvoAzul.taxaShow > hotDogs.taxaShow) corvoAzul.badges.push('melhor-show');
-  
-  if (hotDogs.callsRealizadas > corvoAzul.callsRealizadas) hotDogs.badges.push('mais-calls');
-  else if (corvoAzul.callsRealizadas > hotDogs.callsRealizadas) corvoAzul.badges.push('mais-calls');
-  
-  if (hotDogs.progressoMeta >= 100) hotDogs.badges.push('meta-batida');
-  if (corvoAzul.progressoMeta >= 100) corvoAzul.badges.push('meta-batida');
+  // Legacy references
+  const hotDogs = allSquads.find(s => s.nome === 'Hot Dogs') || allSquads[0];
+  const corvoAzul = allSquads.find(s => s.nome === 'Corvo Azul') || allSquads[1] || allSquads[0];
+  const kiKarnes = allSquads.find(s => s.nome === 'Ki Karnes');
   
   // Placar
-  const receitaTotal = hotDogs.receitaTotal + corvoAzul.receitaTotal;
-  const vantagem = Math.abs(hotDogs.receitaTotal - corvoAzul.receitaTotal);
+  const receitaTotal = allSquads.reduce((sum, s) => sum + s.receitaTotal, 0);
+  const sortedByReceita = [...allSquads].sort((a, b) => b.receitaTotal - a.receitaTotal);
+  const lider = sortedByReceita[0].receitaTotal > 0 ? sortedByReceita[0].nome : 'Empate';
+  const vantagem = sortedByReceita.length >= 2 
+    ? sortedByReceita[0].receitaTotal - sortedByReceita[1].receitaTotal 
+    : 0;
   const vantagemPercentual = receitaTotal > 0 ? (vantagem / receitaTotal) * 100 : 0;
   
-  let lider: 'Hot Dogs' | 'Corvo Azul' | 'Empate' = 'Empate';
-  if (hotDogs.receitaTotal > corvoAzul.receitaTotal) lider = 'Hot Dogs';
-  else if (corvoAzul.receitaTotal > hotDogs.receitaTotal) lider = 'Corvo Azul';
+  // Check empate
+  const isEmpate = sortedByReceita.length >= 2 && sortedByReceita[0].receitaTotal === sortedByReceita[1].receitaTotal;
   
   const placar = {
-    lider,
-    hotDogsReceita: hotDogs.receitaTotal,
-    corvoAzulReceita: corvoAzul.receitaTotal,
-    hotDogsContratos: hotDogs.contratos,
-    corvoAzulContratos: corvoAzul.contratos,
+    lider: isEmpate ? 'Empate' : lider,
+    squads: allSquads.map(s => ({
+      nome: s.nome,
+      emoji: s.emoji,
+      cor: s.cor,
+      receita: s.receitaTotal,
+      contratos: s.contratos,
+      percentual: receitaTotal > 0 ? (s.receitaTotal / receitaTotal) * 100 : 100 / allSquads.length
+    })),
     vantagem,
-    vantagemPercentual,
-    paraVirar: vantagem + 1,
-    percentualHotDogs: receitaTotal > 0 ? (hotDogs.receitaTotal / receitaTotal) * 100 : 50,
-    percentualCorvoAzul: receitaTotal > 0 ? (corvoAzul.receitaTotal / receitaTotal) * 100 : 50
+    vantagemPercentual
   };
   
-  // Comparações
+  // Comparações (mantém Hot Dogs vs Corvo Azul para compat)
   const comparacao = {
     receita: compararMetrica(hotDogs.receitaTotal, corvoAzul.receitaTotal),
     contratos: compararMetrica(hotDogs.contratos, corvoAzul.contratos),
@@ -507,16 +536,16 @@ export const calcularMetricasSquads = (data: any[], dateRange?: DateRange, month
     taxaShow: compararMetrica(hotDogs.taxaShow, corvoAzul.taxaShow)
   };
   
-  // Histórico (mock por enquanto)
+  // Histórico
   const historico = {
     semanaAtual: {
-      lider: lider === 'Empate' ? 'Empate' : lider,
-      placar: `${hotDogs.contratos}x${corvoAzul.contratos}`,
+      lider: isEmpate ? 'Empate' : lider,
+      placar: allSquads.map(s => s.contratos).join('x'),
       diferenca: vantagem
     },
     mesAtual: {
-      lider: lider === 'Empate' ? 'Empate' : lider,
-      placar: `${hotDogs.contratos}x${corvoAzul.contratos}`,
+      lider: isEmpate ? 'Empate' : lider,
+      placar: allSquads.map(s => s.contratos).join('x'),
       diferenca: vantagem
     },
     ultimosMeses: [
@@ -531,22 +560,18 @@ export const calcularMetricasSquads = (data: any[], dateRange?: DateRange, month
     empates: 0
   };
   
-  // Projeções com Múltiplos Cenários
+  // Projeções
   const now = new Date();
   const diasNoMes = endOfMonth(now).getDate();
   const diaAtual = now.getDate();
   const diasRestantes = diasNoMes - diaAtual;
   
-  const mediaDiariaHotDogs = diaAtual > 0 ? hotDogs.receitaTotal / diaAtual : 0;
-  const mediaDiariaCorvoAzul = diaAtual > 0 ? corvoAzul.receitaTotal / diaAtual : 0;
+  const configMetaProjecao = getMetasPorMes(monthKey || 'fevereiro-2026');
+  const metaReceitaProj = configMetaProjecao.squads.metaPorSquad;
   
-  const configMetaProjecao = getMetasPorMes(monthKey || 'novembro-2025');
-  const metaReceita = configMetaProjecao.squads.metaPorSquad;
-  
-  // Função para calcular cenários de um squad baseado em taxas de conversão
   const calcularCenariosSquad = (
     receitaAtual: number,
-    mediaDiaria: number,
+    _mediaDiaria: number,
     metaSquad: number,
     totalCalls: number,
     taxaShow: number,
@@ -555,7 +580,6 @@ export const calcularMetricasSquads = (data: any[], dateRange?: DateRange, month
   ) => {
     const callsPorDia = diaAtual > 0 ? totalCalls / diaAtual : 0;
     
-    // CENÁRIO PESSIMISTA: -20% nas taxas, -15% no ticket, -20% nas calls
     const cenarioPessimista = {
       callsPorDia: callsPorDia * 0.8,
       taxaShow: taxaShow * 0.8,
@@ -563,28 +587,12 @@ export const calcularMetricasSquads = (data: any[], dateRange?: DateRange, month
       ticketMedio: ticketMedio * 0.85
     };
     
-    const receitaPessimistaFutura = (
-      cenarioPessimista.callsPorDia * 
-      diasRestantes * 
-      (cenarioPessimista.taxaShow / 100) * 
-      (cenarioPessimista.taxaConversao / 100) * 
-      cenarioPessimista.ticketMedio
-    );
-    
+    const receitaPessimistaFutura = cenarioPessimista.callsPorDia * diasRestantes * (cenarioPessimista.taxaShow / 100) * (cenarioPessimista.taxaConversao / 100) * cenarioPessimista.ticketMedio;
     const projecaoPessimista = receitaAtual + receitaPessimistaFutura;
     
-    // CENÁRIO REALISTA: mantém taxas atuais
-    const receitaRealistaFutura = (
-      callsPorDia * 
-      diasRestantes * 
-      (taxaShow / 100) * 
-      (taxaConversao / 100) * 
-      ticketMedio
-    );
-    
+    const receitaRealistaFutura = callsPorDia * diasRestantes * (taxaShow / 100) * (taxaConversao / 100) * ticketMedio;
     const projecaoRealista = receitaAtual + receitaRealistaFutura;
     
-    // CENÁRIO OTIMISTA: +20% nas taxas, +15% no ticket, +20% nas calls
     const cenarioOtimista = {
       callsPorDia: callsPorDia * 1.2,
       taxaShow: taxaShow * 1.2,
@@ -592,14 +600,7 @@ export const calcularMetricasSquads = (data: any[], dateRange?: DateRange, month
       ticketMedio: ticketMedio * 1.15
     };
     
-    const receitaOtimistaFutura = (
-      cenarioOtimista.callsPorDia * 
-      diasRestantes * 
-      (cenarioOtimista.taxaShow / 100) * 
-      (cenarioOtimista.taxaConversao / 100) * 
-      cenarioOtimista.ticketMedio
-    );
-    
+    const receitaOtimistaFutura = cenarioOtimista.callsPorDia * diasRestantes * (cenarioOtimista.taxaShow / 100) * (cenarioOtimista.taxaConversao / 100) * cenarioOtimista.ticketMedio;
     const projecaoOtimista = receitaAtual + receitaOtimistaFutura;
     
     return {
@@ -609,36 +610,21 @@ export const calcularMetricasSquads = (data: any[], dateRange?: DateRange, month
           probabilidade: '30%',
           premissa: `Show ${cenarioPessimista.taxaShow.toFixed(1)}% • Conv ${cenarioPessimista.taxaConversao.toFixed(1)}% • Ticket ${(cenarioPessimista.ticketMedio/1000).toFixed(0)}k`,
           vaiAcertarMeta: projecaoPessimista >= metaSquad,
-          detalhes: {
-            callsPorDia: cenarioPessimista.callsPorDia,
-            taxaShow: cenarioPessimista.taxaShow,
-            taxaConversao: cenarioPessimista.taxaConversao,
-            ticketMedio: cenarioPessimista.ticketMedio
-          }
+          detalhes: cenarioPessimista
         },
         realista: {
           projecaoFinal: projecaoRealista,
           probabilidade: '50%',
           premissa: `Show ${taxaShow.toFixed(1)}% • Conv ${taxaConversao.toFixed(1)}% • Ticket ${(ticketMedio/1000).toFixed(0)}k`,
           vaiAcertarMeta: projecaoRealista >= metaSquad,
-          detalhes: {
-            callsPorDia,
-            taxaShow,
-            taxaConversao,
-            ticketMedio
-          }
+          detalhes: { callsPorDia, taxaShow, taxaConversao, ticketMedio }
         },
         otimista: {
           projecaoFinal: projecaoOtimista,
           probabilidade: '20%',
           premissa: `Show ${cenarioOtimista.taxaShow.toFixed(1)}% • Conv ${cenarioOtimista.taxaConversao.toFixed(1)}% • Ticket ${(cenarioOtimista.ticketMedio/1000).toFixed(0)}k`,
           vaiAcertarMeta: projecaoOtimista >= metaSquad,
-          detalhes: {
-            callsPorDia: cenarioOtimista.callsPorDia,
-            taxaShow: cenarioOtimista.taxaShow,
-            taxaConversao: cenarioOtimista.taxaConversao,
-            ticketMedio: cenarioOtimista.ticketMedio
-          }
+          detalhes: cenarioOtimista
         }
       },
       range: {
@@ -649,47 +635,33 @@ export const calcularMetricasSquads = (data: any[], dateRange?: DateRange, month
     };
   };
   
-  const cenariosHotDogs = calcularCenariosSquad(
-    hotDogs.receitaTotal, 
-    mediaDiariaHotDogs, 
-    metaReceita,
-    hotDogs.callsRealizadas,
-    hotDogs.taxaShow,
-    hotDogs.taxaConversao,
-    hotDogs.ticketMedio
-  );
-  
-  const cenariosCorvoAzul = calcularCenariosSquad(
-    corvoAzul.receitaTotal, 
-    mediaDiariaCorvoAzul, 
-    metaReceita,
-    corvoAzul.callsRealizadas,
-    corvoAzul.taxaShow,
-    corvoAzul.taxaConversao,
-    corvoAzul.ticketMedio
-  );
-  
-  const projecao = {
-    hotDogs: {
-      ...cenariosHotDogs,
-      mediaDiaria: mediaDiariaHotDogs,
+  const buildProjecao = (squad: SquadMetrics) => {
+    const mediaDiaria = diaAtual > 0 ? squad.receitaTotal / diaAtual : 0;
+    const cenarios = calcularCenariosSquad(
+      squad.receitaTotal, mediaDiaria, metaReceitaProj,
+      squad.callsRealizadas, squad.taxaShow, squad.taxaConversao, squad.ticketMedio
+    );
+    return {
+      ...cenarios,
+      mediaDiaria,
       diasRestantes,
-      metaSquad: metaReceita,
-      receitaAtual: hotDogs.receitaTotal
-    },
-    corvoAzul: {
-      ...cenariosCorvoAzul,
-      mediaDiaria: mediaDiariaCorvoAzul,
-      diasRestantes,
-      metaSquad: metaReceita,
-      receitaAtual: corvoAzul.receitaTotal
-    }
+      metaSquad: metaReceitaProj,
+      receitaAtual: squad.receitaTotal
+    };
+  };
+  
+  const projecao: SquadsComparison['projecao'] = {
+    hotDogs: buildProjecao(hotDogs),
+    corvoAzul: buildProjecao(corvoAzul),
+    ...(kiKarnes ? { kiKarnes: buildProjecao(kiKarnes) } : {})
   };
   
   return {
     placar,
+    squads: allSquads,
     hotDogs,
     corvoAzul,
+    kiKarnes,
     comparacao,
     historico,
     projecao

@@ -131,10 +131,21 @@ export const calcularMetricasCloser = (data: any[], dateRange?: DateRange): Clos
   const isOutubro = dateRange && dateRange.start.getMonth() === 9 && dateRange.start.getFullYear() === 2025;
   const isDezembro = dateRange && dateRange.start.getMonth() === 11 && dateRange.start.getFullYear() === 2025;
   const isJaneiro = dateRange && dateRange.start.getMonth() === 0 && dateRange.start.getFullYear() === 2026;
+  const isFevereiro = dateRange && dateRange.start.getMonth() === 1 && dateRange.start.getFullYear() === 2026;
 
   let closersNomes: Array<{ original: string; display: string; squad: string; color: string; emoji: string }>;
 
-  if (isJaneiro) {
+  if (isFevereiro) {
+    // FEVEREIRO 2026: 6 closers em 3 squads, Davi apenas Closer
+    closersNomes = [
+      { original: 'BRUNO', display: 'Bruno', squad: 'Hot Dogs', color: '#FF4757', emoji: '🔴' },
+      { original: 'CAUÃ', display: 'Cauã', squad: 'Hot Dogs', color: '#FF4757', emoji: '🔴' },
+      { original: 'MARCOS', display: 'Marcos', squad: 'Corvo Azul', color: '#0066FF', emoji: '🔵' },
+      { original: 'GABRIEL FRANKLIN', display: 'Gabriel Franklin', squad: 'Corvo Azul', color: '#0066FF', emoji: '🔵' },
+      { original: 'DAVI', display: 'Davi', squad: 'Ki Karnes', color: '#FF6B00', emoji: '🟠' },
+      { original: 'GABRIEL FERNANDES', display: 'Gabriel Fernandes', squad: 'Ki Karnes', color: '#FF6B00', emoji: '🟠' }
+    ];
+  } else if (isJaneiro) {
     // JANEIRO 2026: 6 closers - Davi (função dupla SDR/Closer) no Hot Dogs
     closersNomes = [
       { original: 'BRUNO', display: 'Bruno', squad: 'Hot Dogs', color: '#FF4757', emoji: '🔴' },

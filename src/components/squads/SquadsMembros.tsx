@@ -10,25 +10,25 @@ interface SquadsMembrosProps {
   corvoAzul: SquadMetrics;
   isTVMode: boolean;
   monthKey: string;
+  allSquads?: SquadMetrics[];
 }
 
-export const SquadsMembros = ({ hotDogs, corvoAzul, isTVMode, monthKey }: SquadsMembrosProps) => {
-  // Metas dinâmicas do metasConfig
+export const SquadsMembros = ({ hotDogs, corvoAzul, isTVMode, monthKey, allSquads }: SquadsMembrosProps) => {
   const configMeta = getMetasPorMes(monthKey);
   const metaIndividual = configMeta.metaIndividualCloser || 65000;
   const metaTaxaConversao = configMeta.metaTaxaConversao || 28;
+  
+  const squads = allSquads && allSquads.length > 0 ? allSquads : [hotDogs, corvoAzul];
+
   const renderSquadCard = (squad: SquadMetrics) => {
     return (
-      <Card className={`bg-[#151E35] border-l-8 p-6 md:p-8 ${
-        squad.nome === 'Hot Dogs' ? 'border-[#FF4757]' : 'border-[#0066FF]'
-      }`}>
+      <Card className={`bg-[#151E35] border-l-8 p-6 md:p-8`}
+        style={{ borderLeftColor: squad.cor }}>
         <div className="text-center mb-6">
           <div className={`mb-3 ${isTVMode ? 'text-6xl' : 'text-5xl'}`}>
             {squad.emoji}
           </div>
-          <h3 className={`font-black text-white mb-2 ${
-            isTVMode ? 'text-3xl' : 'text-2xl'
-          }`}>
+          <h3 className={`font-black text-white mb-2 ${isTVMode ? 'text-3xl' : 'text-2xl'}`}>
             {squad.nome}
           </h3>
           {squad.badges.includes('maior-receita') && (
@@ -42,24 +42,12 @@ export const SquadsMembros = ({ hotDogs, corvoAzul, isTVMode, monthKey }: Squads
           <Table>
             <TableHeader>
               <TableRow className="border-white/10">
-                <TableHead className={`text-[#94A3B8] ${isTVMode ? 'text-xl' : 'text-sm'}`}>
-                  Posição
-                </TableHead>
-                <TableHead className={`text-[#94A3B8] ${isTVMode ? 'text-xl' : 'text-sm'}`}>
-                  Membro
-                </TableHead>
-                <TableHead className={`text-[#94A3B8] ${isTVMode ? 'text-xl' : 'text-sm'}`}>
-                  Função
-                </TableHead>
-                <TableHead className={`text-[#94A3B8] ${isTVMode ? 'text-xl' : 'text-sm'}`}>
-                  Receita
-                </TableHead>
-                <TableHead className={`text-[#94A3B8] ${isTVMode ? 'text-xl' : 'text-sm'}`}>
-                  Contratos
-                </TableHead>
-                <TableHead className={`text-[#94A3B8] ${isTVMode ? 'text-xl' : 'text-sm'}`}>
-                  Status
-                </TableHead>
+                <TableHead className={`text-[#94A3B8] ${isTVMode ? 'text-xl' : 'text-sm'}`}>Posição</TableHead>
+                <TableHead className={`text-[#94A3B8] ${isTVMode ? 'text-xl' : 'text-sm'}`}>Membro</TableHead>
+                <TableHead className={`text-[#94A3B8] ${isTVMode ? 'text-xl' : 'text-sm'}`}>Função</TableHead>
+                <TableHead className={`text-[#94A3B8] ${isTVMode ? 'text-xl' : 'text-sm'}`}>Receita</TableHead>
+                <TableHead className={`text-[#94A3B8] ${isTVMode ? 'text-xl' : 'text-sm'}`}>Contratos</TableHead>
+                <TableHead className={`text-[#94A3B8] ${isTVMode ? 'text-xl' : 'text-sm'}`}>Status</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -89,19 +77,13 @@ export const SquadsMembros = ({ hotDogs, corvoAzul, isTVMode, monthKey }: Squads
                   <TableCell>
                     <div className="flex gap-1">
                       {membro.badges.includes('mvp') && (
-                        <span className={isTVMode ? 'text-3xl' : 'text-2xl'} title="MVP do Squad">
-                          👑
-                        </span>
+                        <span className={isTVMode ? 'text-3xl' : 'text-2xl'} title="MVP do Squad">👑</span>
                       )}
                       {membro.receitaIndividual >= metaIndividual && (
-                        <span className={isTVMode ? 'text-3xl' : 'text-2xl'} title={`Meta Batida (${formatarReal(metaIndividual)})`}>
-                          🔥
-                        </span>
+                        <span className={isTVMode ? 'text-3xl' : 'text-2xl'} title={`Meta Batida (${formatarReal(metaIndividual)})`}>🔥</span>
                       )}
                       {membro.taxaConversao >= metaTaxaConversao && (
-                        <span className={isTVMode ? 'text-3xl' : 'text-2xl'} title={`Taxa >= ${metaTaxaConversao}%`}>
-                          ⭐
-                        </span>
+                        <span className={isTVMode ? 'text-3xl' : 'text-2xl'} title={`Taxa >= ${metaTaxaConversao}%`}>⭐</span>
                       )}
                     </div>
                   </TableCell>
@@ -114,17 +96,13 @@ export const SquadsMembros = ({ hotDogs, corvoAzul, isTVMode, monthKey }: Squads
         <div className="mt-6 pt-6 border-t border-white/10">
           <div className="grid grid-cols-2 gap-4 text-center">
             <div>
-              <p className={`text-[#94A3B8] mb-1 ${isTVMode ? 'text-lg' : 'text-sm'}`}>
-                Total do Squad
-              </p>
+              <p className={`text-[#94A3B8] mb-1 ${isTVMode ? 'text-lg' : 'text-sm'}`}>Total do Squad</p>
               <p className={`text-white font-black ${isTVMode ? 'text-3xl' : 'text-2xl'}`}>
                 {formatarReal(squad.receitaTotal)}
               </p>
             </div>
             <div>
-              <p className={`text-[#94A3B8] mb-1 ${isTVMode ? 'text-lg' : 'text-sm'}`}>
-                Média por Membro
-              </p>
+              <p className={`text-[#94A3B8] mb-1 ${isTVMode ? 'text-lg' : 'text-sm'}`}>Média por Membro</p>
               <p className={`text-white font-black ${isTVMode ? 'text-3xl' : 'text-2xl'}`}>
                 {formatarReal(squad.mediaVendasPorMembro)}
               </p>
@@ -137,15 +115,16 @@ export const SquadsMembros = ({ hotDogs, corvoAzul, isTVMode, monthKey }: Squads
   
   return (
     <div className="max-w-[1600px] mx-auto">
-      <h2 className={`text-white font-black text-center mb-12 ${
-        isTVMode ? 'text-5xl' : 'text-4xl'
-      }`}>
+      <h2 className={`text-white font-black text-center mb-12 ${isTVMode ? 'text-5xl' : 'text-4xl'}`}>
         Desempenho Individual dos Guerreiros
       </h2>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
-        {renderSquadCard(hotDogs)}
-        {renderSquadCard(corvoAzul)}
+      <div className={`grid grid-cols-1 ${
+        squads.length >= 3 ? 'lg:grid-cols-3' : 'md:grid-cols-2'
+      } gap-6 md:gap-8`}>
+        {squads.map(squad => (
+          <div key={squad.nome}>{renderSquadCard(squad)}</div>
+        ))}
       </div>
     </div>
   );

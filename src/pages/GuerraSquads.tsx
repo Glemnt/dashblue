@@ -149,9 +149,9 @@ const GuerraSquads = () => {
               Guerra de Squads
             </h1>
             {!isTVMode && (
-              <p className="text-[#94A3B8] font-outfit text-sm md:text-lg mt-2">
-                Hot Dogs 🔴 vs Corvo Azul 🔵
-              </p>
+            <p className="text-[#94A3B8] font-outfit text-sm md:text-lg mt-2">
+              {metricas?.squads?.map(s => `${s.nome} ${s.emoji}`).join(' vs ') || 'Hot Dogs 🔴 vs Corvo Azul 🔵'}
+            </p>
             )}
           </div>
 
@@ -234,6 +234,7 @@ const GuerraSquads = () => {
           }}
           isTVMode={isTVMode}
           monthKey={selectedMonthKey}
+          allSquads={metricas.squads}
         />
       </section>
 
@@ -244,6 +245,7 @@ const GuerraSquads = () => {
           corvoAzul={metricas.corvoAzul}
           comparacao={metricas.comparacao}
           isTVMode={isTVMode}
+          allSquads={metricas.squads}
         />
       </section>
 
@@ -254,6 +256,7 @@ const GuerraSquads = () => {
           corvoAzul={metricas.corvoAzul}
           isTVMode={isTVMode}
           monthKey={selectedMonthKey}
+          allSquads={metricas.squads}
         />
       </section>
 
@@ -274,7 +277,27 @@ const GuerraSquads = () => {
           : 'bg-gradient-to-r from-[#FF4757]/10 via-[#0B1120] to-[#0066FF]/10'
       }`}>
         <div className="max-w-[1600px] mx-auto text-center">
-          {metricas.placar.lider === 'Hot Dogs' && (
+          {metricas.placar.lider !== 'Empate' && (
+            <>
+              <h2 className={`font-black text-white mb-4 ${isTVMode ? 'text-6xl' : 'text-4xl md:text-6xl'}`}>
+                🏆 {metricas.placar.lider} na Liderança!
+              </h2>
+              <p className={`text-white mb-2 ${isTVMode ? 'text-4xl' : 'text-2xl md:text-3xl'}`}>
+                +{formatarReal(metricas.placar.vantagem)} na frente!
+              </p>
+            </>
+          )}
+
+          {metricas.placar.lider === 'Empate' && (
+            <>
+              <h2 className={`font-black text-white mb-4 ${isTVMode ? 'text-6xl' : 'text-4xl md:text-6xl'}`}>
+                ⚔️ Empate Técnico!
+              </h2>
+              <p className={`text-white mb-2 ${isTVMode ? 'text-4xl' : 'text-2xl md:text-3xl'}`}>
+                A batalha está acirrada!
+              </p>
+            </>
+          )}
             <>
               <h2 className={`font-black text-white mb-4 ${isTVMode ? 'text-6xl' : 'text-4xl md:text-6xl'}`}>
                 🔥 Hot Dogs on Fire!
