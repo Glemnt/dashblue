@@ -402,6 +402,7 @@ const PerformanceSDR = () => {
               metaIndividualCalls={metaIndividualCalls}
               metaTaxaQualificacao={metaTaxaQualificacao}
               metaTaxaShow={metaTaxaShow}
+              metaIndividualVendas={configMeta.squads.metaPorSquad}
             />
           ))}
         </div>
