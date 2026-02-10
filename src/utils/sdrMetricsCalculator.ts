@@ -216,21 +216,23 @@ export const calcularMetricasSDR = (data: any[], dateRange?: DateRange): SDRData
     // Taxa de Show
     const taxaShow = callsAgendadas > 0 ? (callsRealizadas / callsAgendadas) * 100 : 0;
 
-    // Vendas Originadas (somar VALOR onde SDR FECHOU = nome do SDR)
+    // Vendas Originadas (somar VALOR onde SDR FECHOU = nome do SDR E FECHAMENTO = SIM)
     const vendasOriginadas = filteredData
       .filter(row => {
         const sdrFechou = String(row['SDR FECHOU'] || '').trim();
-        return compararNomeSDR(sdrFechou, nome);
+        const fechamento = String(row['FECHAMENTO'] || '').trim().toUpperCase();
+        return compararNomeSDR(sdrFechou, nome) && fechamento === 'SIM';
       })
       .reduce((acc, row) => {
         const valor = parseValor(row['VALOR']);
         return acc + valor;
       }, 0);
 
-    // Número de Contratos Originados
+    // Número de Contratos Originados (apenas FECHAMENTO = SIM)
     const contratosOriginados = filteredData.filter(row => {
       const sdrFechou = String(row['SDR FECHOU'] || '').trim();
-      return compararNomeSDR(sdrFechou, nome);
+      const fechamento = String(row['FECHAMENTO'] || '').trim().toUpperCase();
+      return compararNomeSDR(sdrFechou, nome) && fechamento === 'SIM';
     }).length;
 
     // Coletar contratos fechados originados por este SDR
