@@ -137,11 +137,12 @@ export const calcularMetricasSDR = (data: any[], dateRange?: DateRange): SDRData
   const isDezembro = dateRange && dateRange.start.getMonth() === 11 && dateRange.start.getFullYear() === 2025;
   const isJaneiro = dateRange && dateRange.start.getMonth() === 0 && dateRange.start.getFullYear() === 2026;
   const isFevereiro = dateRange && dateRange.start.getMonth() === 1 && dateRange.start.getFullYear() === 2026;
+  const isMarco = dateRange && dateRange.start.getMonth() === 2 && dateRange.start.getFullYear() === 2026;
 
   let sdrsNomes: string[];
   let squadMap: Record<string, { squad: string; color: string; emoji: string; displayName: string }>;
 
-  if (isFevereiro) {
+  if (isMarco || isFevereiro) {
     // FEVEREIRO 2026: Vinícius (Hot Dogs), Andrey (Corvo Azul), Brunno Vaz (Ki Karnes)
     sdrsNomes = ['VINICIUS MEIRELES', 'ANDREY', 'BRUNNO VAZ'];
     squadMap = {
