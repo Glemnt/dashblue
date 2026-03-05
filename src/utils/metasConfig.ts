@@ -270,11 +270,28 @@ export const METAS_POR_MES: Record<string, MetasMensais> = {
     metaTaxaQualificacaoSDR: 50,
     metaTaxaShowSDR: 75,
     numSDRs: 3
+  },
+  'marco-2026': {
+    metaMensal: 350000,
+    metaIndividualCloser: 58333,
+    modelo: 'MRR',
+    squads: {
+      metaPorSquad: 116667,
+      totalSquads: 3
+    },
+    metaTicketMedioCloser: 4200,
+    metaTaxaConversao: 28,
+    metaTaxaAssinatura: 100,
+    metaTaxaPagamento: 100,
+    metaTaxaRecebimentoMinimo: 90,
+    metaTaxaQualificacaoSDR: 50,
+    metaTaxaShowSDR: 75,
+    numSDRs: 3
   }
 };
 
 export const getMetasPorMes = (monthKey: string): MetasMensais => {
-  return METAS_POR_MES[monthKey] || METAS_POR_MES['fevereiro-2026'];
+  return METAS_POR_MES[monthKey] || METAS_POR_MES['marco-2026'];
 };
 
 export const calcularMetaSemanal = (metaMensal: number): number => {
