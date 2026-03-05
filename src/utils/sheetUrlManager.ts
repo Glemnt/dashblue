@@ -89,7 +89,7 @@ export const getSheetUrlForPeriod = (dateRange: DateRange): string => {
     periodKey = 'marco-2026'; // Fallback para março
   }
   
-  const gid = SHEET_GIDS[periodKey] || SHEET_GIDS['fevereiro-2026'];
+  const gid = SHEET_GIDS[periodKey] || SHEET_GIDS['marco-2026'];
   return `${BASE_URL}?gid=${gid}&single=true&output=csv`;
 };
 
