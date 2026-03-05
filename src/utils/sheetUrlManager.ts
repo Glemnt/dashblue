@@ -45,6 +45,13 @@ export const AVAILABLE_MONTHS: AvailableMonth[] = [
     gid: '2116469311',
     month: 1,
     year: 2026
+  },
+  {
+    key: 'marco-2026',
+    label: 'Março 2026',
+    gid: '426693075',
+    month: 2,
+    year: 2026
   }
 ];
 
