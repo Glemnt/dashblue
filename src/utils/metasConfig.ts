@@ -171,7 +171,7 @@ export const METAS_TRAFEGO_POR_MES: Record<string, MetasTrafego> = {
 
 export const getMetasTrafegoAtual = (monthKey?: string): MetasTrafego => {
   const key = monthKey || getCurrentMonthKey();
-  return METAS_TRAFEGO_POR_MES[key] || METAS_TRAFEGO_POR_MES['fevereiro-2026'];
+  return METAS_TRAFEGO_POR_MES[key] || METAS_TRAFEGO_POR_MES['marco-2026'];
 };
 
 const getCurrentMonthKey = (): string => {
