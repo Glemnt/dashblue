@@ -132,11 +132,10 @@ export const calcularMetricasCloser = (data: any[], dateRange?: DateRange): Clos
   const isDezembro = dateRange && dateRange.start.getMonth() === 11 && dateRange.start.getFullYear() === 2025;
   const isJaneiro = dateRange && dateRange.start.getMonth() === 0 && dateRange.start.getFullYear() === 2026;
   const isFevereiro = dateRange && dateRange.start.getMonth() === 1 && dateRange.start.getFullYear() === 2026;
+  const isMarco = dateRange && dateRange.start.getMonth() === 2 && dateRange.start.getFullYear() === 2026;
 
-  let closersNomes: Array<{ original: string; display: string; squad: string; color: string; emoji: string }>;
-
-  if (isFevereiro) {
-    // FEVEREIRO 2026: 6 closers em 3 squads, Davi apenas Closer
+  if (isMarco || isFevereiro) {
+    // MARÇO/FEVEREIRO 2026: 6 closers em 3 squads, Davi apenas Closer
     closersNomes = [
       { original: 'BRUNO', display: 'Bruno', squad: 'Hot Dogs', color: '#FF4757', emoji: '🔴' },
       { original: 'CAUÃ', display: 'Cauã', squad: 'Hot Dogs', color: '#FF4757', emoji: '🔴' },

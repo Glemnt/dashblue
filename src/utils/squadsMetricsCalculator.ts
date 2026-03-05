@@ -220,6 +220,8 @@ export const calcularMetricasSquads = (data: any[], dateRange?: DateRange, month
     (dateRange && dateRange.start.getMonth() === 0 && dateRange.start.getFullYear() === 2026);
   const isFevereiro = monthKey === 'fevereiro-2026' ||
     (dateRange && dateRange.start.getMonth() === 1 && dateRange.start.getFullYear() === 2026);
+  const isMarco = monthKey === 'marco-2026' ||
+    (dateRange && dateRange.start.getMonth() === 2 && dateRange.start.getFullYear() === 2026);
   
   // Configuração dinâmica dos squads por período
   interface SquadConfig {
@@ -233,7 +235,7 @@ export const calcularMetricasSquads = (data: any[], dateRange?: DateRange, month
   
   let SQUADS_LIST: SquadConfig[];
   
-  if (isFevereiro) {
+  if (isMarco || isFevereiro) {
     SQUADS_LIST = [
       {
         nome: 'Hot Dogs', cor: '#FF4757', emoji: '🔴',

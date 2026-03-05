@@ -113,7 +113,7 @@ export const calcularDiasUteisRestantes = (): number => {
 };
 
 // Meses disponíveis no sistema
-const MESES_DISPONIVEIS = ['outubro-2025', 'novembro-2025', 'dezembro-2025'];
+const MESES_DISPONIVEIS = ['outubro-2025', 'novembro-2025', 'dezembro-2025', 'janeiro-2026', 'fevereiro-2026', 'marco-2026'];
 
 // Obter chave do mês anterior
 export const getPreviousMonthKey = (currentMonthKey: string): string | null => {
