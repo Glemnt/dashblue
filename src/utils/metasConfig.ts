@@ -151,6 +151,21 @@ export const METAS_TRAFEGO_POR_MES: Record<string, MetasTrafego> = {
     cplMeta: 225.64,
     cacMeta: 2820.51,
     roasMinimo: 1.41
+  },
+  'marco-2026': {
+    investimentoMensal: 220000,
+    metaReceita: 350000,
+    ticketMedio: 4000,
+    fechamentos: 88,
+    callsRealizadas: 440,
+    callsAgendadas: 550,
+    leads: 1100,
+    taxaLeadParaQualificado: 0.50,
+    taxaCallAgendadaParaRealizada: 0.80,
+    taxaCallParaFechamento: 0.20,
+    cplMeta: 200,
+    cacMeta: 2500,
+    roasMinimo: 1.59
   }
 };
 
