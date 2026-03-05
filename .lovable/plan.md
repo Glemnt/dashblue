@@ -1,31 +1,21 @@
 
 
-## No-Show: destaque vermelho + card clicavel
+## Adicionar metas de Março 2026
 
-### 1. Destacar calls no-show em vermelho na lista de "Total Calls"
+350k total, 6 closers (~58.333 cada), 3 squads (~116.667 cada), 3 SDRs.
 
-No `renderCallItem`, verificar se a call e no-show (CLOSER = "NO-SHOW"). Se sim, aplicar borda e fundo vermelho ao item.
+### Arquivo: `src/utils/metasConfig.ts`
 
-**Arquivo**: `src/components/sdr/SDRDetailCard.tsx`
-- No `renderCallItem`, adicionar logica condicional:
-  - Se `call.closer` contiver "NO-SHOW" (uppercase), usar `bg-red-50 border-red-300` no container
-  - Adicionar badge vermelho "No-Show" no item
+**1. Adicionar `'marco-2026'` em `METAS_POR_MES`:**
+```
+metaMensal: 350000
+metaIndividualCloser: 58333
+modelo: 'MRR'
+squads: { metaPorSquad: 116667, totalSquads: 3 }
+```
+Demais campos mantém padrão (ticket 4200, conversão 28%, etc.)
 
-### 2. Adicionar campo `noShow` ao `SDRCallData`
+**2. Adicionar `'marco-2026'` em `METAS_TRAFEGO_POR_MES`** (copiar de fevereiro, ajustar metaReceita para 350000 e recalcular fechamentos/calls)
 
-**Arquivo**: `src/utils/sdrMetricsCalculator.ts`
-- Adicionar `noShow: boolean` na interface `SDRCallData`
-- No `mapCallData`, popular: `noShow: closer === 'NO-SHOW'`
-
-### 3. Tornar o card "No-Shows" clicavel
-
-**Arquivo**: `src/components/sdr/SDRDetailCard.tsx`
-- Expandir `DetailView` para incluir `'noshows'`
-- Transformar o card de No-Shows (atualmente estatico na grid de taxas) em card clicavel, movendo-o para a grid principal de 4 cards ou adicionando como 5o card
-- No `renderDetailPanel`, adicionar case `'noshows'` que filtra `sdr.callsAgendadasData` por `call.noShow === true`
-- Aplicar estilo vermelho ao card (bg-[#FF4757]/5, border-[#FF4757]/20, ring-[#FF4757])
-
-### Arquivos modificados
-1. `src/utils/sdrMetricsCalculator.ts` - Adicionar `noShow: boolean` ao `SDRCallData` e popular no `mapCallData`
-2. `src/components/sdr/SDRDetailCard.tsx` - Destacar no-shows em vermelho nas listas, tornar card No-Shows clicavel com filtro
+**3. Atualizar fallbacks** de `'fevereiro-2026'` para `'marco-2026'` em `getMetasTrafegoAtual` e `getMetasPorMes`
 
