@@ -83,8 +83,10 @@ export const getSheetUrlForPeriod = (dateRange: DateRange): string => {
     periodKey = 'janeiro-2026';
   } else if (startMonth === 1 && startYear === 2026) { // fevereiro
     periodKey = 'fevereiro-2026';
+  } else if (startMonth === 2 && startYear === 2026) { // março
+    periodKey = 'marco-2026';
   } else {
-    periodKey = 'fevereiro-2026'; // Fallback para fevereiro
+    periodKey = 'marco-2026'; // Fallback para março
   }
   
   const gid = SHEET_GIDS[periodKey] || SHEET_GIDS['fevereiro-2026'];
