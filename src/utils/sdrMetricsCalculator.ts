@@ -87,7 +87,8 @@ const compararNomeSDR = (nomeColuna: string, nomeBusca: string): boolean => {
     'TIAGO': ['TIAGO'],
     'MARCOS': ['MARCOS'],
     'JOAO LOPES': ['JOAO LOPES', 'JOAO', 'JOÃO LOPES', 'JOÃO'],
-    'BRUNNO VAZ': ['BRUNNO VAZ', 'BRUNNO', 'BRUNO VAZ']
+    'BRUNNO VAZ': ['BRUNNO VAZ', 'BRUNNO', 'BRUNO VAZ'],
+    'GABRIEL VALADARES': ['GABRIEL VALADARES', 'VALADARES']
   };
   
   // Normalizar a busca para key do mapa
@@ -138,12 +139,22 @@ export const calcularMetricasSDR = (data: any[], dateRange?: DateRange): SDRData
   const isJaneiro = dateRange && dateRange.start.getMonth() === 0 && dateRange.start.getFullYear() === 2026;
   const isFevereiro = dateRange && dateRange.start.getMonth() === 1 && dateRange.start.getFullYear() === 2026;
   const isMarco = dateRange && dateRange.start.getMonth() === 2 && dateRange.start.getFullYear() === 2026;
+  const isAbril = dateRange && dateRange.start.getMonth() === 3 && dateRange.start.getFullYear() === 2026;
 
   let sdrsNomes: string[];
   let squadMap: Record<string, { squad: string; color: string; emoji: string; displayName: string }>;
 
-  if (isMarco || isFevereiro) {
-    // FEVEREIRO 2026: Vinícius (Hot Dogs), Andrey (Corvo Azul), Brunno Vaz (Ki Karnes)
+  if (isAbril) {
+    // ABRIL 2026: 4 SDRs - Gabriel Valadares sem squad
+    sdrsNomes = ['VINICIUS MEIRELES', 'ANDREY', 'BRUNNO VAZ', 'GABRIEL VALADARES'];
+    squadMap = {
+      'VINICIUS MEIRELES': { squad: 'Hot Dogs', color: '#FF4757', emoji: '🔴', displayName: 'Vinícius' },
+      'ANDREY': { squad: 'Corvo Azul', color: '#0066FF', emoji: '🔵', displayName: 'Andrey' },
+      'BRUNNO VAZ': { squad: 'Ki Karnes', color: '#FF6B00', emoji: '🟠', displayName: 'Brunno Vaz' },
+      'GABRIEL VALADARES': { squad: 'Sem Squad', color: '#64748B', emoji: '⚪', displayName: 'Gabriel Valadares' }
+    };
+  } else if (isMarco || isFevereiro) {
+    // FEVEREIRO/MARÇO 2026: Vinícius (Hot Dogs), Andrey (Corvo Azul), Brunno Vaz (Ki Karnes)
     sdrsNomes = ['VINICIUS MEIRELES', 'ANDREY', 'BRUNNO VAZ'];
     squadMap = {
       'VINICIUS MEIRELES': { squad: 'Hot Dogs', color: '#FF4757', emoji: '🔴', displayName: 'Vinícius' },
@@ -402,7 +413,9 @@ export const mesclarMetricasSDRComDashboard = (
     'ANDREY': 'ANDREY',
     'BRUNNO VAZ': 'BRUNNO VAZ',
     'BRUNNO': 'BRUNNO VAZ',
-    'BRUNO VAZ': 'BRUNNO VAZ'
+    'BRUNO VAZ': 'BRUNNO VAZ',
+    'GABRIEL VALADARES': 'GABRIEL VALADARES',
+    'VALADARES': 'GABRIEL VALADARES'
   };
 
   const normalizarNome = (nome: string): string => {

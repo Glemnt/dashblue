@@ -9,7 +9,8 @@ const MONTH_GIDS: Record<string, { gid: string; month: number; year: number }> =
   'dezembro-2025': { gid: '581766650', month: 11, year: 2025 },
   'janeiro-2026': { gid: '749539490', month: 0, year: 2026 },
   'fevereiro-2026': { gid: '2116469311', month: 1, year: 2026 },
-  'marco-2026': { gid: '426693075', month: 2, year: 2026 }
+  'marco-2026': { gid: '426693075', month: 2, year: 2026 },
+  'abril-2026': { gid: '428662425', month: 3, year: 2026 }
 };
 
 interface Colaborador {

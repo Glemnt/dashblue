@@ -10,6 +10,7 @@ import fotoVinicius from '@/assets/colaboradores/vinicius.png';
 import fotoJoaoLopes from '@/assets/colaboradores/joao-lopes.png';
 import fotoAndrey from '@/assets/colaboradores/andrey.png';
 import fotoBrunnoVaz from '@/assets/colaboradores/brunno-vaz.png';
+import fotoGabrielValadares from '@/assets/colaboradores/gabriel-valadares.png';
 
 // Mapeamento nome → foto
 const colaboradorPhotos: Record<string, string> = {
@@ -35,6 +36,9 @@ const colaboradorPhotos: Record<string, string> = {
   'Brunno Vaz': fotoBrunnoVaz,
   'BRUNNO VAZ': fotoBrunnoVaz,
   'Brunno': fotoBrunnoVaz,
+  'Gabriel Valadares': fotoGabrielValadares,
+  'GABRIEL VALADARES': fotoGabrielValadares,
+  'Valadares': fotoGabrielValadares,
 };
 
 // Função helper para obter foto

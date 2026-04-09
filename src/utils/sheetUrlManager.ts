@@ -52,6 +52,13 @@ export const AVAILABLE_MONTHS: AvailableMonth[] = [
     gid: '426693075',
     month: 2,
     year: 2026
+  },
+  {
+    key: 'abril-2026',
+    label: 'Abril 2026',
+    gid: '428662425',
+    month: 3,
+    year: 2026
   }
 ];
 
@@ -62,7 +69,8 @@ const SHEET_GIDS: Record<string, string> = {
   'dezembro-2025': '581766650',
   'janeiro-2026': '749539490',
   'fevereiro-2026': '2116469311',
-  'marco-2026': '426693075'
+  'marco-2026': '426693075',
+  'abril-2026': '428662425'
 };
 
 const BASE_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTiBWb4KkxNxK-WwtnetmSBqedeaGkJ1zyjJf1xd07v_v9LevCbDMX2rSttHCbcWz2dU3ce3JO7lDWv/pub";
@@ -85,11 +93,13 @@ export const getSheetUrlForPeriod = (dateRange: DateRange): string => {
     periodKey = 'fevereiro-2026';
   } else if (startMonth === 2 && startYear === 2026) { // março
     periodKey = 'marco-2026';
+  } else if (startMonth === 3 && startYear === 2026) { // abril
+    periodKey = 'abril-2026';
   } else {
-    periodKey = 'marco-2026'; // Fallback para março
+    periodKey = 'abril-2026'; // Fallback para abril
   }
   
-  const gid = SHEET_GIDS[periodKey] || SHEET_GIDS['marco-2026'];
+  const gid = SHEET_GIDS[periodKey] || SHEET_GIDS['abril-2026'];
   return `${BASE_URL}?gid=${gid}&single=true&output=csv`;
 };
 
