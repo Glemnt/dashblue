@@ -191,6 +191,7 @@ const normalizarNome = (nome: string): string => {
   if (nomeUpper.includes('DAVI')) return 'Davi';
   if (nomeUpper.includes('ANDREY')) return 'Andrey';
   if (nomeUpper.includes('BRUNNO')) return 'Brunno Vaz';
+  if (nomeUpper.includes('VALADARES') || nomeUpper === 'GABRIEL VALADARES') return 'Gabriel Valadares';
   
   return nome;
 };
@@ -222,6 +223,8 @@ export const calcularMetricasSquads = (data: any[], dateRange?: DateRange, month
     (dateRange && dateRange.start.getMonth() === 1 && dateRange.start.getFullYear() === 2026);
   const isMarco = monthKey === 'marco-2026' ||
     (dateRange && dateRange.start.getMonth() === 2 && dateRange.start.getFullYear() === 2026);
+  const isAbril = monthKey === 'abril-2026' ||
+    (dateRange && dateRange.start.getMonth() === 3 && dateRange.start.getFullYear() === 2026);
   
   // Configuração dinâmica dos squads por período
   interface SquadConfig {
@@ -235,7 +238,7 @@ export const calcularMetricasSquads = (data: any[], dateRange?: DateRange, month
   
   let SQUADS_LIST: SquadConfig[];
   
-  if (isMarco || isFevereiro) {
+  if (isAbril || isMarco || isFevereiro) {
     SQUADS_LIST = [
       {
         nome: 'Hot Dogs', cor: '#FF4757', emoji: '🔴',
@@ -411,7 +414,7 @@ export const calcularMetricasSquads = (data: any[], dateRange?: DateRange, month
     const taxaAssinatura = numeroContratos > 0 ? (contratos.filter(c => c.assinado).length / numeroContratos) * 100 : 0;
     const taxaPagamento = numeroContratos > 0 ? (contratos.filter(c => c.pago).length / numeroContratos) * 100 : 0;
     
-    const configMeta = getMetasPorMes(monthKey || 'fevereiro-2026');
+    const configMeta = getMetasPorMes(monthKey || 'abril-2026');
     const metaReceita = configMeta.squads.metaPorSquad;
     const metasTrafegoSquad = getMetasTrafegoAtual(monthKey);
     const metaContratos = Math.ceil(metasTrafegoSquad.fechamentos / SQUADS_LIST.length);
@@ -568,7 +571,7 @@ export const calcularMetricasSquads = (data: any[], dateRange?: DateRange, month
   const diaAtual = now.getDate();
   const diasRestantes = diasNoMes - diaAtual;
   
-  const configMetaProjecao = getMetasPorMes(monthKey || 'fevereiro-2026');
+  const configMetaProjecao = getMetasPorMes(monthKey || 'abril-2026');
   const metaReceitaProj = configMetaProjecao.squads.metaPorSquad;
   
   const calcularCenariosSquad = (
